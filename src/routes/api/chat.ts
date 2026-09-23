@@ -25,7 +25,10 @@ export const Route = createFileRoute("/api/chat")({
       POST: async ({ request }) => {
         const parsed = messageSchema.safeParse(await request.text());
         if (!parsed.success) {
-          return Response.json({ error: "Please enter a message under 20,000 characters." }, { status: 400 });
+          return Response.json(
+            { error: "Please enter a message under 20,000 characters." },
+            { status: 400 },
+          );
         }
 
         try {

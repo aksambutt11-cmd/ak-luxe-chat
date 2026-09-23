@@ -38,21 +38,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  Check,
-  Copy,
-  MessageSquarePlus,
-  RefreshCw,
-  Settings2,
-  Trash2,
-} from "lucide-react";
+import { Check, Copy, MessageSquarePlus, RefreshCw, Settings2, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type ChatMessage = {
@@ -150,9 +138,7 @@ function AKChat() {
         };
         setMessages((current) =>
           replaceId
-            ? current.map((message) =>
-                message.id === replaceId ? assistantMessage : message,
-              )
+            ? current.map((message) => (message.id === replaceId ? assistantMessage : message))
             : [...current, assistantMessage],
         );
       } catch (error) {
@@ -169,9 +155,7 @@ function AKChat() {
         };
         setMessages((current) =>
           replaceId
-            ? current.map((message) =>
-                message.id === replaceId ? failedMessage : message,
-              )
+            ? current.map((message) => (message.id === replaceId ? failedMessage : message))
             : [...current, failedMessage],
         );
       } finally {
@@ -185,10 +169,7 @@ function AKChat() {
   const handleSubmit = async ({ text }: PromptInputMessage) => {
     const prompt = text.trim();
     if (!prompt || isSending) return;
-    setMessages((current) => [
-      ...current,
-      { id: newId(), role: "user", content: prompt },
-    ]);
+    setMessages((current) => [...current, { id: newId(), role: "user", content: prompt }]);
     setInput("");
     await requestReply(prompt);
   };
