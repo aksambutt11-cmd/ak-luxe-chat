@@ -14,7 +14,7 @@ function extractReply(payload: unknown): string {
     if (typeof value === "string" && value.trim()) return value.trim();
   }
 
-  const data = record.data;
+  const data = record["data"];
   if (data && typeof data === "object") return extractReply(data);
   return "";
 }
