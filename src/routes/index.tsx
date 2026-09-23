@@ -40,7 +40,20 @@ import {
 } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { createFileRoute } from "@tanstack/react-router";
-import { Check, Copy, MessageSquarePlus, RefreshCw, Settings2, Trash2 } from "lucide-react";
+import {
+  Activity,
+  Blocks,
+  ChartCandlestick,
+  Check,
+  Copy,
+  DatabaseZap,
+  MessageSquarePlus,
+  Network,
+  RefreshCw,
+  Settings2,
+  ShieldCheck,
+  Trash2,
+} from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type ChatMessage = {
@@ -59,15 +72,15 @@ const newId = () =>
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "AK — Intelligent Conversation" },
+      { title: "AK — Crypto Intelligence" },
       {
         name: "description",
-        content: "A focused, premium AI conversation experience with AK.",
+        content: "Institutional-grade crypto research and digital asset intelligence with AK.",
       },
-      { property: "og:title", content: "AK — Intelligent Conversation" },
+      { property: "og:title", content: "AK — Crypto Intelligence" },
       {
         property: "og:description",
-        content: "A focused, premium AI conversation experience with AK.",
+        content: "Institutional-grade crypto research and digital asset intelligence with AK.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -83,6 +96,12 @@ function AKMark({ active = false }: { active?: boolean }) {
     </div>
   );
 }
+
+const intelligenceLayers = [
+  { icon: ChartCandlestick, label: "Market structure" },
+  { icon: Network, label: "On-chain signals" },
+  { icon: ShieldCheck, label: "Risk context" },
+];
 
 function HeaderButton({
   label,
@@ -189,17 +208,62 @@ function AKChat() {
   return (
     <TooltipProvider delayDuration={350}>
       <main className="ak-shell">
-        <div className="ambient-light ambient-light-one" />
-        <div className="ambient-light ambient-light-two" />
+        <div className="ledger-grid" aria-hidden="true" />
+        <div className="market-trace" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+          <i />
+          <i />
+          <i />
+          <i />
+          <i />
+          <i />
+        </div>
 
+        <aside className="intelligence-rail" aria-label="AK intelligence areas">
+          <div className="rail-brand">
+            <AKMark active={isSending} />
+            <div>
+              <strong>AK</strong>
+              <span>Crypto intelligence</span>
+            </div>
+          </div>
+          <div className="rail-section-label">Intelligence layers</div>
+          <div className="rail-layers">
+            {intelligenceLayers.map(({ icon: Icon, label }, index) => (
+              <div className={index === 0 ? "rail-layer rail-layer-active" : "rail-layer"} key={label}>
+                <Icon aria-hidden="true" />
+                <span>{label}</span>
+              </div>
+            ))}
+          </div>
+          <div className="rail-ledger" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+            <span />
+          </div>
+          <div className="rail-foot">
+            <Activity aria-hidden="true" />
+            <div>
+              <span>Analysis engine</span>
+              <strong>{isSending ? "Processing" : "Online"}</strong>
+            </div>
+          </div>
+        </aside>
+
+        <div className="ak-workspace">
         <header className="ak-header" aria-label="AK chat header">
           <div className="flex min-w-0 items-center gap-3">
-            <AKMark active={isSending} />
+            <div className="mobile-brand-mark">
+              <AKMark active={isSending} />
+            </div>
             <div className="min-w-0">
               <h1 className="text-[17px] font-semibold leading-none text-foreground">AK</h1>
               <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
                 <span className="status-dot" />
-                <span>Ready to assist</span>
+                <span>Crypto intelligence online</span>
               </div>
             </div>
           </div>
@@ -269,9 +333,29 @@ function AKChat() {
             <ConversationContent className="mx-auto min-h-full w-full max-w-3xl gap-7 px-4 pb-10 pt-8 sm:px-6 sm:pt-12">
               {messages.length === 0 ? (
                 <div className="empty-state animate-fade-in">
-                  <AKMark />
-                  <h2>How can I help?</h2>
-                  <p>Ask anything. I’ll keep the answer focused and clear.</p>
+                  <div className="empty-mark-wrap">
+                    <AKMark />
+                    <Blocks aria-hidden="true" />
+                  </div>
+                  <span className="empty-eyebrow">Digital asset intelligence</span>
+                  <h2>Clarity across crypto markets.</h2>
+                  <p>
+                    Research market structure, protocols, on-chain activity, and digital asset risk.
+                  </p>
+                  <div className="intelligence-index" aria-label="AK research coverage">
+                    <div>
+                      <ChartCandlestick aria-hidden="true" />
+                      <span>Markets</span>
+                    </div>
+                    <div>
+                      <DatabaseZap aria-hidden="true" />
+                      <span>On-chain</span>
+                    </div>
+                    <div>
+                      <ShieldCheck aria-hidden="true" />
+                      <span>Risk</span>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 messages.map((message) => (
@@ -342,7 +426,7 @@ function AKChat() {
                 disabled={isSending}
                 maxLength={20_000}
                 onChange={(event) => setInput(event.currentTarget.value)}
-                placeholder="Message AK…"
+                placeholder="Ask AK about crypto markets, protocols, or risk…"
                 ref={textareaRef}
                 value={input}
               />
@@ -359,10 +443,11 @@ function AKChat() {
               </PromptInputFooter>
             </PromptInput>
             <p className="mt-2.5 text-center text-[11px] text-muted-foreground/70">
-              AK can make mistakes. Check important information.
+              AI-generated research is informational and may contain errors.
             </p>
           </div>
         </section>
+        </div>
       </main>
     </TooltipProvider>
   );
