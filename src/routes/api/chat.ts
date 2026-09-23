@@ -6,6 +6,13 @@ const messageSchema = z.string().trim().min(1).max(20_000);
 
 function extractReply(payload: unknown): string {
   if (typeof payload === "string") return payload.trim();
+  if (Array.isArray(payload)) {
+    for (const item of payload) {
+      const reply = extractReply(item);
+      if (reply) return reply;
+    }
+    return "";
+  }
   if (!payload || typeof payload !== "object") return "";
 
   const record = payload as Record<string, unknown>;

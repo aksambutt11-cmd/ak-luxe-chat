@@ -351,7 +351,7 @@ function AKChat() {
                   Shift + Enter for a new line
                 </span>
                 <PromptInputSubmit
-                  className="send-button size-10 rounded-lg"
+                  className="send-button ml-auto size-10 rounded-lg"
                   disabled={!input.trim() || isSending}
                   status={isSending ? "submitted" : "ready"}
                   variant="send"
