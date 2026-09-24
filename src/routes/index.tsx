@@ -232,7 +232,10 @@ function AKChat() {
           <div className="rail-section-label">Intelligence layers</div>
           <div className="rail-layers">
             {intelligenceLayers.map(({ icon: Icon, label }, index) => (
-              <div className={index === 0 ? "rail-layer rail-layer-active" : "rail-layer"} key={label}>
+              <div
+                className={index === 0 ? "rail-layer rail-layer-active" : "rail-layer"}
+                key={label}
+              >
                 <Icon aria-hidden="true" />
                 <span>{label}</span>
               </div>
@@ -254,199 +257,200 @@ function AKChat() {
         </aside>
 
         <div className="ak-workspace">
-        <header className="ak-header" aria-label="AK chat header">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="mobile-brand-mark">
-              <AKMark active={isSending} />
-            </div>
-            <div className="min-w-0">
-              <h1 className="text-[17px] font-semibold leading-none text-foreground">AK</h1>
-              <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                <span className="status-dot" />
-                <span>Crypto intelligence online</span>
+          <header className="ak-header" aria-label="AK chat header">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="mobile-brand-mark">
+                <AKMark active={isSending} />
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-[17px] font-semibold leading-none text-foreground">AK</h1>
+                <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                  <span className="status-dot" />
+                  <span>Crypto intelligence online</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="flex items-center gap-2">
-            <HeaderButton label="New chat" onClick={resetChat}>
-              <MessageSquarePlus />
-            </HeaderButton>
-            <AlertDialog>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      aria-label="Clear chat"
-                      disabled={messages.length === 0}
-                      size="icon"
-                      variant="glass"
-                    >
-                      <Trash2 />
-                    </Button>
-                  </AlertDialogTrigger>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">Clear chat</TooltipContent>
-              </Tooltip>
-              <AlertDialogContent className="glass-dialog">
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Clear this conversation?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This removes every message from the current session.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={resetChat}>Clear chat</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-            <Dialog>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <DialogTrigger asChild>
-                    <Button aria-label="Settings" size="icon" variant="glass">
-                      <Settings2 />
-                    </Button>
-                  </DialogTrigger>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">Settings</TooltipContent>
-              </Tooltip>
-              <DialogContent className="glass-dialog">
-                <DialogHeader>
-                  <DialogTitle>Session settings</DialogTitle>
-                  <DialogDescription>
-                    Messages stay in this session only and are not saved after refresh.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="settings-row">
-                  <span>Conversation</span>
-                  <span className="text-muted-foreground">Temporary</span>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </header>
+            <div className="flex items-center gap-2">
+              <HeaderButton label="New chat" onClick={resetChat}>
+                <MessageSquarePlus />
+              </HeaderButton>
+              <AlertDialog>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        aria-label="Clear chat"
+                        disabled={messages.length === 0}
+                        size="icon"
+                        variant="glass"
+                      >
+                        <Trash2 />
+                      </Button>
+                    </AlertDialogTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">Clear chat</TooltipContent>
+                </Tooltip>
+                <AlertDialogContent className="glass-dialog">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Clear this conversation?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This removes every message from the current session.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={resetChat}>Clear chat</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+              <Dialog>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DialogTrigger asChild>
+                      <Button aria-label="Settings" size="icon" variant="glass">
+                        <Settings2 />
+                      </Button>
+                    </DialogTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">Settings</TooltipContent>
+                </Tooltip>
+                <DialogContent className="glass-dialog">
+                  <DialogHeader>
+                    <DialogTitle>Session settings</DialogTitle>
+                    <DialogDescription>
+                      Messages stay in this session only and are not saved after refresh.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="settings-row">
+                    <span>Conversation</span>
+                    <span className="text-muted-foreground">Temporary</span>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </header>
 
-        <section className="chat-stage" aria-label="Conversation with AK">
-          <Conversation className="ak-conversation">
-            <ConversationContent className="mx-auto min-h-full w-full max-w-3xl gap-7 px-4 pb-10 pt-8 sm:px-6 sm:pt-12">
-              {messages.length === 0 ? (
-                <div className="empty-state animate-fade-in">
-                  <div className="empty-mark-wrap">
-                    <AKMark />
-                    <Blocks aria-hidden="true" />
-                  </div>
-                  <span className="empty-eyebrow">Digital asset intelligence</span>
-                  <h2>Clarity across crypto markets.</h2>
-                  <p>
-                    Research market structure, protocols, on-chain activity, and digital asset risk.
-                  </p>
-                  <div className="intelligence-index" aria-label="AK research coverage">
-                    <div>
-                      <ChartCandlestick aria-hidden="true" />
-                      <span>Markets</span>
+          <section className="chat-stage" aria-label="Conversation with AK">
+            <Conversation className="ak-conversation">
+              <ConversationContent className="mx-auto min-h-full w-full max-w-3xl gap-7 px-4 pb-10 pt-8 sm:px-6 sm:pt-12">
+                {messages.length === 0 ? (
+                  <div className="empty-state animate-fade-in">
+                    <div className="empty-mark-wrap">
+                      <AKMark />
+                      <Blocks aria-hidden="true" />
                     </div>
-                    <div>
-                      <DatabaseZap aria-hidden="true" />
-                      <span>On-chain</span>
-                    </div>
-                    <div>
-                      <ShieldCheck aria-hidden="true" />
-                      <span>Risk</span>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                messages.map((message) => (
-                  <Message
-                    className="animate-message-in max-w-full"
-                    from={message.role}
-                    key={message.id}
-                  >
-                    {message.role === "assistant" ? (
-                      <div className="flex items-start gap-3 sm:gap-4">
-                        <AKMark active={isSending} />
-                        <div className="min-w-0 flex-1">
-                          <MessageContent
-                            className={`assistant-message ${message.error ? "assistant-error" : ""}`}
-                          >
-                            <MessageResponse>{message.content}</MessageResponse>
-                          </MessageContent>
-                          <MessageActions className="mt-2 opacity-100 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
-                            <MessageAction
-                              label="Copy response"
-                              onClick={() => void copyMessage(message)}
-                              tooltip={copiedId === message.id ? "Copied" : "Copy"}
-                            >
-                              {copiedId === message.id ? <Check /> : <Copy />}
-                            </MessageAction>
-                            <MessageAction
-                              disabled={isSending || !message.prompt}
-                              label="Regenerate response"
-                              onClick={() => {
-                                if (message.prompt) void requestReply(message.prompt, message.id);
-                              }}
-                              tooltip="Regenerate"
-                            >
-                              <RefreshCw />
-                            </MessageAction>
-                          </MessageActions>
-                        </div>
+                    <span className="empty-eyebrow">Digital asset intelligence</span>
+                    <h2>Clarity across crypto markets.</h2>
+                    <p>
+                      Research market structure, protocols, on-chain activity, and digital asset
+                      risk.
+                    </p>
+                    <div className="intelligence-index" aria-label="AK research coverage">
+                      <div>
+                        <ChartCandlestick aria-hidden="true" />
+                        <span>Markets</span>
                       </div>
-                    ) : (
-                      <MessageContent className="user-message">
-                        <p className="whitespace-pre-wrap leading-7">{message.content}</p>
-                      </MessageContent>
-                    )}
-                  </Message>
-                ))
-              )}
-
-              {isSending && (
-                <Message className="animate-message-in max-w-full" from="assistant">
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <AKMark active />
-                    <MessageContent className="assistant-message py-3.5">
-                      <Shimmer className="text-sm">AK is thinking…</Shimmer>
-                    </MessageContent>
+                      <div>
+                        <DatabaseZap aria-hidden="true" />
+                        <span>On-chain</span>
+                      </div>
+                      <div>
+                        <ShieldCheck aria-hidden="true" />
+                        <span>Risk</span>
+                      </div>
+                    </div>
                   </div>
-                </Message>
-              )}
-            </ConversationContent>
-            <ConversationScrollButton className="scroll-button" />
-          </Conversation>
+                ) : (
+                  messages.map((message) => (
+                    <Message
+                      className="animate-message-in max-w-full"
+                      from={message.role}
+                      key={message.id}
+                    >
+                      {message.role === "assistant" ? (
+                        <div className="flex items-start gap-3 sm:gap-4">
+                          <AKMark active={isSending} />
+                          <div className="min-w-0 flex-1">
+                            <MessageContent
+                              className={`assistant-message ${message.error ? "assistant-error" : ""}`}
+                            >
+                              <MessageResponse>{message.content}</MessageResponse>
+                            </MessageContent>
+                            <MessageActions className="mt-2 opacity-100 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
+                              <MessageAction
+                                label="Copy response"
+                                onClick={() => void copyMessage(message)}
+                                tooltip={copiedId === message.id ? "Copied" : "Copy"}
+                              >
+                                {copiedId === message.id ? <Check /> : <Copy />}
+                              </MessageAction>
+                              <MessageAction
+                                disabled={isSending || !message.prompt}
+                                label="Regenerate response"
+                                onClick={() => {
+                                  if (message.prompt) void requestReply(message.prompt, message.id);
+                                }}
+                                tooltip="Regenerate"
+                              >
+                                <RefreshCw />
+                              </MessageAction>
+                            </MessageActions>
+                          </div>
+                        </div>
+                      ) : (
+                        <MessageContent className="user-message">
+                          <p className="whitespace-pre-wrap leading-7">{message.content}</p>
+                        </MessageContent>
+                      )}
+                    </Message>
+                  ))
+                )}
 
-          <div className="composer-wrap">
-            <PromptInput className="ak-composer" onSubmit={handleSubmit}>
-              <PromptInputTextarea
-                aria-label="Message AK"
-                autoFocus
-                className="min-h-20 px-4 pb-1 pt-4 text-[15px] leading-6 placeholder:text-muted-foreground/80 sm:min-h-24 sm:px-5 sm:pt-5"
-                disabled={isSending}
-                maxLength={20_000}
-                onChange={(event) => setInput(event.currentTarget.value)}
-                placeholder="Ask AK about crypto markets, protocols, or risk…"
-                ref={textareaRef}
-                value={input}
-              />
-              <PromptInputFooter className="px-3 pb-3 sm:px-4 sm:pb-4">
-                <span className="hidden text-[11px] text-muted-foreground sm:inline">
-                  Shift + Enter for a new line
-                </span>
-                <PromptInputSubmit
-                  className="send-button ml-auto size-10 rounded-lg"
-                  disabled={!input.trim() || isSending}
-                  status={isSending ? "submitted" : "ready"}
-                  variant="send"
+                {isSending && (
+                  <Message className="animate-message-in max-w-full" from="assistant">
+                    <div className="flex items-center gap-3 sm:gap-4">
+                      <AKMark active />
+                      <MessageContent className="assistant-message py-3.5">
+                        <Shimmer className="text-sm">AK is thinking…</Shimmer>
+                      </MessageContent>
+                    </div>
+                  </Message>
+                )}
+              </ConversationContent>
+              <ConversationScrollButton className="scroll-button" />
+            </Conversation>
+
+            <div className="composer-wrap">
+              <PromptInput className="ak-composer" onSubmit={handleSubmit}>
+                <PromptInputTextarea
+                  aria-label="Message AK"
+                  autoFocus
+                  className="min-h-20 px-4 pb-1 pt-4 text-[15px] leading-6 placeholder:text-muted-foreground/80 sm:min-h-24 sm:px-5 sm:pt-5"
+                  disabled={isSending}
+                  maxLength={20_000}
+                  onChange={(event) => setInput(event.currentTarget.value)}
+                  placeholder="Ask AK about crypto markets, protocols, or risk…"
+                  ref={textareaRef}
+                  value={input}
                 />
-              </PromptInputFooter>
-            </PromptInput>
-            <p className="mt-2.5 text-center text-[11px] text-muted-foreground/70">
-              AI-generated research is informational and may contain errors.
-            </p>
-          </div>
-        </section>
+                <PromptInputFooter className="px-3 pb-3 sm:px-4 sm:pb-4">
+                  <span className="hidden text-[11px] text-muted-foreground sm:inline">
+                    Shift + Enter for a new line
+                  </span>
+                  <PromptInputSubmit
+                    className="send-button ml-auto size-10 rounded-lg"
+                    disabled={!input.trim() || isSending}
+                    status={isSending ? "submitted" : "ready"}
+                    variant="send"
+                  />
+                </PromptInputFooter>
+              </PromptInput>
+              <p className="mt-2.5 text-center text-[11px] text-muted-foreground/70">
+                AI-generated research is informational and may contain errors.
+              </p>
+            </div>
+          </section>
         </div>
       </main>
     </TooltipProvider>

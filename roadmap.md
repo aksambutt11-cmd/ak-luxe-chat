@@ -4,5 +4,5 @@
 - [x] Connect raw message delivery to the supplied webhook
 - [x] Add chat controls, Markdown rendering, and error states
 - [x] Validate desktop/mobile layout and core interactions
-- [ ] Upgrade AK with an institutional crypto intelligence identity
-- [ ] Validate the redesigned desktop and mobile experience
+- [x] Upgrade AK with an institutional crypto intelligence identity
+- [x] Validate the redesigned desktop and mobile experience
