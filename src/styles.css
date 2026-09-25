@@ -656,12 +656,64 @@
   width: min(100%, 48rem);
   padding: 0 1rem max(1rem, env(safe-area-inset-bottom));
 }
+@property --ak-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes ak-border-spin {
+  to {
+    --ak-angle: 360deg;
+  }
+}
+.ak-composer {
+  position: relative;
+  border-radius: 0.9rem;
+}
+.ak-composer::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: 0;
+  border-radius: 0.95rem;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--ak-angle),
+    transparent 0deg,
+    oklch(0.72 0.14 220 / 0.55) 40deg,
+    oklch(0.64 0.21 260 / 0.7) 80deg,
+    oklch(0.6 0.2 290 / 0.5) 120deg,
+    transparent 170deg,
+    transparent 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  opacity: 0.55;
+  pointer-events: none;
+  animation: ak-border-spin 9s linear infinite;
+  transition: opacity 240ms ease;
+}
+.ak-composer:focus-within::before {
+  opacity: 1;
+  animation-duration: 5s;
+}
 .ak-composer > [data-slot="input-group"] {
+  position: relative;
+  z-index: 1;
   border: 1px solid var(--glass-border);
   border-radius: 0.85rem;
-  background: color-mix(in oklab, var(--glass) 94%, transparent);
+  background:
+    linear-gradient(180deg, oklch(1 0 0 / 0.05), transparent 40%),
+    color-mix(in oklab, var(--glass) 94%, transparent);
   box-shadow:
     var(--shadow-glass),
+    inset 0 1px 0 oklch(1 0 0 / 0.08),
     0 0 38px oklch(0.58 0.18 272 / 0.08);
   backdrop-filter: blur(28px) saturate(150%);
   transition:
@@ -670,21 +722,155 @@
     background 180ms ease;
 }
 .ak-composer > [data-slot="input-group"]:focus-within {
-  border-color: color-mix(in oklab, var(--brand-blue) 54%, var(--glass-border));
-  background: var(--glass-hover);
+  border-color: color-mix(in oklab, var(--brand-blue) 40%, var(--glass-border));
   box-shadow:
     var(--shadow-glass),
-    0 0 34px oklch(0.61 0.2 265 / 0.17);
+    inset 0 1px 0 oklch(1 0 0 / 0.1),
+    0 0 44px oklch(0.61 0.2 265 / 0.22);
 }
-.send-button {
-  flex: 0 0 auto;
+
+/* Apple-style glass controls */
+.glass-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid oklch(0.85 0.05 255 / 0.14);
+  background:
+    linear-gradient(180deg, oklch(1 0 0 / 0.1), oklch(1 0 0 / 0.02) 55%),
+    linear-gradient(135deg, oklch(0.62 0.18 255 / 0.1), oklch(0.58 0.18 290 / 0.08));
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.16),
+    inset 0 -1px 0 oklch(0 0 0 / 0.25),
+    0 6px 18px -8px oklch(0 0 0 / 0.6);
+  backdrop-filter: blur(18px) saturate(160%);
+  transition:
+    transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 220ms ease,
+    border-color 220ms ease,
+    background 220ms ease,
+    filter 220ms ease;
+}
+.glass-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(115deg, transparent 30%, oklch(1 0 0 / 0.14) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 600ms ease;
+  pointer-events: none;
+}
+.glass-btn:hover:not(:disabled) {
+  transform: scale(1.04);
+  border-color: oklch(0.75 0.14 245 / 0.4);
+  background:
+    linear-gradient(180deg, oklch(1 0 0 / 0.14), oklch(1 0 0 / 0.03) 55%),
+    linear-gradient(135deg, oklch(0.62 0.18 255 / 0.16), oklch(0.58 0.18 290 / 0.12));
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.22),
+    inset 0 -1px 0 oklch(0 0 0 / 0.25),
+    0 0 20px oklch(0.62 0.19 260 / 0.25),
+    0 8px 22px -8px oklch(0 0 0 / 0.6);
+}
+.glass-btn:hover:not(:disabled)::after {
+  transform: translateX(120%);
+}
+.glass-btn:active:not(:disabled) {
+  transform: scale(0.95);
+  transition-duration: 90ms;
+}
+.glass-btn-send {
+  border-color: oklch(0.8 0.12 250 / 0.35);
+  background:
+    linear-gradient(180deg, oklch(1 0 0 / 0.22), oklch(1 0 0 / 0) 55%),
+    var(--brand-gradient);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.35),
+    0 0 18px oklch(0.62 0.2 265 / 0.3),
+    0 6px 16px -6px oklch(0 0 0 / 0.6);
+}
+.glass-btn-send:hover:not(:disabled) {
+  background:
+    linear-gradient(180deg, oklch(1 0 0 / 0.28), oklch(1 0 0 / 0) 55%),
+    var(--brand-gradient);
+  filter: brightness(1.08);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.4),
+    0 0 28px oklch(0.64 0.2 262 / 0.45);
+}
+.glass-btn:disabled {
+  opacity: 0.45;
+}
+/* Copy / regenerate action buttons */
+.assistant-actions button {
+  border: 1px solid oklch(0.85 0.05 255 / 0.1);
+  background: linear-gradient(180deg, oklch(1 0 0 / 0.07), oklch(1 0 0 / 0.02));
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.1);
+  backdrop-filter: blur(14px);
+  transition:
+    transform 160ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+.assistant-actions button:hover:not(:disabled) {
+  transform: scale(1.06);
+  border-color: oklch(0.75 0.14 245 / 0.35);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.16),
+    0 0 14px oklch(0.62 0.19 260 / 0.22);
+}
+.assistant-actions button:active:not(:disabled) {
+  transform: scale(0.94);
 }
 .scroll-button {
   bottom: 1rem;
-  border-color: var(--glass-border);
-  background: var(--glass);
-  box-shadow: var(--shadow-glass);
-  backdrop-filter: blur(16px);
+}
+.crypto-ticker {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.crypto-ticker span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  background: linear-gradient(180deg, oklch(1 0 0 / 0.06), oklch(1 0 0 / 0.01));
+  padding: 0.3rem 0.7rem;
+  font-size: 11px;
+  color: var(--muted-foreground);
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.08);
+}
+.crypto-ticker svg {
+  width: 13px;
+  height: 13px;
+  color: oklch(0.75 0.12 235);
+}
+/* Premium glass scrollbar */
+.ak-conversation > [data-stick-to-bottom-viewport]::-webkit-scrollbar {
+  width: 8px;
+}
+.ak-conversation > [data-stick-to-bottom-viewport]::-webkit-scrollbar-track {
+  background: transparent;
+}
+.ak-conversation > [data-stick-to-bottom-viewport]::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: linear-gradient(180deg, oklch(0.64 0.18 255 / 0.35), oklch(0.58 0.18 290 / 0.3))
+    padding-box;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ak-composer::before {
+    animation: none;
+  }
+  .glass-btn,
+  .glass-btn::after {
+    transition: none;
+  }
 }
 .glass-dialog {
   border-color: var(--glass-border);
