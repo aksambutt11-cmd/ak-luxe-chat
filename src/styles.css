@@ -953,7 +953,7 @@
   pointer-events: none;
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: -3;
   opacity: 0.9;
 }
 .ak-shell::after {
@@ -961,16 +961,12 @@
   pointer-events: none;
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: -1;
   background: radial-gradient(
     420px circle at var(--mx, -999px) var(--my, -999px),
     color-mix(in oklab, var(--brand-blue) 9%, transparent),
     transparent 70%
   );
-}
-.ak-shell > :not(.network-field) {
-  position: relative;
-  z-index: 1;
 }
 .ak-chip {
   position: relative;
