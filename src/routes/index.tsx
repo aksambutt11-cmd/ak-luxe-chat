@@ -58,6 +58,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { NetworkField } from "@/components/network-field";
 
 type ChatMessage = {
   id: string;
@@ -101,10 +102,32 @@ function AKMark({ active = false }: { active?: boolean }) {
 }
 
 const intelligenceLayers = [
-  { icon: ChartCandlestick, label: "Market structure" },
-  { icon: Network, label: "On-chain signals" },
-  { icon: ShieldCheck, label: "Risk context" },
+  {
+    icon: ChartCandlestick,
+    label: "Market structure",
+    prompt: "Give me an overview of the current crypto market structure.",
+  },
+  {
+    icon: Network,
+    label: "On-chain signals",
+    prompt: "What are the most important on-chain signals to watch right now?",
+  },
+  {
+    icon: ShieldCheck,
+    label: "Risk context",
+    prompt: "Summarize the current risk context for crypto investors.",
+  },
 ];
+
+const quickPrompts = {
+  markets: "What is the current state of the crypto markets?",
+  onchain: "Walk me through an on-chain analysis of the crypto market.",
+  risk: "What are the key risks in crypto right now?",
+  btc: "What is the current BTC market context?",
+  eth: "What is the current ETH market context?",
+  defi: "What is happening in DeFi right now?",
+  tokenomics: "Explain the key things to evaluate in a token's tokenomics.",
+};
 
 function HeaderButton({
   label,
@@ -123,12 +146,84 @@ function HeaderButton({
   );
 }
 
+function AuthDialog({ mode }: { mode: "signin" | "signup" }) {
+  const [open, setOpen] = useState(false);
+  const [done, setDone] = useState(false);
+  const signin = mode === "signin";
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        setOpen(v);
+        if (!v) setDone(false);
+      }}
+    >
+      <DialogTrigger asChild>
+        <Button
+          className={signin ? "auth-signin" : ""}
+          size="sm"
+          variant={signin ? "glass" : "send"}
+        >
+          {signin ? "Sign in" : "Get started"}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="glass-dialog sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{signin ? "Welcome back to AK" : "Create your AK account"}</DialogTitle>
+          <DialogDescription>
+            {signin
+              ? "Sign in to continue your crypto research."
+              : "Get started with institutional-grade crypto intelligence."}
+          </DialogDescription>
+        </DialogHeader>
+        {done ? (
+          <p className="text-sm text-muted-foreground">
+            Accounts are coming soon. You can keep chatting with AK in the meantime.
+          </p>
+        ) : (
+          <form
+            className="grid gap-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              setDone(true);
+            }}
+          >
+            {!signin && (
+              <label className="auth-field">
+                Name
+                <input autoComplete="name" required />
+              </label>
+            )}
+            <label className="auth-field">
+              Email
+              <input autoComplete="email" required type="email" />
+            </label>
+            <label className="auth-field">
+              Password
+              <input
+                autoComplete={signin ? "current-password" : "new-password"}
+                minLength={8}
+                required
+                type="password"
+              />
+            </label>
+            <Button className="mt-2 h-10" type="submit" variant="send">
+              {signin ? "Sign in" : "Create account"}
+            </Button>
+          </form>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function AKChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const [pop, setPop] = useState<{ x: number; y: number; text: string; key: number } | null>(null);
 
   const focusComposer = useCallback(() => {
     requestAnimationFrame(() => textareaRef.current?.focus());
@@ -188,12 +283,26 @@ function AKChat() {
     [focusComposer],
   );
 
-  const handleSubmit = async ({ text }: PromptInputMessage) => {
-    const prompt = text.trim();
+  const sendPrompt = async (raw: string) => {
+    const prompt = raw.trim();
     if (!prompt || isSending) return;
     setMessages((current) => [...current, { id: newId(), role: "user", content: prompt }]);
     setInput("");
     await requestReply(prompt);
+  };
+
+  const handleSubmit = async ({ text }: PromptInputMessage) => sendPrompt(text);
+
+  const fireShortcut = (event: React.MouseEvent<HTMLButtonElement>, prompt: string) => {
+    const el = event.currentTarget;
+    el.classList.remove("ak-chip-fired");
+    void el.offsetWidth;
+    el.classList.add("ak-chip-fired");
+    const r = el.getBoundingClientRect();
+    const key = Date.now();
+    setPop({ x: r.left + r.width / 2, y: r.top, text: prompt, key });
+    window.setTimeout(() => setPop((p) => (p?.key === key ? null : p)), 1800);
+    void sendPrompt(prompt);
   };
 
   const resetChat = () => {
@@ -211,7 +320,14 @@ function AKChat() {
   return (
     <TooltipProvider delayDuration={350}>
       <main className="ak-shell">
+        <NetworkField />
         <div className="ledger-grid" aria-hidden="true" />
+        {pop && (
+          <div className="ak-pop" key={pop.key} role="status" style={{ left: pop.x, top: pop.y }}>
+            <small>Sent to AK</small>
+            {pop.text}
+          </div>
+        )}
         <div className="market-trace" aria-hidden="true">
           <i />
           <i />
@@ -234,14 +350,17 @@ function AKChat() {
           </div>
           <div className="rail-section-label">Intelligence layers</div>
           <div className="rail-layers">
-            {intelligenceLayers.map(({ icon: Icon, label }, index) => (
-              <div
-                className={index === 0 ? "rail-layer rail-layer-active" : "rail-layer"}
+            {intelligenceLayers.map(({ icon: Icon, label, prompt }, index) => (
+              <button
+                className={`ak-chip ${index === 0 ? "rail-layer rail-layer-active" : "rail-layer"}`}
+                disabled={isSending}
                 key={label}
+                onClick={(e) => fireShortcut(e, prompt)}
+                type="button"
               >
                 <Icon aria-hidden="true" />
                 <span>{label}</span>
-              </div>
+              </button>
             ))}
           </div>
           <div className="rail-ledger" aria-hidden="true">
@@ -275,6 +394,10 @@ function AKChat() {
             </div>
 
             <div className="flex items-center gap-2">
+              <div className="auth-actions">
+                <AuthDialog mode="signin" />
+                <AuthDialog mode="signup" />
+              </div>
               <HeaderButton label="New chat" onClick={resetChat}>
                 <MessageSquarePlus />
               </HeaderButton>
@@ -350,36 +473,76 @@ function AKChat() {
                       risk.
                     </p>
                     <div className="intelligence-index" aria-label="AK research coverage">
-                      <div>
+                      <button
+                        className="ak-chip"
+                        disabled={isSending}
+                        onClick={(e) => fireShortcut(e, quickPrompts.markets)}
+                        type="button"
+                      >
                         <ChartCandlestick aria-hidden="true" />
                         <span>Markets</span>
-                      </div>
-                      <div>
+                      </button>
+                      <button
+                        className="ak-chip"
+                        disabled={isSending}
+                        onClick={(e) => fireShortcut(e, quickPrompts.onchain)}
+                        type="button"
+                      >
                         <DatabaseZap aria-hidden="true" />
                         <span>On-chain</span>
-                      </div>
-                      <div>
+                      </button>
+                      <button
+                        className="ak-chip"
+                        disabled={isSending}
+                        onClick={(e) => fireShortcut(e, quickPrompts.risk)}
+                        type="button"
+                      >
                         <ShieldCheck aria-hidden="true" />
                         <span>Risk</span>
-                      </div>
+                      </button>
                     </div>
-                    <div className="crypto-ticker" aria-hidden="true">
-                      <span>
+                    <div className="crypto-ticker" aria-label="Crypto shortcuts">
+                      <button
+                        className="ak-chip"
+                        disabled={isSending}
+                        onClick={(e) => fireShortcut(e, quickPrompts.btc)}
+                        type="button"
+                      >
                         <Bitcoin /> BTC
-                      </span>
-                      <span>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                      </button>
+                      <button
+                        className="ak-chip"
+                        disabled={isSending}
+                        onClick={(e) => fireShortcut(e, quickPrompts.eth)}
+                        type="button"
+                      >
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.6"
+                        >
                           <path d="M12 2 5 12l7 4 7-4-7-10Z" />
                           <path d="m5 13.5 7 8.5 7-8.5-7 4-7-4Z" />
                         </svg>
                         ETH
-                      </span>
-                      <span>
+                      </button>
+                      <button
+                        className="ak-chip"
+                        disabled={isSending}
+                        onClick={(e) => fireShortcut(e, quickPrompts.defi)}
+                        type="button"
+                      >
                         <Layers /> DeFi
-                      </span>
-                      <span>
+                      </button>
+                      <button
+                        className="ak-chip"
+                        disabled={isSending}
+                        onClick={(e) => fireShortcut(e, quickPrompts.tokenomics)}
+                        type="button"
+                      >
                         <Coins /> Tokenomics
-                      </span>
+                      </button>
                     </div>
                   </div>
                 ) : (

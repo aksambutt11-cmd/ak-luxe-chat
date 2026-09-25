@@ -1096,3 +1096,12 @@
     animation: none;
   }
 }
+:where(button.ak-chip) {
+  appearance: none;
+  background: transparent;
+  border: 0;
+}
+button.rail-layer {
+  width: 100%;
+  text-align: left;
+}
