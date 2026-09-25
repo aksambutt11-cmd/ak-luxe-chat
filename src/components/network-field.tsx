@@ -94,15 +94,19 @@ export function NetworkField() {
         return { x, y, z: p.z };
       });
       for (let i = 0; i < pts.length; i++) {
+        const a = pts[i];
+        if (!a) continue;
         for (let j = i + 1; j < pts.length; j++) {
-          const dx = pts[i].x - pts[j].x;
-          const dy = pts[i].y - pts[j].y;
+          const b = pts[j];
+          if (!b) continue;
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
           const d = dx * dx + dy * dy;
           if (d < 14000) {
             ctx.strokeStyle = `rgba(129,140,248,${0.08 * (1 - d / 14000)})`;
             ctx.beginPath();
-            ctx.moveTo(pts[i].x, pts[i].y);
-            ctx.lineTo(pts[j].x, pts[j].y);
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
             ctx.stroke();
           }
         }
