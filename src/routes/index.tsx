@@ -377,7 +377,7 @@ function AKChat() {
                             >
                               <MessageResponse>{message.content}</MessageResponse>
                             </MessageContent>
-                            <MessageActions className="mt-2 opacity-100 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
+                            <MessageActions className="assistant-actions mt-2 opacity-100 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
                               <MessageAction
                                 label="Copy response"
                                 onClick={() => void copyMessage(message)}
