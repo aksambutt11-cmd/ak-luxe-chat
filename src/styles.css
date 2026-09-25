@@ -604,7 +604,7 @@
   box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.035);
 }
 
-.intelligence-index > div {
+.intelligence-index > :is(div, button) {
   display: flex;
   min-width: 0;
   align-items: center;
@@ -615,7 +615,7 @@
   font-size: 0.7rem;
 }
 
-.intelligence-index > div + div {
+.intelligence-index > :is(div, button) + div {
   border-left: 1px solid var(--glass-border);
 }
 .intelligence-index svg {
@@ -833,7 +833,7 @@
   justify-content: center;
   gap: 0.5rem;
 }
-.crypto-ticker span {
+.crypto-ticker :is(span, button) {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -925,7 +925,7 @@
   .empty-state h2 {
     font-size: 1.65rem;
   }
-  .intelligence-index > div {
+  .intelligence-index > :is(div, button) {
     flex-direction: column;
     gap: 0.3rem;
   }
@@ -946,4 +946,161 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ---- Interactive layer: network field, chips, click feedback, auth ---- */
+.network-field {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  opacity: 0.9;
+}
+.ak-shell::after {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(
+    420px circle at var(--mx, -999px) var(--my, -999px),
+    color-mix(in oklab, var(--brand-blue) 9%, transparent),
+    transparent 70%
+  );
+}
+.ak-chip {
+  position: relative;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  isolation: isolate;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.25s ease;
+}
+.ak-chip:hover {
+  transform: translateY(-1px) scale(1.02);
+  background: color-mix(in oklab, var(--brand-blue) 12%, transparent);
+  border-color: color-mix(in oklab, var(--brand-blue) 45%, transparent);
+  box-shadow: 0 0 18px -6px color-mix(in oklab, var(--brand-blue) 60%, transparent);
+}
+.ak-chip:active {
+  transform: scale(0.97);
+}
+.ak-chip:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.ak-chip:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.ak-chip-fired {
+  animation: chip-glow 0.7s ease-out;
+}
+@keyframes chip-glow {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--brand-cyan, var(--brand-blue)) 70%, transparent);
+    border-color: color-mix(in oklab, var(--brand-blue) 90%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 12px transparent;
+  }
+}
+.ak-pop {
+  position: fixed;
+  z-index: 60;
+  transform: translate(-50%, calc(-100% - 12px));
+  max-width: 18rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in oklab, var(--brand-blue) 45%, transparent);
+  background: color-mix(in oklab, var(--background) 70%, transparent);
+  backdrop-filter: blur(18px) saturate(160%);
+  box-shadow:
+    0 12px 40px -12px color-mix(in oklab, var(--brand-indigo) 60%, transparent),
+    inset 0 1px 0 var(--glass-highlight);
+  font-size: 12px;
+  color: var(--foreground);
+  pointer-events: none;
+  animation: pop-in 0.22s ease-out;
+}
+.ak-pop small {
+  display: block;
+  color: var(--muted-foreground);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-100% - 4px)) scale(0.94);
+  }
+}
+.ak-composer {
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease,
+    background 0.3s ease;
+}
+.ak-composer:focus-within {
+  border-color: color-mix(in oklab, var(--brand-blue) 55%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--brand-blue) 25%, transparent),
+    0 0 32px -8px color-mix(in oklab, var(--brand-violet) 55%, transparent),
+    var(--shadow-glass);
+}
+.auth-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.auth-field {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+.auth-field input {
+  height: 2.6rem;
+  padding: 0 0.85rem;
+  border-radius: 0.6rem;
+  border: 1px solid var(--glass-border);
+  background: color-mix(in oklab, var(--foreground) 4%, transparent);
+  color: var(--foreground);
+  font-size: 14px;
+  outline: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.auth-field input:focus {
+  border-color: color-mix(in oklab, var(--brand-blue) 60%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand-blue) 18%, transparent);
+}
+@media (max-width: 640px) {
+  .auth-actions .auth-signin {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ak-chip-fired,
+  .ak-pop {
+    animation: none;
+  }
+}
+:where(button.ak-chip) {
+  appearance: none;
+  background: transparent;
+  border: 0;
+}
+button.rail-layer {
+  width: 100%;
+  text-align: left;
+}
+.ak-shell {
+  overflow: clip;
 }
