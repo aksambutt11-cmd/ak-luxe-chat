@@ -1101,3 +1101,6 @@ button.rail-layer {
   width: 100%;
   text-align: left;
 }
+.ak-shell {
+  overflow: clip;
+}
