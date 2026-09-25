@@ -42,8 +42,11 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Activity,
+  Bitcoin,
   Blocks,
   ChartCandlestick,
+  Coins,
+  Layers,
   Check,
   Copy,
   DatabaseZap,
@@ -359,6 +362,24 @@ function AKChat() {
                         <ShieldCheck aria-hidden="true" />
                         <span>Risk</span>
                       </div>
+                    </div>
+                    <div className="crypto-ticker" aria-hidden="true">
+                      <span>
+                        <Bitcoin /> BTC
+                      </span>
+                      <span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                          <path d="M12 2 5 12l7 4 7-4-7-10Z" />
+                          <path d="m5 13.5 7 8.5 7-8.5-7 4-7-4Z" />
+                        </svg>
+                        ETH
+                      </span>
+                      <span>
+                        <Layers /> DeFi
+                      </span>
+                      <span>
+                        <Coins /> Tokenomics
+                      </span>
                     </div>
                   </div>
                 ) : (
