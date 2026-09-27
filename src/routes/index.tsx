@@ -59,7 +59,7 @@ import {
   Sparkles,
   ChevronDown,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { NetworkField } from "@/components/network-field";
 import { BitcoinField } from "@/components/bitcoin-field";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -98,11 +98,12 @@ export const Route = createFileRoute("/")({
 });
 
 function AKMark({ active = false }: { active?: boolean }) {
+  const gid = `ak-stroke-${useId().replace(/:/g, "")}`;
   return (
     <div className={`ak-mark ${active ? "ak-mark-active" : ""}`} aria-hidden="true">
       <svg viewBox="0 0 40 40" className="ak-mark-svg">
         <defs>
-          <linearGradient id="ak-stroke" x1="0" y1="0" x2="1" y2="1">
+          <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor="#E0F2FE" />
             <stop offset="45%" stopColor="#93C5FD" />
             <stop offset="100%" stopColor="#C4B5FD" />
@@ -112,18 +113,18 @@ function AKMark({ active = false }: { active?: boolean }) {
         <path
           d="M7 30 L15 10 L21 26"
           fill="none"
-          stroke="url(#ak-stroke)"
+          stroke={`url(#${gid})`}
           strokeWidth="2.6"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
-        <path d="M11 22 H18" stroke="url(#ak-stroke)" strokeWidth="2" strokeLinecap="round" />
+        <path d="M11 22 H18" stroke={`url(#${gid})`} strokeWidth="2" strokeLinecap="round" />
         {/* K: stem + two diverging branches */}
-        <path d="M24 10 V30" stroke="url(#ak-stroke)" strokeWidth="2.6" strokeLinecap="round" />
+        <path d="M24 10 V30" stroke={`url(#${gid})`} strokeWidth="2.6" strokeLinecap="round" />
         <path
           d="M33 10 L24.5 20 L33 30"
           fill="none"
-          stroke="url(#ak-stroke)"
+          stroke={`url(#${gid})`}
           strokeWidth="2.6"
           strokeLinecap="round"
           strokeLinejoin="round"
