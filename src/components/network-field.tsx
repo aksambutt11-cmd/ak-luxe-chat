@@ -16,12 +16,17 @@ export function NetworkField() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const mouse = { x: -9999, y: -9999, tx: -9999, ty: -9999 };
     const palette = ["96,165,250", "56,189,248", "129,140,248", "167,139,250"];
-    const particles = Array.from({ length: 46 }, () => ({
+    const particles = Array.from({ length: 70 }, () => ({
       x: Math.random(),
       y: Math.random(),
       z: 0.3 + Math.random() * 0.7,
       vx: (Math.random() - 0.5) * 0.00012,
       vy: (Math.random() - 0.5) * 0.00012,
+      ox: 0,
+      oy: 0,
+      sx: 0,
+      sy: 0,
+      g: 0,
     }));
 
     const resize = () => {
@@ -76,22 +81,34 @@ export function NetworkField() {
       }
       ctx.shadowBlur = 0;
 
-      // particles / nodes
+      // particles / nodes — spring physics, expand + drift away near cursor
       const pts = particles.map((p) => {
         if (!reduce) {
           p.x = (p.x + p.vx + 1) % 1;
           p.y = (p.y + p.vy + 1) % 1;
         }
-        let x = p.x * w + px * 50 * p.z;
-        let y = p.y * h + py * 50 * p.z;
-        const dx = x - mouse.x;
-        const dy = y - mouse.y;
+        const bx = p.x * w + px * 60 * p.z;
+        const by = p.y * h + py * 60 * p.z;
+        const dx = bx + p.ox - mouse.x;
+        const dy = by + p.oy - mouse.y;
         const d = Math.sqrt(dx * dx + dy * dy);
-        if (d < 160) {
-          x += (dx / (d + 1)) * (160 - d) * 0.12;
-          y += (dy / (d + 1)) * (160 - d) * 0.12;
+        const R = 190;
+        let near = 0;
+        if (d < R) {
+          near = 1 - d / R;
+          const f = near * near * 2.4 * p.z;
+          p.sx += (dx / (d + 1)) * f;
+          p.sy += (dy / (d + 1)) * f;
         }
-        return { x, y, z: p.z };
+        // spring back to origin with damping
+        p.sx += -p.ox * 0.035;
+        p.sy += -p.oy * 0.035;
+        p.sx *= 0.86;
+        p.sy *= 0.86;
+        p.ox += p.sx;
+        p.oy += p.sy;
+        p.g += (near - p.g) * 0.12;
+        return { x: bx + p.ox, y: by + p.oy, z: p.z, g: p.g };
       });
       for (let i = 0; i < pts.length; i++) {
         const a = pts[i];
@@ -103,7 +120,7 @@ export function NetworkField() {
           const dy = a.y - b.y;
           const d = dx * dx + dy * dy;
           if (d < 14000) {
-            ctx.strokeStyle = `rgba(129,140,248,${0.08 * (1 - d / 14000)})`;
+            ctx.strokeStyle = `rgba(129,140,248,${(0.08 + (a.g + b.g) * 0.06) * (1 - d / 14000)})`;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
             ctx.lineTo(b.x, b.y);
@@ -112,9 +129,16 @@ export function NetworkField() {
         }
       }
       for (const p of pts) {
-        ctx.fillStyle = `rgba(147,197,253,${0.25 + p.z * 0.35})`;
+        const r = (0.8 + p.z * 1.1) * (1 + p.g * 1.6);
+        if (p.g > 0.05) {
+          ctx.fillStyle = `rgba(103,232,249,${0.12 * p.g})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, r * 3.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.fillStyle = `rgba(147,197,253,${0.25 + p.z * 0.35 + p.g * 0.35})`;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 0.8 + p.z * 1.1, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
         ctx.fill();
       }
       if (!reduce) raf = requestAnimationFrame(draw);
