@@ -56,9 +56,13 @@ import {
   Settings2,
   ShieldCheck,
   Trash2,
+  Sparkles,
+  ChevronDown,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { NetworkField } from "@/components/network-field";
+import { BitcoinField } from "@/components/bitcoin-field";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 type ChatMessage = {
   id: string;
@@ -96,8 +100,79 @@ export const Route = createFileRoute("/")({
 function AKMark({ active = false }: { active?: boolean }) {
   return (
     <div className={`ak-mark ${active ? "ak-mark-active" : ""}`} aria-hidden="true">
-      <span>AK</span>
+      <svg viewBox="0 0 40 40" className="ak-mark-svg">
+        <defs>
+          <linearGradient id="ak-stroke" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#E0F2FE" />
+            <stop offset="45%" stopColor="#93C5FD" />
+            <stop offset="100%" stopColor="#C4B5FD" />
+          </linearGradient>
+        </defs>
+        {/* A: two strokes + crossbar node */}
+        <path
+          d="M7 30 L15 10 L21 26"
+          fill="none"
+          stroke="url(#ak-stroke)"
+          strokeWidth="2.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path d="M11 22 H18" stroke="url(#ak-stroke)" strokeWidth="2" strokeLinecap="round" />
+        {/* K: stem + two diverging branches */}
+        <path d="M24 10 V30" stroke="url(#ak-stroke)" strokeWidth="2.6" strokeLinecap="round" />
+        <path
+          d="M33 10 L24.5 20 L33 30"
+          fill="none"
+          stroke="url(#ak-stroke)"
+          strokeWidth="2.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx="24.5" cy="20" r="1.9" fill="#E0F2FE" />
+      </svg>
     </div>
+  );
+}
+
+function ModelControl() {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button type="button" className="model-pill" aria-label="Assistant settings">
+          <Sparkles className="size-3.5" />
+          <span>AK Crypto</span>
+          <ChevronDown className="size-3 opacity-70" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="start" side="top" className="model-pop w-72 p-2">
+        <p className="px-2 pb-1.5 pt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
+          Assistant
+        </p>
+        <div className="model-row model-row-active">
+          <div>
+            <p className="text-sm font-medium">AK Crypto Intelligence</p>
+            <p className="text-xs text-muted-foreground">Your connected AI workflow</p>
+          </div>
+          <Check className="size-4 text-primary" />
+        </div>
+        <div className="model-row model-row-active">
+          <div>
+            <p className="text-sm font-medium">Crypto knowledge base</p>
+            <p className="text-xs text-muted-foreground">Answers use AK's research library</p>
+          </div>
+          <Check className="size-4 text-primary" />
+        </div>
+        <p className="px-2 pb-1.5 pt-3 text-[11px] uppercase tracking-wider text-muted-foreground">
+          Preferences
+        </p>
+        {["Response style", "Answer length", "Creativity"].map((label) => (
+          <div key={label} className="model-row opacity-60" aria-disabled="true">
+            <p className="text-sm">{label}</p>
+            <span className="model-soon">Coming soon</span>
+          </div>
+        ))}
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -321,6 +396,7 @@ function AKChat() {
     <TooltipProvider delayDuration={350}>
       <main className="ak-shell">
         <NetworkField />
+        <BitcoinField />
         <div className="ledger-grid" aria-hidden="true" />
         {pop && (
           <div className="ak-pop" key={pop.key} role="status" style={{ left: pop.x, top: pop.y }}>
@@ -619,11 +695,14 @@ function AKChat() {
                   value={input}
                 />
                 <PromptInputFooter className="px-3 pb-3 sm:px-4 sm:pb-4">
-                  <span className="hidden text-[11px] text-muted-foreground sm:inline">
-                    Shift + Enter for a new line
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <ModelControl />
+                    <span className="hidden text-[11px] text-muted-foreground md:inline">
+                      Shift + Enter for a new line
+                    </span>
+                  </div>
                   <PromptInputSubmit
-                    className="send-button ml-auto size-10 rounded-lg"
+                    className={`send-button ml-auto size-9 rounded-full ${input.trim() ? "is-ready" : ""}`}
                     disabled={!input.trim() || isSending}
                     status={isSending ? "submitted" : "ready"}
                     variant="send"
