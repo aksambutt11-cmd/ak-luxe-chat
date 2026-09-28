@@ -1300,3 +1300,133 @@ button.rail-layer {
 @media (prefers-reduced-motion: reduce) {
   .model-pop, .glass-dialog { animation: none !important; }
 }
+
+/* ==== v4: LIGHT silver frosted-glass theme (overrides everything above) ==== */
+:root {
+  --background: oklch(0.965 0.006 260);
+  --foreground: oklch(0.2 0.015 265);
+  --card: oklch(1 0 0 / 0.7);
+  --card-foreground: oklch(0.2 0.015 265);
+  --popover: oklch(0.99 0.004 260);
+  --popover-foreground: oklch(0.2 0.015 265);
+  --primary: oklch(0.55 0.2 265);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.93 0.008 260);
+  --secondary-foreground: oklch(0.22 0.015 265);
+  --muted: oklch(0.93 0.008 260);
+  --muted-foreground: oklch(0.47 0.02 262);
+  --accent: oklch(0.92 0.02 265);
+  --accent-foreground: oklch(0.2 0.015 265);
+  --border: oklch(0.55 0.02 262 / 0.2);
+  --input: oklch(0.55 0.02 262 / 0.25);
+  --ring: oklch(0.58 0.19 265);
+  --glass: oklch(1 0 0 / 0.55);
+  --glass-hover: oklch(1 0 0 / 0.75);
+  --glass-border: oklch(0.6 0.02 262 / 0.22);
+  --glass-highlight: oklch(1 0 0 / 0.9);
+  --brand-blue: oklch(0.6 0.19 255);
+  --brand-indigo: oklch(0.55 0.21 275);
+  --brand-violet: oklch(0.6 0.2 295);
+  --shadow-glass: 0 20px 50px -18px oklch(0.35 0.05 265 / 0.28), inset 0 1px 0 oklch(1 0 0 / 0.9);
+  --shadow-glow: 0 10px 30px -8px oklch(0.55 0.2 270 / 0.45), inset 0 1px 0 oklch(1 0 0 / 0.5);
+}
+body { color-scheme: light; }
+.ak-shell {
+  background:
+    radial-gradient(ellipse 55% 45% at 20% 10%, oklch(0.9 0.05 255 / 0.7), transparent 70%),
+    radial-gradient(ellipse 50% 45% at 85% 85%, oklch(0.9 0.05 295 / 0.6), transparent 70%),
+    linear-gradient(160deg, oklch(0.985 0.003 260), oklch(0.95 0.008 262) 55%, oklch(0.93 0.01 265)) !important;
+}
+.ak-shell::before, .ak-shell::after {
+  content: ""; position: fixed; z-index: -3; pointer-events: none; border-radius: 50%;
+  filter: blur(80px); width: 44vmax; height: 44vmax; animation: orb-drift 26s ease-in-out infinite alternate;
+}
+.ak-shell::before { top: -14vmax; right: -8vmax; background: oklch(0.8 0.1 260 / 0.45); }
+.ak-shell::after { bottom: -18vmax; left: 10vmax; background: oklch(0.82 0.1 300 / 0.4); animation-delay: -12s; }
+@keyframes orb-drift { to { translate: -6vmax 5vmax; scale: 1.12; } }
+.ledger-grid { opacity: 0.35; filter: invert(0.6); }
+.network-field { opacity: 0.55; }
+.market-trace { opacity: 0.25; }
+
+/* frosted glass surfaces */
+.ak-header, .ak-composer, .intelligence-rail, .intelligence-index, .crypto-ticker, .model-pill {
+  background: linear-gradient(180deg, oklch(1 0 0 / 0.78), oklch(1 0 0 / 0.5)) !important;
+  border-color: oklch(1 0 0 / 0.85) !important;
+  backdrop-filter: blur(22px) saturate(160%);
+  box-shadow: 0 0 0 1px oklch(0.6 0.02 262 / 0.14), var(--shadow-glass) !important;
+  color: var(--foreground);
+}
+.intelligence-rail { border-radius: 0; }
+.ak-composer:focus-within {
+  box-shadow: 0 0 0 1px oklch(0.6 0.18 268 / 0.45), 0 0 34px -6px oklch(0.6 0.2 270 / 0.45), var(--shadow-glass) !important;
+}
+.assistant-message {
+  background: linear-gradient(180deg, oklch(1 0 0 / 0.72), oklch(1 0 0 / 0.48)) !important;
+  border: 1px solid oklch(1 0 0 / 0.9) !important;
+  border-radius: 1rem 1rem 1rem 0.3rem !important;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 0 0 1px oklch(0.6 0.02 262 / 0.12), 0 12px 30px -16px oklch(0.35 0.05 265 / 0.3) !important;
+  color: var(--foreground) !important;
+}
+.user-message {
+  background: linear-gradient(135deg, oklch(0.6 0.19 258), oklch(0.53 0.21 280)) !important;
+  border: 1px solid oklch(1 0 0 / 0.35) !important;
+  border-radius: 1rem 1rem 0.3rem 1rem !important;
+  color: oklch(0.99 0 0) !important;
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.35), 0 12px 28px -12px oklch(0.5 0.2 270 / 0.55) !important;
+}
+.glass-btn, .ak-chip, .shortcut-btn, .rail-layer, .scroll-button {
+  color: var(--foreground) !important;
+  background: linear-gradient(180deg, oklch(1 0 0 / 0.85), oklch(1 0 0 / 0.5)) !important;
+  border: 1px solid oklch(1 0 0 / 0.9) !important;
+  box-shadow: 0 0 0 1px oklch(0.6 0.02 262 / 0.16), 0 6px 16px -8px oklch(0.35 0.05 265 / 0.3) !important;
+  backdrop-filter: blur(12px);
+}
+.glass-btn:hover, .ak-chip:hover, .shortcut-btn:hover, .rail-layer:hover {
+  box-shadow: 0 0 0 1px oklch(0.6 0.18 268 / 0.4), 0 8px 22px -8px oklch(0.55 0.2 270 / 0.5) !important;
+}
+.rail-layer-active { box-shadow: 0 0 0 1px oklch(0.6 0.18 268 / 0.45), 0 6px 16px -8px oklch(0.55 0.2 270 / 0.4) !important; }
+.send-button { background: var(--brand-gradient) !important; color: oklch(1 0 0) !important; border-color: oklch(1 0 0 / 0.4) !important; opacity: 0.55; }
+.send-button.is-ready { opacity: 1; box-shadow: 0 8px 22px -6px oklch(0.55 0.2 270 / 0.6), inset 0 1px 0 oklch(1 0 0 / 0.4) !important; }
+.model-pop, [data-slot="popover-content"], [data-slot="dropdown-menu-content"], .glass-dialog, .quick-pop {
+  background: linear-gradient(180deg, oklch(1 0 0 / 0.86), oklch(0.98 0.005 262 / 0.7)) !important;
+  border: 1px solid oklch(1 0 0 / 0.95) !important;
+  color: var(--foreground) !important;
+  backdrop-filter: blur(28px) saturate(170%);
+  box-shadow: 0 0 0 1px oklch(0.6 0.02 262 / 0.16), 0 0 50px -14px oklch(0.6 0.2 275 / 0.45), 0 30px 60px -24px oklch(0.3 0.05 265 / 0.4) !important;
+}
+.model-row-active, .model-row:hover { background: oklch(0.55 0.2 265 / 0.08) !important; }
+.pref-seg { background: oklch(0.55 0.02 262 / 0.08); border-color: oklch(0.55 0.02 262 / 0.12); }
+.pref-opt-on { background: oklch(1 0 0); color: var(--primary); box-shadow: 0 2px 8px -2px oklch(0.4 0.1 265 / 0.3); }
+[data-slot="dialog-overlay"], [data-slot="alert-dialog-overlay"] {
+  background: oklch(0.85 0.01 262 / 0.35) !important; backdrop-filter: blur(8px);
+}
+[data-slot="dialog-overlay"][data-state="open"], [data-slot="alert-dialog-overlay"][data-state="open"] { animation: ov-in 0.3s ease both; }
+[data-slot="dialog-overlay"][data-state="closed"], [data-slot="alert-dialog-overlay"][data-state="closed"] { animation: ov-out 0.2s ease both; }
+@keyframes ov-in { from { opacity: 0; backdrop-filter: blur(0); } }
+@keyframes ov-out { to { opacity: 0; } }
+.model-pop[data-state="open"], .glass-dialog[data-state="open"], .quick-pop[data-state="open"] { animation: pop-in 0.32s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+.quick-pop[data-state="closed"] { animation: pop-out 0.18s ease-in both; }
+@keyframes pop-in { from { opacity: 0; scale: 0.95; translate: 0 10px; filter: blur(4px); } }
+[data-stick-to-bottom-viewport]::-webkit-scrollbar-thumb { background: oklch(0.5 0.03 262 / 0.25); }
+
+/* floating quick-actions button */
+.quick-fab {
+  position: fixed; right: 1.5rem; bottom: 8.5rem; z-index: 40;
+  display: grid; place-items: center; width: 3.25rem; height: 3.25rem; border-radius: 999px; cursor: pointer;
+  color: var(--primary);
+  background: linear-gradient(180deg, oklch(1 0 0 / 0.9), oklch(1 0 0 / 0.55));
+  border: 1px solid oklch(1 0 0 / 0.95);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 0 0 1px oklch(0.6 0.02 262 / 0.18), 0 10px 30px -8px oklch(0.55 0.2 270 / 0.5);
+  animation: fab-float 4s ease-in-out infinite;
+  transition: transform 0.2s ease, box-shadow 0.25s ease;
+}
+.quick-fab:hover { transform: scale(1.08); box-shadow: 0 0 0 1px oklch(0.6 0.18 268 / 0.45), 0 0 34px -4px oklch(0.6 0.2 275 / 0.6); }
+.quick-fab:active { transform: scale(0.94); }
+.quick-fab:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
+@keyframes fab-float { 50% { translate: 0 -4px; } }
+.quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; }
+.quick-grid .shortcut-btn { border-radius: 0.7rem; text-align: left; padding: 0.55rem 0.7rem; }
+@media (max-width: 640px) { .quick-fab { right: 1rem; bottom: 9.5rem; width: 2.9rem; height: 2.9rem; } }
+@media (prefers-reduced-motion: reduce) { .ak-shell::before, .ak-shell::after, .quick-fab { animation: none; } }
