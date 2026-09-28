@@ -135,7 +135,18 @@ function AKMark({ active = false }: { active?: boolean }) {
   );
 }
 
+const prefOptions = {
+  "Response style": ["Balanced", "Analytical", "Concise"],
+  "Answer length": ["Short", "Medium", "Detailed"],
+  "Knowledge mode": ["Research library", "General"],
+} as const;
+
 function ModelControl() {
+  const [prefs, setPrefs] = useState<Record<string, string>>({
+    "Response style": "Balanced",
+    "Answer length": "Medium",
+    "Knowledge mode": "Research library",
+  });
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -145,9 +156,9 @@ function ModelControl() {
           <ChevronDown className="size-3 opacity-70" />
         </button>
       </PopoverTrigger>
-      <PopoverContent align="start" side="top" className="model-pop w-72 p-2">
+      <PopoverContent align="start" side="top" sideOffset={10} className="model-pop w-80 p-2">
         <p className="px-2 pb-1.5 pt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
-          Assistant
+          AI model
         </p>
         <div className="model-row model-row-active">
           <div>
@@ -156,22 +167,31 @@ function ModelControl() {
           </div>
           <Check className="size-4 text-primary" />
         </div>
-        <div className="model-row model-row-active">
-          <div>
-            <p className="text-sm font-medium">Crypto knowledge base</p>
-            <p className="text-xs text-muted-foreground">Answers use AK's research library</p>
-          </div>
-          <Check className="size-4 text-primary" />
-        </div>
-        <p className="px-2 pb-1.5 pt-3 text-[11px] uppercase tracking-wider text-muted-foreground">
+        <p className="px-2 pb-1 pt-3 text-[11px] uppercase tracking-wider text-muted-foreground">
           Preferences
         </p>
-        {["Response style", "Answer length", "Creativity"].map((label) => (
-          <div key={label} className="model-row opacity-60" aria-disabled="true">
-            <p className="text-sm">{label}</p>
-            <span className="model-soon">Coming soon</span>
+        {Object.entries(prefOptions).map(([label, opts]) => (
+          <div key={label} className="px-2 py-1.5">
+            <p className="mb-1.5 text-xs text-muted-foreground">{label}</p>
+            <div className="pref-seg" role="radiogroup" aria-label={label}>
+              {opts.map((o) => (
+                <button
+                  key={o}
+                  type="button"
+                  role="radio"
+                  aria-checked={prefs[label] === o}
+                  className={prefs[label] === o ? "pref-opt pref-opt-on" : "pref-opt"}
+                  onClick={() => setPrefs((p) => ({ ...p, [label]: o }))}
+                >
+                  {o}
+                </button>
+              ))}
+            </div>
           </div>
         ))}
+        <p className="px-2 pb-1 pt-2 text-[11px] leading-4 text-muted-foreground/80">
+          Preview settings — saved for this session only; they don't change AK's answers yet.
+        </p>
       </PopoverContent>
     </Popover>
   );
@@ -193,6 +213,19 @@ const intelligenceLayers = [
     label: "Risk context",
     prompt: "Summarize the current risk context for crypto investors.",
   },
+];
+
+const shortcutBar = [
+  { label: "BTC", prompt: "What is the current BTC market context?" },
+  { label: "ETH", prompt: "What is the current ETH market context?" },
+  { label: "DeFi", prompt: "What is happening in DeFi right now?" },
+  { label: "Tokenomics", prompt: "Explain the key things to evaluate in a token's tokenomics." },
+  { label: "Markets", prompt: "What is the current state of the crypto markets?" },
+  { label: "On-chain", prompt: "Walk me through an on-chain analysis of the crypto market." },
+  { label: "Risk", prompt: "What are the key risks in crypto right now?" },
+  { label: "Market Structure", prompt: "Give me an overview of the current crypto market structure." },
+  { label: "On-chain Signals", prompt: "What are the most important on-chain signals to watch right now?" },
+  { label: "Risk Context", prompt: "Summarize the current risk context for crypto investors." },
 ];
 
 const quickPrompts = {
@@ -683,6 +716,19 @@ function AKChat() {
             </Conversation>
 
             <div className="composer-wrap">
+              <div className="shortcut-bar" role="group" aria-label="Crypto shortcuts">
+                {shortcutBar.map((s) => (
+                  <button
+                    className="ak-chip shortcut-btn"
+                    disabled={isSending}
+                    key={s.label}
+                    onClick={(e) => fireShortcut(e, s.prompt)}
+                    type="button"
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
               <PromptInput className="ak-composer" onSubmit={handleSubmit}>
                 <PromptInputTextarea
                   aria-label="Message AK"
