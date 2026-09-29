@@ -60,7 +60,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import { NetworkField } from "@/components/network-field";
+import { ParticleEngine } from "@/components/particle-engine";
 import { BitcoinField } from "@/components/bitcoin-field";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
@@ -429,7 +429,7 @@ function AKChat() {
   return (
     <TooltipProvider delayDuration={350}>
       <main className="ak-shell">
-        <NetworkField />
+        <ParticleEngine />
         <BitcoinField />
         <div className="ledger-grid" aria-hidden="true" />
         {pop && (
