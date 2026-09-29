@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AK Luxe Chat - Next-Gen Crypto Intelligence</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cinzel:wght@800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            user-select: none;
+        }
+
+        /* Ambient Cursor Glow Halo */
+        #cursorGlow {
+            position: fixed;
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, rgba(147, 51, 234, 0.1) 45%, transparent 70%);
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            transition: width 0.3s, height 0.3s, opacity 0.3s;
+            mix-blend-mode: multiply;
+        }
+
+        #bgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Ultra-Tactile 3D Glass Base Style */
+        .apple-glass {
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(28px) saturate(210%);
+            -webkit-backdrop-filter: blur(28px) saturate(210%);
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            box-shadow: 
+                0 16px 40px -10px rgba(15, 23, 42, 0.08),
+                inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.95),
+                inset 0 -1.5px 1.5px 0 rgba(0, 0, 0, 0.03);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .apple-glass-interactive, .btn-glass-signin, .btn-glass-getstarted {
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(20px) saturate(190%);
+            -webkit-backdrop-filter: blur(20px) saturate(190%);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 
+                0 6px 16px rgba(0, 0, 0, 0.03),
+                inset 0 1.5px 0.5px rgba(255, 255, 255, 0.95),
+                inset 0 -1px 1px rgba(0, 0, 0, 0.04);
+            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .apple-glass-interactive::after, .btn-glass-signin::after, .btn-glass-getstarted::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 70%;
+            height: 100%;
+            background: linear-gradient(
+                90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.9) 50%, 
+                transparent 100%
+            );
+            transform: skewX(-25deg);
+            pointer-events: none;
+            transition: none;
+        }
+
+        .apple-glass-interactive:hover::after, .btn-glass-signin:hover::after, .btn-glass-getstarted:hover::after {
+            left: 180%;
+            transition: left 0.75s ease-in-out;
+        }
+
+        .apple-glass-interactive:hover {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(255, 255, 255, 1);
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 
+                0 12px 28px rgba(31, 38, 135, 0.12),
+                inset 0 2px 1px rgba(255, 255, 255, 1),
+                inset 0 -1px 1px rgba(0, 0, 0, 0.02);
+        }
+
+        .apple-glass-interactive:active {
+            transform: translateY(0) scale(0.97);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.08);
+        }
+
+        /* 3D Glassy Sign In Button */
+        .btn-glass-signin {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.92) 0%, rgba(15, 23, 42, 0.96) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 
+                0 8px 20px rgba(15, 23, 42, 0.25),
+                inset 0 1.5px 0.5px rgba(255, 255, 255, 0.4),
+                inset 0 -2px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-glass-signin:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(145deg, rgba(40, 53, 72, 0.96) 0%, rgba(15, 23, 42, 0.98) 100%);
+            box-shadow: 
+                0 12px 25px rgba(15, 23, 42, 0.35),
+                inset 0 2px 1px rgba(255, 255, 255, 0.6),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.6);
+        }
+
+        .btn-glass-getstarted {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.95) 0%, rgba(79, 70, 229, 0.95) 50%, rgba(99, 102, 241, 0.95) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.55);
+            box-shadow: 
+                0 10px 25px -4px rgba(59, 130, 246, 0.45),
+                inset 0 2px 1px 0 rgba(255, 255, 255, 0.7),
+                inset 0 -2px 3px 0 rgba(0, 0, 0, 0.25);
+        }
+
+        .btn-glass-getstarted:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 
+                0 14px 30px -2px rgba(59, 130, 246, 0.6),
+                inset 0 2.5px 1px 0 rgba(255, 255, 255, 0.9),
+                inset 0 -1px 2px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .ak-glass-badge {
+            position: relative;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(24px) saturate(220%);
+            -webkit-backdrop-filter: blur(24px) saturate(220%);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            border-radius: 1.1rem;
+            box-shadow: 
+                0 10px 25px -5px rgba(37, 99, 235, 0.2),
+                inset 0 2px 1px rgba(255, 255, 255, 1),
+                inset 0 -1.5px 2px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .ak-glass-badge::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 1.3rem;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.4), rgba(245, 158, 11, 0.35), rgba(147, 51, 234, 0.3));
+            filter: blur(10px);
+            z-index: -1;
+            opacity: 0.85;
+            transition: opacity 0.3s ease;
+        }
+
+        .ak-glass-badge:hover::before {
+            opacity: 1;
+            filter: blur(14px);
+        }
+
+        .ak-svg-icon {
+            filter: drop-shadow(0px 2px 4px rgba(30, 58, 138, 0.35));
+        }
+
+        .intelligence-glass-panel {
+            background: linear-gradient(160deg, rgba(255, 255, 255, 0.72) 0%, rgba(240, 244, 255, 0.5) 100%);
+            backdrop-filter: blur(25px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 
+                0 10px 25px -5px rgba(31, 38, 135, 0.06),
+                inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.95),
+                inset 0 -1px 2px 0 rgba(0, 0, 0, 0.03);
+            border-radius: 1.25rem;
+        }
+
+        .user-glass-bubble {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(238, 242, 255, 0.85) 100%);
+            backdrop-filter: blur(30px) saturate(210%);
+            -webkit-backdrop-filter: blur(30px) saturate(210%);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            box-shadow: 
+                0 10px 28px -5px rgba(0, 0, 0, 0.08),
+                inset 0 1.5px 0.5px rgba(255, 255, 255, 0.95);
+            color: #0f172a;
+        }
+
+        .bot-glass-bubble {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(28px) saturate(200%);
+            -webkit-backdrop-filter: blur(28px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.92);
+            box-shadow: 
+                0 8px 24px -4px rgba(0, 0, 0, 0.04),
+                inset 0 1.5px 1px rgba(255, 255, 255, 0.95);
+        }
+
+        .thinking-bubble {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(25px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.15);
+        }
+
+        .siri-wave-bar {
+            animation: waveBarPulse 0.9s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite alternate;
+        }
+
+        @keyframes waveBarPulse {
+            0% { height: 4px; opacity: 0.5; }
+            100% { height: 22px; opacity: 1; }
+        }
+
+        #toastContainer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .toast-msg {
+            pointer-events: auto;
+            animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes toastIn {
+            from { transform: translateY(20px) scale(0.9); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.15); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.25); }
+
+        @keyframes marquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+            display: flex;
+            width: 200%;
+            animation: marquee 35s linear infinite;
+        }
+        .animate-marquee:hover { animation-play-state: paused; }
+
+        @keyframes chatgptFadeUp {
+            0% { opacity: 0; transform: translateY(14px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes cursorBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .welcome-fade-in {
+            animation: chatgptFadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .typing-cursor::after {
+            content: '▋';
+            display: inline-block;
+            margin-left: 2px;
+            font-size: 0.85em;
+            color: #2563eb;
+            animation: cursorBlink 0.8s infinite;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="bg-[#f0f3f8] text-slate-800 h-screen overflow-hidden relative flex flex-col">
+
+    <div id="cursorGlow"></div>
+    <canvas id="bgCanvas"></canvas>
+    <div id="toastContainer"></div>
+
+    <header class="relative z-20 w-full apple-glass border-b border-white/60 py-1.5 px-4 overflow-hidden flex items-center shrink-0">
+        <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 pr-4 border-r border-slate-300/40 shrink-0 z-10 bg-white/30 backdrop-blur-md">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Telemetry
+        </div>
+        <div class="overflow-hidden w-full relative">
+            <div class="animate-marquee flex gap-8 text-xs font-medium text-slate-700 items-center">
+                <span class="flex items-center gap-1.5"><span class="font-bold text-slate-900">BTC/USD</span> $98,420.50 <span class="text-emerald-600 font-semibold text-[11px] bg-emerald-500/10 px-1.5 py-0.5 rounded-full">+3.4%</span></span>
+                <span class="flex items-center gap-1.5"><span class="font-bold text-slate-900">ETH/USD</span> $3,450.20 <span class="text-emerald-600 font-semibold text-[11px] bg-emerald-500/10 px-1.5 py-0.5 rounded-full">+1.8%</span></span>
+                <span class="flex items-center gap-1.5"><span class="font-bold text-slate-900">SOL/USD</span> $212.80 <span class="text-rose-500 font-semibold text-[11px] bg-rose-500/10 px-1.5 py-0.5 rounded-full">-0.6%</span></span>
+                <span class="flex items-center gap-1.5"><span class="font-bold text-slate-900">Gas Fee</span> 12 Gwei <span class="text-slate-500 text-[11px]">(Optimal)</span></span>
+                <span class="flex items-center gap-1.5"><span class="font-bold text-slate-900">Fear & Greed</span> 82 <span class="text-emerald-700 font-semibold text-[11px] bg-amber-400/20 px-1.5 py-0.5 rounded-full">Extreme Greed</span></span>
+                <span class="flex items-center gap-1.5"><span class="font-bold text-slate-900">BTC/USD</span> $98,420.50 <span class="text-emerald-600 font-semibold text-[11px] bg-emerald-500/10 px-1.5 py-0.5 rounded-full">+3.4%</span></span>
+                <span class="flex items-center gap-1.5"><span class="font-bold text-slate-900">ETH/USD</span> $3,450.20 <span class="text-emerald-600 font-semibold text-[11px] bg-emerald-500/10 px-1.5 py-0.5 rounded-full">+1.8%</span></span>
+                <span class="flex items-center gap-1.5"><span class="font-bold text-slate-900">SOL/USD</span> $212.80 <span class="text-rose-500 font-semibold text-[11px] bg-rose-500/10 px-1.5 py-0.5 rounded-full">-0.6%</span></span>
+            </div>
+        </div>
+    </header>
+
+    <div class="relative z-10 flex-1 flex overflow-hidden p-3 gap-3">
+        
+        <!-- SIDEBAR NAVIGATION & PREMIUM APPLE GLASS CHARTS -->
+        <aside class="w-72 apple-glass rounded-2xl flex flex-col justify-between p-4 shrink-0 hidden lg:flex overflow-y-auto">
+            <div class="space-y-4">
+                <!-- AK Monogram Logo Badge -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="showToast('AK Luxe Crypto Intelligence Active')">
+                    <div class="w-11 h-11 ak-glass-badge shrink-0">
+                        <svg class="w-7 h-7 ak-svg-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="akGoldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#1e40af" />
+                                    <stop offset="50%" stop-color="#3b82f6" />
+                                    <stop offset="100%" stop-color="#f59e0b" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M18 78 L42 22 L54 22 L36 60 L62 22 L78 22 L50 62 L80 78 L63 78 L42 66 L30 78 Z" fill="url(#akGoldGradient)" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="font-extrabold text-slate-900 text-base leading-none tracking-tight">AK Luxe</h1>
+                        <span class="text-[11px] text-slate-500 font-semibold tracking-wide">Crypto Intelligence</span>
+                    </div>
+                </div>
+
+                <!-- Intelligence Layers Section -->
+                <div class="intelligence-glass-panel p-3">
+                    <span class="text-[10px] uppercase font-extrabold text-slate-500 tracking-wider mb-2 block px-1 flex items-center gap-1.5">
+                        <i data-lucide="layers" class="w-3.5 h-3.5 text-blue-600"></i> Intelligence Layers
+                    </span>
+                    <nav class="space-y-1.5">
+                        <button onclick="switchLayer('Market structure', this)" class="intelligence-layer-btn w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-blue-700 bg-white/90 border border-blue-200/90 shadow-sm flex items-center justify-between transition-all">
+                            <span class="flex items-center gap-2"><i data-lucide="line-chart" class="w-3.5 h-3.5 text-blue-600"></i> Market structure</span>
+                            <span class="w-2 h-2 rounded-full bg-blue-600 animate-ping"></span>
+                        </button>
+                        <button onclick="switchLayer('On-chain signals', this)" class="intelligence-layer-btn w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 apple-glass-interactive flex items-center gap-2">
+                            <i data-lucide="activity" class="w-3.5 h-3.5 text-indigo-500"></i> On-chain signals
+                        </button>
+                        <button onclick="switchLayer('Risk context', this)" class="intelligence-layer-btn w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 apple-glass-interactive flex items-center gap-2">
+                            <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-amber-500"></i> Risk context
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- PREMIUM SIDEBAR MINI LIVE CHARTS -->
+                <div class="space-y-3 pt-1">
+                    <div class="flex items-center justify-between px-1">
+                        <span class="text-[10px] uppercase font-extrabold text-slate-500 tracking-wider flex items-center gap-1.5">
+                            <i data-lucide="bar-chart-3" class="w-3.5 h-3.5 text-blue-600"></i> Live Telemetry Charts
+                        </span>
+                        <span class="text-[9px] text-emerald-600 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded">Live</span>
+                    </div>
+
+                    <!-- Mini Chart Card 1: BTC Trend -->
+                    <div class="intelligence-glass-panel p-3 space-y-2 relative overflow-hidden group">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="w-7 h-7 rounded-xl bg-amber-500/10 border border-amber-300 flex items-center justify-center font-bold text-amber-600 text-xs">₿</span>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-xs">Bitcoin Depth</h4>
+                                    <span class="text-[10px] text-emerald-600 font-extrabold">$98,420.50</span>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-extrabold text-emerald-600 bg-emerald-100/80 px-1.5 py-0.5 rounded-full">+3.4%</span>
+                        </div>
+                        <div class="relative h-16 w-full">
+                            <canvas id="miniChartBTC" class="w-full h-full cursor-pointer" onclick="openChartModal()"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Mini Chart Card 2: ETH & Gas -->
+                    <div class="intelligence-glass-panel p-3 space-y-2 relative overflow-hidden">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="w-7 h-7 rounded-xl bg-indigo-500/10 border border-indigo-300 flex items-center justify-center font-bold text-indigo-600 text-xs">Ξ</span>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-xs">Ethereum Staking</h4>
+                                    <span class="text-[10px] text-indigo-600 font-extrabold">3.4% APY</span>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-extrabold text-emerald-600 bg-emerald-100/80 px-1.5 py-0.5 rounded-full">12 Gwei</span>
+                        </div>
+                        <div class="relative h-16 w-full">
+                            <canvas id="miniChartETH" class="w-full h-full cursor-pointer" onclick="openChartModal()"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Footer -->
+            <div class="pt-3 mt-3 border-t border-slate-200/50 flex items-center justify-between text-xs text-slate-500 font-medium shrink-0">
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Engine Active</span>
+                <button onclick="openSettingsModal()" class="apple-glass-interactive p-2 rounded-xl text-slate-700 hover:text-blue-600 flex items-center gap-1 font-semibold" title="Crypto Settings">
+                    <i data-lucide="settings" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col rounded-2xl relative apple-glass p-2">
+            <div class="w-full h-full flex flex-col rounded-[1rem] overflow-hidden relative bg-[#f0f3f8]/80 backdrop-blur-md p-3">
+
+            <!-- Top Glass Header -->
+            <div class="apple-glass rounded-2xl p-3 mb-2 flex flex-wrap items-center justify-between gap-3 shadow-sm shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-9.5 h-9.5 ak-glass-badge shrink-0">
+                        <svg class="w-6 h-6 ak-svg-icon" viewBox="0 0 100 100" fill="none">
+                            <path d="M18 78 L42 22 L54 22 L36 60 L62 22 L78 22 L50 62 L80 78 L63 78 L42 66 L30 78 Z" fill="url(#akGoldGradient)" />
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="font-bold text-slate-900 text-sm">AK Intelligence</h2>
+                            
+                            <!-- Model Selector Dropdown -->
+                            <div class="relative">
+                                <button onclick="toggleModelDropdown()" class="apple-glass-interactive text-[11px] font-extrabold text-blue-700 bg-blue-500/10 border border-blue-300/80 px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-xs">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    <span id="activeModelName">AK-Crypto v4</span>
+                                    <i data-lucide="chevron-down" class="w-3 h-3 text-blue-600"></i>
+                                </button>
+
+                                <div id="modelDropdown" class="hidden absolute top-8 left-0 z-50 w-56 apple-glass rounded-2xl p-2 border border-white/90 shadow-2xl space-y-1">
+                                    <span class="text-[10px] font-extrabold uppercase text-slate-400 px-2 py-1 block">Select AI Engine</span>
+                                    <button onclick="selectModel('AK-Crypto v4', 'Pro Crypto Model')" class="w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-slate-800 hover:bg-blue-50 flex items-center justify-between">
+                                        <span>AK-Crypto v4</span>
+                                        <span class="text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-mono">Fast</span>
+                                    </button>
+                                    <button onclick="selectModel('GPT-4o Crypto', 'OpenAI Telemetry')" class="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-blue-50 flex items-center justify-between">
+                                        <span>GPT-4o Crypto</span>
+                                        <span class="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-mono">Smart</span>
+                                    </button>
+                                    <button onclick="selectModel('Claude 3.5 Sonnet', 'Anthropic Reasoning')" class="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-blue-50 flex items-center justify-between">
+                                        <span>Claude 3.5 Sonnet</span>
+                                        <span class="text-[9px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-mono">Deep</span>
+                                    </button>
+                                    <button onclick="selectModel('DeepSeek R1', 'Reasoning Engine')" class="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-blue-50 flex items-center justify-between">
+                                        <span>DeepSeek R1</span>
+                                        <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-mono">Math</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <span id="activeModelDesc" class="text-[11px] text-slate-500 font-medium block">Real-time crypto market telemetry & risk engine</span>
+                    </div>
+                </div>
+
+                <!-- Action Controls Header Buttons -->
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button onclick="openAuthModal()" class="btn-glass-signin text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-md transition-all">
+                        Sign in
+                    </button>
+                    <button onclick="openGetStartedModal()" class="btn-glass-getstarted text-white font-bold text-xs px-4 py-2 rounded-xl shadow-md transition-all flex items-center gap-1">
+                        <span>Get started</span>
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                    </button>
+
+                    <div class="h-4 w-px bg-slate-300/60 mx-0.5 hidden sm:block"></div>
+
+                    <button class="apple-glass-interactive p-2 rounded-xl text-slate-700 hover:text-blue-600 transition-all flex items-center gap-1.5 font-bold text-xs" onclick="openChartModal()" title="Live Price Charts">
+                        <i data-lucide="line-chart" class="w-4 h-4 text-blue-600"></i>
+                        <span class="hidden sm:inline">Charts</span>
+                    </button>
+                    <button class="apple-glass-interactive p-2 rounded-xl text-slate-700 hover:text-blue-600 transition-all flex items-center gap-1.5 font-bold text-xs" onclick="openConverterModal()" title="Crypto Converter">
+                        <i data-lucide="arrow-left-right" class="w-4 h-4 text-indigo-600"></i>
+                        <span class="hidden sm:inline">Swap</span>
+                    </button>
+                    <button class="apple-glass-interactive p-2 rounded-xl text-slate-700 hover:text-blue-600 transition-all flex items-center gap-1.5 font-bold text-xs relative" onclick="toggleBookmarksDrawer()" title="Saved Insights">
+                        <i data-lucide="bookmark" class="w-4 h-4 text-amber-500"></i>
+                        <span id="bookmarkCountBadge" class="hidden absolute -top-1 -right-1 bg-blue-600 text-white text-[9px] font-extrabold px-1.5 py-0.2 rounded-full">0</span>
+                    </button>
+                    <button class="apple-glass-interactive p-2 rounded-xl text-slate-700 hover:text-rose-600 transition-all flex items-center justify-center" onclick="clearChat()" title="Clear Chat">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- CHAT CONTAINER RESTORED TO ORIGINAL CENTRAL POSITION -->
+            <div id="chatContainer" class="flex-1 overflow-y-auto space-y-4 pr-2 pl-1 mb-2">
+                <!-- Welcome Assistant Message Card -->
+                <div class="flex gap-3 max-w-3xl welcome-fade-in">
+                    <div class="bot-glass-bubble rounded-2xl p-5 text-slate-800 text-sm leading-relaxed max-w-2xl w-full border border-white/90 shadow-md">
+                        <div class="flex items-center justify-between mb-2 pb-1.5 border-b border-slate-200/40">
+                            <span class="font-bold text-slate-900 text-xs flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse"></span> AK Intelligence Engine v4
+                            </span>
+                            <span class="text-[10px] text-slate-400 font-medium">Secure Telemetry Active</span>
+                        </div>
+                        <div id="welcomeTextContent" class="text-slate-800 font-medium leading-relaxed">
+                            Hello! 👋 Welcome to AK Luxe Crypto Intelligence. How can I assist with your market telemetry, portfolio risk, or on-chain signals today?
+                        </div>
+                        <div class="mt-4 pt-2.5 border-t border-slate-200/50 flex flex-wrap gap-2 items-center">
+                            <button onclick="sendQuickPrompt('Analyze Bitcoin (BTC) liquidation clusters')" class="apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-blue-700 bg-white/90 border border-blue-200 flex items-center gap-1.5 shadow-xs">
+                                <i data-lucide="trending-up" class="w-3.5 h-3.5 text-blue-600"></i> BTC Liquidation Clusters
+                            </button>
+                            <button onclick="sendQuickPrompt('Ethereum (ETH) staking yield telemetry')" class="apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-white/90 border border-slate-200 flex items-center gap-1.5 shadow-xs">
+                                <i data-lucide="activity" class="w-3.5 h-3.5 text-indigo-500"></i> ETH Staking Yields
+                            </button>
+                            <button onclick="sendQuickPrompt('DeFi Liquidity Heatmap Audit')" class="apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-white/90 border border-slate-200 flex items-center gap-1.5 shadow-xs">
+                                <i data-lucide="flame" class="w-3.5 h-3.5 text-amber-500"></i> DeFi Liquidity Heatmap
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-2 space-y-2 shrink-0">
+                <!-- Combined Quick Suggestion & Market Filter Pills Below Chat -->
+                    <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                        <button onclick="filterMarketCategory('Markets Overview', this)" class="market-top-btn px-3 py-1.5 rounded-xl text-xs font-extrabold bg-blue-600 text-white shadow-xs flex items-center gap-1.5 shrink-0">
+                            <i data-lucide="trending-up" class="w-3.5 h-3.5"></i> Markets Overview
+                        </button>
+                        <button onclick="filterMarketCategory('On-Chain Signals', this)" class="market-top-btn apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 flex items-center gap-1.5 shrink-0">
+                            <i data-lucide="activity" class="w-3.5 h-3.5 text-indigo-500"></i> On-Chain Signals
+                        </button>
+                        <button onclick="filterMarketCategory('Liquidity Heatmap', this)" class="market-top-btn apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 flex items-center gap-1.5 shrink-0">
+                            <i data-lucide="flame" class="w-3.5 h-3.5 text-amber-500"></i> Heatmap
+                        </button>
+                        <button onclick="filterMarketCategory('Risk Audit', this)" class="market-top-btn apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 flex items-center gap-1.5 shrink-0">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500"></i> Risk Context
+                        </button>
+                        <button onclick="filterMarketCategory('Whale Alert', this)" class="market-top-btn apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 flex items-center gap-1.5 shrink-0">
+                            <i data-lucide="radar" class="w-3.5 h-3.5 text-purple-500"></i> Whale Alert
+                        </button>
+                        <button onclick="filterMarketCategory('AI Arbitrage', this)" class="market-top-btn apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 flex items-center gap-1.5 shrink-0">
+                            <i data-lucide="bot" class="w-3.5 h-3.5 text-cyan-500"></i> AI Arbitrage
+                        </button>
+                        <button onclick="sendQuickPrompt('BTC Price Outlook')" class="apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 shrink-0">BTC Outlook</button>
+                        <button onclick="sendQuickPrompt('ETH Staking Yields')" class="apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 shrink-0">ETH Staking</button>
+                        <button onclick="sendQuickPrompt('DeFi Liquidity Trends')" class="apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 shrink-0">DeFi Trends</button>
+                        <button onclick="sendQuickPrompt('Solana Ecosystem Speed')" class="apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 shrink-0">Solana Speed</button>
+                        <button onclick="sendQuickPrompt('Risk Assessment Mode')" class="apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 shrink-0">Risk Audit</button>
+                    </div>
+
+                    <!-- Attachment Preview Tag -->
+                    <div id="filePreviewTag" class="hidden items-center gap-2 bg-white/90 border border-slate-200 px-3 py-1.5 rounded-xl text-xs w-fit shadow-sm animate-in fade-in">
+                        <i data-lucide="paperclip" class="w-3.5 h-3.5 text-blue-600"></i>
+                        <span id="fileNameText" class="font-medium text-slate-700">file.png</span>
+                        <button onclick="removeFile()" class="text-slate-400 hover:text-rose-500"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+                    </div>
+
+                    <!-- Comprehensive Bottom Chat Input Control Bar with Exclusive Glowing Lights -->
+                    <div class="relative group">
+                        <!-- Exclusive Ambient Light Glow ONLY around the chat input bar -->
+                        <div class="absolute -inset-1 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-500 to-amber-400 opacity-30 blur-md group-hover:opacity-60 transition duration-500 pointer-events-none"></div>
+
+                        <div class="relative apple-glass rounded-2xl p-2 flex flex-col gap-2 border border-white/90 shadow-xl bg-white/80">
+                            <!-- ChatGPT-Style Plus Menu Dropdown Container -->
+                            <div class="relative">
+                                <div id="plusMenuDropdown" class="hidden absolute bottom-12 left-0 z-50 w-64 apple-glass rounded-2xl p-2 border border-white/90 shadow-2xl space-y-1 animate-in fade-in zoom-in-95 duration-150">
+                                    <span class="text-[10px] font-extrabold uppercase text-slate-400 px-3 py-1.5 block">Add to conversation</span>
+                                    
+                                    <label class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-800 hover:bg-blue-50 flex items-center gap-2.5 cursor-pointer transition-all">
+                                        <div class="p-1.5 rounded-lg bg-blue-100 text-blue-600"><i data-lucide="file-up" class="w-4 h-4"></i></div>
+                                        <div>
+                                            <span class="block leading-tight">Upload Documents</span>
+                                            <span class="text-[10px] font-normal text-slate-500">PDF, CSV, TXT telemetry audit</span>
+                                        </div>
+                                        <input type="file" id="plusFileInput" onchange="handlePlusMenuFile(event)" class="hidden">
+                                    </label>
+
+                                    <button onclick="triggerPlusAction('photos')" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-800 hover:bg-blue-50 flex items-center gap-2.5 transition-all">
+                                        <div class="p-1.5 rounded-lg bg-indigo-100 text-indigo-600"><i data-lucide="image" class="w-4 h-4"></i></div>
+                                        <div>
+                                            <span class="block leading-tight">Add Photos & Charts</span>
+                                            <span class="text-[10px] font-normal text-slate-500">Analyze screenshots & diagrams</span>
+                                        </div>
+                                    </button>
+
+                                    <button onclick="triggerPlusAction('code')" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-800 hover:bg-blue-50 flex items-center gap-2.5 transition-all">
+                                        <div class="p-1.5 rounded-lg bg-amber-100 text-amber-600"><i data-lucide="code-2" class="w-4 h-4"></i></div>
+                                        <div>
+                                            <span class="block leading-tight">Smart Contract & Code</span>
+                                            <span class="text-[10px] font-normal text-slate-500">Solidity, Rust, or Python snippet</span>
+                                        </div>
+                                    </button>
+
+                                    <button onclick="triggerPlusAction('canvas')" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-800 hover:bg-blue-50 flex items-center gap-2.5 transition-all">
+                                        <div class="p-1.5 rounded-lg bg-emerald-100 text-emerald-600"><i data-lucide="layout-dashboard" class="w-4 h-4"></i></div>
+                                        <div>
+                                            <span class="block leading-tight">Create Canvas Report</span>
+                                            <span class="text-[10px] font-normal text-slate-500">Structured telemetry report</span>
+                                        </div>
+                                    </button>
+
+                                    <div class="border-t border-slate-200/60 my-1 pt-1"></div>
+
+                                    <button onclick="triggerPlusAction('web')" class="w-full text-left px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-blue-50 flex items-center gap-2">
+                                        <i data-lucide="globe" class="w-4 h-4 text-blue-500"></i> Search Live Web Telemetry
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <!-- Enhanced ChatGPT-Style Plus Menu Toggle Button -->
+                                <button id="plusMenuBtn" onclick="togglePlusMenuDropdown()" class="apple-glass-interactive p-2.5 rounded-xl text-slate-600 hover:text-blue-600 transition-all flex items-center justify-center shrink-0" title="Add Content">
+                                    <i data-lucide="plus" class="w-4 h-4"></i>
+                                </button>
+
+                                <!-- Web Search Toggle Button -->
+                                <button id="webSearchBtn" onclick="toggleWebSearch()" class="apple-glass-interactive p-2.5 rounded-xl text-slate-500 hover:text-blue-600 transition-all flex items-center justify-center shrink-0" title="Toggle Live Web Telemetry Search">
+                                    <i data-lucide="globe" class="w-4 h-4"></i>
+                                </button>
+
+                                <!-- Text Input Box -->
+                                <input type="text" id="userInput" placeholder="Ask AK Intelligence about markets, protocols, or risk..." 
+                                    class="flex-1 bg-transparent px-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none font-medium"
+                                    onkeydown="if(event.key === 'Enter') sendMessage()">
+
+                                <!-- Voice Waveform Button -->
+                                <button id="voiceBtn" onclick="toggleVoiceInput()" class="apple-glass-interactive px-3 py-2 rounded-xl text-slate-600 flex items-center gap-1.5 shrink-0" title="Voice Search">
+                                    <div id="siriWaveform" class="hidden items-center gap-0.5 h-5">
+                                        <span class="w-1 bg-blue-600 rounded-full siri-wave-bar" style="animation-delay: 0.1s"></span>
+                                        <span class="w-1 bg-indigo-600 rounded-full siri-wave-bar" style="animation-delay: 0.25s"></span>
+                                        <span class="w-1 bg-amber-500 rounded-full siri-wave-bar" style="animation-delay: 0.4s"></span>
+                                    </div>
+                                    <i id="micIcon" data-lucide="mic" class="w-4 h-4 text-slate-600"></i>
+                                </button>
+
+                                <!-- Send Button -->
+                                <button onclick="sendMessage()" class="btn-glass-getstarted p-2.5 rounded-xl text-white shadow-md hover:scale-105 transition-all shrink-0">
+                                    <i data-lucide="send" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- SIGN IN MODAL -->
+    <div id="authModal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden transition-all">
+        <div class="apple-glass w-full max-w-sm rounded-3xl p-6 shadow-2xl relative border border-white/80 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <div class="flex items-center justify-between border-b border-slate-200/50 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 ak-glass-badge">
+                        <svg class="w-5 h-5 ak-svg-icon" viewBox="0 0 100 100" fill="none">
+                            <path d="M18 78 L42 22 L54 22 L36 60 L62 22 L78 22 L50 62 L80 78 L63 78 L42 66 L30 78 Z" fill="url(#akGoldGradient)" />
+                        </svg>
+                    </div>
+                    <h3 class="font-extrabold text-slate-900 text-base">Sign In to AK Luxe</h3>
+                </div>
+                <button onclick="closeAuthModal()" class="apple-glass-interactive p-1.5 rounded-xl text-slate-500 hover:text-slate-900">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3">
+                <button onclick="simulateLogin('Google')" class="w-full apple-glass-interactive py-3 px-4 rounded-xl font-bold text-xs text-slate-800 flex items-center justify-center gap-2.5 shadow-sm border border-slate-200">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                    </svg>
+                    <span>Continue with Google</span>
+                </button>
+
+                <button onclick="simulateLogin('Web3 Wallet')" class="w-full btn-glass-signin py-3 px-4 rounded-xl font-bold text-xs text-white flex items-center justify-center gap-2.5 shadow-md">
+                    <i data-lucide="wallet" class="w-4 h-4 text-blue-400"></i>
+                    <span>Connect Web3 Wallet</span>
+                </button>
+
+                <div class="flex items-center my-2">
+                    <div class="flex-1 border-t border-slate-200"></div>
+                    <span class="px-2 text-[10px] font-extrabold uppercase text-slate-400">or email</span>
+                    <div class="flex-1 border-t border-slate-200"></div>
+                </div>
+
+                <input type="email" placeholder="name@domain.com" class="w-full apple-glass-interactive px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 outline-none">
+                
+                <button onclick="simulateLogin('Email')" class="w-full btn-glass-getstarted py-2.5 rounded-xl font-bold text-xs text-white shadow-md">
+                    Sign In with Email
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GET STARTED PRO MODAL -->
+    <div id="getStartedModal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden transition-all">
+        <div class="apple-glass w-full max-w-md rounded-3xl p-6 shadow-2xl relative border border-white/80 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <div class="flex items-center justify-between border-b border-slate-200/50 pb-3">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="sparkles" class="w-5 h-5 text-blue-600"></i>
+                    <h3 class="font-extrabold text-slate-900 text-base">Get Started with AK Pro</h3>
+                </div>
+                <button onclick="closeGetStartedModal()" class="apple-glass-interactive p-1.5 rounded-xl text-slate-500 hover:text-slate-900">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-600 font-medium">Unlock sub-second AI telemetry signals, automated arbitrage detection, and unlimited deep portfolio audits.</p>
+
+            <div class="space-y-2">
+                <div class="p-3 bg-white/80 rounded-2xl border border-blue-200 flex items-center justify-between">
+                    <div>
+                        <h4 class="font-extrabold text-slate-900 text-xs">AK Intelligence Pro</h4>
+                        <span class="text-[10px] text-slate-500">Full telemetry & unlimited voice streaming</span>
+                    </div>
+                    <span class="text-sm font-extrabold text-blue-600">$29/mo</span>
+                </div>
+            </div>
+
+            <button onclick="simulateLogin('Pro Plan Upgrade')" class="w-full btn-glass-getstarted py-3 rounded-xl font-extrabold text-xs text-white shadow-md flex items-center justify-center gap-1.5">
+                <span>Start 14-Day Free Trial</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- LIVE INTERACTIVE PRICE CHART MODAL -->
+    <div id="chartModal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden transition-all">
+        <div class="apple-glass w-full max-w-3xl rounded-3xl p-6 shadow-2xl relative border border-white/80 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <div class="flex items-center justify-between border-b border-slate-200/50 pb-3">
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 rounded-xl bg-blue-600 text-white shadow-md">
+                        <i data-lucide="line-chart" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                            <span id="chartModalTitle">BTC/USD Live Telemetry Chart</span>
+                            <span class="text-xs text-emerald-600 font-extrabold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">+3.42%</span>
+                        </h3>
+                        <p class="text-[11px] text-slate-500 font-medium">Real-time market depth & algorithmic trend vectors</p>
+                    </div>
+                </div>
+                <button onclick="closeChartModal()" class="apple-glass-interactive p-2 rounded-xl text-slate-500 hover:text-slate-900">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="flex gap-1.5">
+                    <button onclick="switchChartAsset('BTC')" class="chart-asset-btn apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-blue-700 bg-white/90 border-blue-300">Bitcoin (BTC)</button>
+                    <button onclick="switchChartAsset('ETH')" class="chart-asset-btn apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700">Ethereum (ETH)</button>
+                    <button onclick="switchChartAsset('SOL')" class="chart-asset-btn apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700">Solana (SOL)</button>
+                </div>
+                <div class="flex gap-1 bg-slate-200/50 p-1 rounded-xl">
+                    <button class="px-2.5 py-1 rounded-lg text-[11px] font-bold text-blue-700 bg-white shadow-xs">1D</button>
+                    <button class="px-2.5 py-1 rounded-lg text-[11px] font-semibold text-slate-600 hover:text-slate-900">1W</button>
+                    <button class="px-2.5 py-1 rounded-lg text-[11px] font-semibold text-slate-600 hover:text-slate-900">1M</button>
+                </div>
+            </div>
+
+            <div class="relative bg-slate-950/90 rounded-2xl p-4 h-72 border border-slate-800 shadow-inner overflow-hidden flex flex-col justify-between">
+                <div class="flex justify-between items-center text-xs text-slate-400 font-mono">
+                    <span id="chartPriceLabel" class="text-xl font-bold text-emerald-400">$98,420.50</span>
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Streaming Live Data</span>
+                </div>
+                <canvas id="interactiveChartCanvas" class="w-full h-48 cursor-crosshair"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- CRYPTO CONVERTER MODAL -->
+    <div id="converterModal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden transition-all">
+        <div class="apple-glass w-full max-w-md rounded-3xl p-6 shadow-2xl relative border border-white/80 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <div class="flex items-center justify-between border-b border-slate-200/50 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="p-2.5 rounded-xl bg-indigo-600 text-white shadow-md">
+                        <i data-lucide="arrow-left-right" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-sm">Crypto Telemetry Converter</h3>
+                        <p class="text-[11px] text-slate-500 font-medium">Real-time token swap calculations & gas costs</p>
+                    </div>
+                </div>
+                <button onclick="closeConverterModal()" class="apple-glass-interactive p-1.5 rounded-xl text-slate-500 hover:text-slate-900">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3">
+                <div class="p-3 bg-white/70 rounded-2xl border border-slate-200/60 space-y-1">
+                    <label class="text-[10px] font-bold uppercase text-slate-400">You Pay</label>
+                    <div class="flex items-center justify-between">
+                        <input type="number" id="convertAmountInput" value="1" oninput="calculateConversion()" class="bg-transparent text-lg font-bold text-slate-900 outline-none w-1/2">
+                        <select id="convertFromSelect" onchange="calculateConversion()" class="apple-glass-interactive px-2.5 py-1 rounded-xl text-xs font-bold text-slate-800">
+                            <option value="BTC">BTC</option>
+                            <option value="ETH">ETH</option>
+                            <option value="SOL">SOL</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-center -my-1">
+                    <div class="p-1.5 rounded-full apple-glass border border-white shadow-md text-slate-600">
+                        <i data-lucide="arrow-down-up" class="w-4 h-4"></i>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-white/70 rounded-2xl border border-slate-200/60 space-y-1">
+                    <label class="text-[10px] font-bold uppercase text-slate-400">You Receive (Est.)</label>
+                    <div class="flex items-center justify-between">
+                        <span id="convertResultText" class="text-lg font-extrabold text-blue-600">$98,420.50</span>
+                        <select id="convertToSelect" onchange="calculateConversion()" class="apple-glass-interactive px-2.5 py-1 rounded-xl text-xs font-bold text-slate-800">
+                            <option value="USD">USD ($)</option>
+                            <option value="ETH">ETH</option>
+                            <option value="SOL">SOL</option>
+                            <option value="USDT">USDT</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PREFERENCES & SETTINGS MODAL -->
+    <div id="settingsModal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden transition-all">
+        <div class="apple-glass w-full max-w-md rounded-3xl p-6 shadow-2xl relative border border-white/80 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <div class="flex items-center justify-between border-b border-slate-200/50 pb-3">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="settings" class="w-5 h-5 text-slate-700"></i>
+                    <h3 class="font-extrabold text-slate-900 text-base">Crypto Preferences & Settings</h3>
+                </div>
+                <button onclick="closeSettingsModal()" class="apple-glass-interactive p-1.5 rounded-xl text-slate-500 hover:text-slate-900">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+                <!-- Floating Physics Option -->
+                <div class="flex items-center justify-between p-3 bg-white/70 rounded-2xl border border-slate-200/60">
+                    <div>
+                        <h4 class="font-bold text-slate-900 text-xs">Anti-Gravity Particle Bubbles</h4>
+                        <p class="text-[10px] text-slate-500">Floating 3D crypto coins & glass bubbles background</p>
+                    </div>
+                    <input type="checkbox" id="settingPhysics" checked onchange="toggleBackgroundPhysics(this.checked)" class="w-4 h-4 accent-blue-600 cursor-pointer">
+                </div>
+
+                <!-- Telemetry Feeds Refresh Rate -->
+                <div class="p-3 bg-white/70 rounded-2xl border border-slate-200/60 space-y-1.5">
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-bold text-slate-900 text-xs">Telemetry Refresh Frequency</h4>
+                        <span id="refreshLabel" class="text-[10px] font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-md">Realtime</span>
+                    </div>
+                    <select onchange="updateRefreshSpeed(this.value)" class="w-full apple-glass-interactive px-2.5 py-1.5 rounded-xl text-xs font-semibold text-slate-800">
+                        <option value="Realtime">Real-time Stream (Sub-second)</option>
+                        <option value="5s">Every 5 Seconds</option>
+                        <option value="15s">Every 15 Seconds</option>
+                    </select>
+                </div>
+
+                <!-- AI Temperature Slider -->
+                <div class="p-3 bg-white/70 rounded-2xl border border-slate-200/60 space-y-1.5">
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-bold text-slate-900 text-xs">AI Model Creativity (Temperature)</h4>
+                        <span id="tempValueLabel" class="text-[10px] font-bold text-blue-600">0.7 (Balanced)</span>
+                    </div>
+                    <input type="range" min="0.1" max="1.0" step="0.1" value="0.7" oninput="document.getElementById('tempValueLabel').textContent = this.value + (this.value < 0.4 ? ' (Precise)' : this.value > 0.8 ? ' (Creative)' : ' (Balanced)')" class="w-full accent-blue-600 cursor-pointer">
+                </div>
+
+                <!-- Speech Read Aloud Speed -->
+                <div class="p-3 bg-white/70 rounded-2xl border border-slate-200/60 space-y-1.5">
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-bold text-slate-900 text-xs">Speech Synthesis Voice Speed</h4>
+                        <span class="text-[10px] font-bold text-slate-600">1.0x Normal</span>
+                    </div>
+                    <select class="w-full apple-glass-interactive px-2.5 py-1.5 rounded-xl text-xs font-semibold text-slate-800">
+                        <option value="0.8">0.8x Smooth Pace</option>
+                        <option value="1.0" selected>1.0x Standard</option>
+                        <option value="1.25">1.25x Fast Telemetry</option>
+                    </select>
+                </div>
+
+                <!-- Sound Effects Toggle -->
+                <div class="flex items-center justify-between p-3 bg-white/70 rounded-2xl border border-slate-200/60">
+                    <div>
+                        <h4 class="font-bold text-slate-900 text-xs">Audio Feedback & Tone FX</h4>
+                        <p class="text-[10px] text-slate-500">Chime sounds on message receipt and alerts</p>
+                    </div>
+                    <input type="checkbox" checked onchange="showToast('Audio feedback toggled')" class="w-4 h-4 accent-blue-600 cursor-pointer">
+                </div>
+
+                <!-- Auto-Scroll Chat -->
+                <div class="flex items-center justify-between p-3 bg-white/70 rounded-2xl border border-slate-200/60">
+                    <div>
+                        <h4 class="font-bold text-slate-900 text-xs">Auto-Scroll to New Messages</h4>
+                        <p class="text-[10px] text-slate-500">Automatically stick scrollbar to latest response</p>
+                    </div>
+                    <input type="checkbox" checked onchange="showToast('Auto-scroll setting saved')" class="w-4 h-4 accent-blue-600 cursor-pointer">
+                </div>
+            </div>
+
+            <button onclick="closeSettingsModal()" class="w-full btn-glass-getstarted py-2.5 rounded-xl font-bold text-xs text-white shadow-md">
+                Save Preferences
+            </button>
+        </div>
+    </div>
+
+    <!-- BOOKMARKS DRAWER -->
+    <div id="bookmarksDrawer" class="fixed top-0 right-0 h-full w-80 z-50 apple-glass border-l border-white/80 shadow-2xl p-5 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col justify-between">
+        <div class="space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-200/50 pb-3">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="bookmark" class="w-5 h-5 text-amber-500"></i>
+                    <h3 class="font-bold text-slate-900 text-sm">Saved Intelligence</h3>
+                </div>
+                <button onclick="toggleBookmarksDrawer()" class="apple-glass-interactive p-1.5 rounded-xl text-slate-500 hover:text-slate-900">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <div id="bookmarksList" class="space-y-2.5 max-h-[75vh] overflow-y-auto pr-1">
+                <p class="text-xs text-slate-400 font-medium text-center py-8">No saved insights yet. Click Save on any response to store it here!</p>
+            </div>
+        </div>
+
+        <button onclick="clearAllBookmarks()" class="w-full apple-glass-interactive py-2 rounded-xl text-xs font-bold text-rose-600 flex items-center justify-center gap-1 border-rose-200">
+            <i data-lucide="trash" class="w-3.5 h-3.5"></i> Clear All Bookmarks
+        </button>
+    </div>
+
+    <script>
+        window.onload = function() {
+            lucide.createIcons();
+            initAntiGravityCanvas();
+            initCursorGlow();
+            typewriterWelcome();
+            drawMiniCharts();
+        };
+
+        function drawMiniCharts() {
+            // Draw Bitcoin Mini Chart
+            const canvasBTC = document.getElementById('miniChartBTC');
+            if (canvasBTC) {
+                const ctxBTC = canvasBTC.getContext('2d');
+                canvasBTC.width = canvasBTC.parentElement.clientWidth - 24;
+                canvasBTC.height = 64;
+                const w = canvasBTC.width;
+                const h = canvasBTC.height;
+                
+                ctxBTC.clearRect(0, 0, w, h);
+                const pts = [20, 28, 24, 38, 32, 45, 40, 52, 48, 58];
+                const max = Math.max(...pts);
+                const min = Math.min(...pts);
+                
+                ctxBTC.beginPath();
+                ctxBTC.moveTo(0, h - ((pts[0] - min) / (max - min || 1)) * (h - 15) - 5);
+                for (let i = 1; i < pts.length; i++) {
+                    const x = (w / (pts.length - 1)) * i;
+                    const y = h - ((pts[i] - min) / (max - min || 1)) * (h - 15) - 5;
+                    ctxBTC.lineTo(x, y);
+                }
+                ctxBTC.strokeStyle = '#f59e0b';
+                ctxBTC.lineWidth = 2.5;
+                ctxBTC.stroke();
+            }
+
+            // Draw Ethereum Mini Chart
+            const canvasETH = document.getElementById('miniChartETH');
+            if (canvasETH) {
+                const ctxETH = canvasETH.getContext('2d');
+                canvasETH.width = canvasETH.parentElement.clientWidth - 24;
+                canvasETH.height = 64;
+                const w = canvasETH.width;
+                const h = canvasETH.height;
+                
+                ctxETH.clearRect(0, 0, w, h);
+                const pts = [35, 30, 42, 38, 50, 45, 55, 48, 60, 58];
+                const max = Math.max(...pts);
+                const min = Math.min(...pts);
+                
+                ctxETH.beginPath();
+                ctxETH.moveTo(0, h - ((pts[0] - min) / (max - min || 1)) * (h - 15) - 5);
+                for (let i = 1; i < pts.length; i++) {
+                    const x = (w / (pts.length - 1)) * i;
+                    const y = h - ((pts[i] - min) / (max - min || 1)) * (h - 15) - 5;
+                    ctxETH.lineTo(x, y);
+                }
+                ctxETH.strokeStyle = '#6366f1';
+                ctxETH.lineWidth = 2.5;
+                ctxETH.stroke();
+            }
+        }
+
+        function typewriterWelcome() {
+            const welcomeEl = document.getElementById('welcomeTextContent');
+            if (!welcomeEl) return;
+            const fullText = "Hello! 👋 Welcome to AK Luxe Crypto Intelligence. How can I assist with your market telemetry, portfolio risk, or on-chain signals today?";
+            welcomeEl.textContent = "";
+            welcomeEl.classList.add('typing-cursor');
+            
+            let index = 0;
+            const speed = 20;
+            
+            function typeNextChar() {
+                if (index < fullText.length) {
+                    welcomeEl.textContent += fullText.charAt(index);
+                    index++;
+                    setTimeout(typeNextChar, speed);
+                } else {
+                    welcomeEl.classList.remove('typing-cursor');
+                }
+            }
+            
+            setTimeout(typeNextChar, 350);
+        }
+
+        const chatContainer = document.getElementById('chatContainer');
+        const userInput = document.getElementById('userInput');
+        let savedBookmarks = [];
+        let attachedFile = null;
+        let isWebSearchActive = false;
+        let physicsEnabled = true;
+
+        function togglePlusMenuDropdown() {
+            const dropdown = document.getElementById('plusMenuDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        function triggerPlusAction(actionType) {
+            document.getElementById('plusMenuDropdown').classList.add('hidden');
+            if (actionType === 'photos') {
+                showToast('Photo & Chart Inspector Ready');
+                userInput.placeholder = "Describe or upload chart screenshot for deep analysis...";
+            } else if (actionType === 'code') {
+                showToast('Smart Contract & Code Audit Mode Ready');
+                userInput.placeholder = "Paste Solidity/Rust contract code for telemetry audit...";
+            } else if (actionType === 'canvas') {
+                showToast('Canvas Telemetry Report Initialized');
+                sendQuickPrompt('Generate a comprehensive market canvas telemetry report.');
+            } else if (actionType === 'web') {
+                toggleWebSearch();
+            }
+        }
+
+        function handlePlusMenuFile(e) {
+            document.getElementById('plusMenuDropdown').classList.add('hidden');
+            handleFileUpload(e);
+        }
+
+        document.addEventListener('click', (e) => {
+            const plusDropdown = document.getElementById('plusMenuDropdown');
+            const plusBtn = e.target.closest('#plusMenuBtn');
+            if (plusDropdown && !plusDropdown.classList.contains('hidden') && !e.target.closest('#plusMenuDropdown') && !plusBtn) {
+                plusDropdown.classList.add('hidden');
+            }
+
+            const modelDropdown = document.getElementById('modelDropdown');
+            const button = e.target.closest('button');
+            if (modelDropdown && !modelDropdown.classList.contains('hidden') && !e.target.closest('#modelDropdown') && (!button || !button.getAttribute('onclick')?.includes('toggleModelDropdown'))) {
+                modelDropdown.classList.add('hidden');
+            }
+        });
+
+        function openAuthModal() { document.getElementById('authModal').classList.remove('hidden'); }
+        function closeAuthModal() { document.getElementById('authModal').classList.add('hidden'); }
+        
+        function openGetStartedModal() { document.getElementById('getStartedModal').classList.remove('hidden'); }
+        function closeGetStartedModal() { document.getElementById('getStartedModal').classList.add('hidden'); }
+
+        function openSettingsModal() { document.getElementById('settingsModal').classList.remove('hidden'); }
+        function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
+
+        function simulateLogin(type) {
+            closeAuthModal();
+            closeGetStartedModal();
+            showToast(`Successfully authenticated via ${type}`);
+        }
+
+        function filterMarketCategory(categoryName, btn) {
+            document.querySelectorAll('.market-top-btn').forEach(b => {
+                b.className = 'market-top-btn apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 flex items-center gap-1.5 shrink-0';
+            });
+            btn.className = 'market-top-btn px-3 py-1.5 rounded-xl text-xs font-extrabold bg-blue-600 text-white shadow-xs flex items-center gap-1.5 shrink-0';
+            showToast(`Market Filter Active: ${categoryName}`);
+            sendQuickPrompt(`Show telemetry breakdown for ${categoryName}`);
+        }
+
+        function toggleWebSearch() {
+            isWebSearchActive = !isWebSearchActive;
+            const btn = document.getElementById('webSearchBtn');
+            if (isWebSearchActive) {
+                btn.className = 'apple-glass-interactive p-2.5 rounded-xl text-blue-600 bg-blue-100 border border-blue-300 transition-all flex items-center justify-center shrink-0';
+                showToast('Live Web Telemetry Search Enabled');
+            } else {
+                btn.className = 'apple-glass-interactive p-2.5 rounded-xl text-slate-500 hover:text-blue-600 transition-all flex items-center justify-center shrink-0';
+                showToast('Live Web Search Disabled');
+            }
+        }
+
+        function toggleModelDropdown() {
+            const dropdown = document.getElementById('modelDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        function selectModel(name, desc) {
+            document.getElementById('activeModelName').textContent = name;
+            document.getElementById('activeModelDesc').textContent = desc || 'Active Intelligence Model';
+            document.getElementById('modelDropdown').classList.add('hidden');
+            showToast(`Switched active AI engine to ${name}`);
+        }
+
+        function showToast(msg) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast-msg apple-glass px-4 py-2.5 rounded-2xl text-xs font-bold text-slate-900 shadow-xl flex items-center gap-2 border border-white';
+            toast.innerHTML = `<span class="w-2 h-2 rounded-full bg-blue-600 animate-ping"></span> ${msg}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function initCursorGlow() {
+            const glow = document.getElementById('cursorGlow');
+            document.addEventListener('mousemove', (e) => {
+                glow.style.left = e.clientX + 'px';
+                glow.style.top = e.clientY + 'px';
+            });
+        }
+
+        function createUserBubble(text) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'flex justify-end';
+            msgDiv.innerHTML = `
+                <div class="user-glass-bubble rounded-2xl px-4 py-3 text-sm font-semibold max-w-lg shadow-md">
+                    ${escapeHtml(text)}
+                    ${attachedFile ? `<div class="mt-1 text-[10px] text-blue-600 flex items-center gap-1 font-bold"><i data-lucide="paperclip" class="w-3 h-3"></i> ${escapeHtml(attachedFile.name)}</div>` : ''}
+                </div>
+            `;
+            chatContainer.appendChild(msgDiv);
+            lucide.createIcons();
+            scrollToBottom();
+        }
+
+        function createThinkingBubble() {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'flex gap-3 max-w-3xl thinking-msg';
+            msgDiv.innerHTML = `
+                <div class="thinking-bubble rounded-2xl px-4 py-2.5 text-slate-700 text-xs font-bold flex items-center gap-2.5 shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-blue-600 animate-ping"></span>
+                    <span>Analyzing live telemetry stream...</span>
+                </div>
+            `;
+            chatContainer.appendChild(msgDiv);
+            scrollToBottom();
+            return msgDiv;
+        }
+
+        function createBotBubble(text) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'flex gap-3 max-w-3xl';
+            msgDiv.innerHTML = `
+                <div class="bot-glass-bubble rounded-2xl p-4 text-slate-800 text-sm leading-relaxed max-w-2xl w-full">
+                    <div class="flex items-center justify-between mb-1.5 pb-1 border-b border-slate-200/30">
+                        <span class="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span> AK Intelligence
+                        </span>
+                        <span class="text-[10px] text-slate-400">Just now</span>
+                    </div>
+                    <div class="bot-content space-y-2">
+                        ${text}
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-slate-200/40 flex items-center justify-between">
+                        <div class="flex gap-1.5">
+                            <button class="apple-glass-interactive px-2.5 py-1 rounded-lg text-[11px] font-semibold text-slate-600 flex items-center gap-1" onclick="speakText(this)">
+                                <i data-lucide="volume-2" class="w-3.5 h-3.5 text-blue-600"></i> Read Aloud
+                            </button>
+                            <button class="apple-glass-interactive px-2 py-1 rounded-lg text-[11px] text-slate-500 flex items-center gap-1 font-semibold" onclick="bookmarkMessage(this)" title="Bookmark Insight">
+                                <i data-lucide="bookmark" class="w-3.5 h-3.5 text-amber-500"></i> Save
+                            </button>
+                            <button class="apple-glass-interactive px-2 py-1 rounded-lg text-[11px] text-slate-500" onclick="copyToClipboard('${escapeHtml(text.replace(/<[^>]*>/g, ''))}') " title="Copy">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            chatContainer.appendChild(msgDiv);
+            lucide.createIcons();
+            scrollToBottom();
+        }
+
+        function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text && !attachedFile) return;
+
+            createUserBubble(text || "Uploaded attachment analysis");
+            userInput.value = '';
+            removeFile();
+
+            const thinkingBubble = createThinkingBubble();
+
+            setTimeout(() => {
+                thinkingBubble.remove();
+                
+                let response = "Based on current on-chain telemetry and market depth vectors, momentum shows strong bullish consolidation near key liquidity pools.";
+                if (text.toLowerCase().includes('btc') || text.toLowerCase().includes('bitcoin')) {
+                    response = "<strong>Bitcoin (BTC) Telemetry:</strong> Price is hovering near $98,420 with RSI at 64. Whales have accumulated over 12,400 BTC in liquid custody during the last 24 hours.";
+                } else if (text.toLowerCase().includes('eth') || text.toLowerCase().includes('ethereum')) {
+                    response = "<strong>Ethereum (ETH) Telemetry:</strong> Staking yield stands at 3.4% APY with network gas fees averaged at 12 Gwei. Layer-2 rollup throughput hit a new peak of 1,850 TPS.";
+                } else if (text.toLowerCase().includes('heatmap') || text.toLowerCase().includes('liquidity')) {
+                    response = "<strong>Liquidity Heatmap Breakdown:</strong> Heavy order book resistance detected at $99,500 BTC and $3,520 ETH. Buy walls remain dense at $97,200.";
+                }
+
+                createBotBubble(response);
+            }, 1200);
+        }
+
+        function sendQuickPrompt(prompt) {
+            userInput.value = prompt;
+            sendMessage();
+        }
+
+        function switchLayer(layerName, btn) {
+            document.querySelectorAll('.intelligence-layer-btn').forEach(b => {
+                b.className = 'intelligence-layer-btn w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-700 apple-glass-interactive flex items-center gap-2.5';
+            });
+            btn.className = 'intelligence-layer-btn w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold text-blue-700 bg-white/90 border border-blue-200/90 shadow-sm flex items-center justify-between transition-all';
+            showToast(`Switched active layer to ${layerName}`);
+        }
+
+        function scrollToBottom() {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            attachedFile = file;
+            document.getElementById('fileNameText').textContent = file.name;
+            document.getElementById('filePreviewTag').classList.remove('hidden');
+            document.getElementById('filePreviewTag').classList.add('flex');
+            showToast(`Attached file: ${file.name}`);
+        }
+
+        function removeFile() {
+            attachedFile = null;
+            document.getElementById('fileInput').value = '';
+            document.getElementById('filePreviewTag').classList.add('hidden');
+            document.getElementById('filePreviewTag').classList.remove('flex');
+        }
+
+        let isRecording = false;
+        function toggleVoiceInput() {
+            isRecording = !isRecording;
+            const wave = document.getElementById('siriWaveform');
+            const icon = document.getElementById('micIcon');
+            
+            if (isRecording) {
+                wave.classList.remove('hidden');
+                wave.classList.add('flex');
+                icon.classList.add('hidden');
+                showToast('Listening... Speak now');
+            } else {
+                wave.classList.add('hidden');
+                wave.classList.remove('flex');
+                icon.classList.remove('hidden');
+                userInput.value = "Analyze BTC market structure & liquidations";
+                showToast('Voice transcription captured');
+            }
+        }
+
+        function speakText(btn) {
+            const card = btn.closest('.bot-glass-bubble');
+            const text = card.querySelector('.bot-content')?.innerText || 'Telemetry active';
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                window.speechSynthesis.speak(utterance);
+                showToast('Reading aloud...');
+            } else {
+                showToast('Speech synthesis not supported in browser');
+            }
+        }
+
+        function toggleBookmarksDrawer() {
+            document.getElementById('bookmarksDrawer').classList.toggle('translate-x-full');
+            renderBookmarks();
+        }
+
+        function bookmarkMessage(btn) {
+            const card = btn.closest('.bot-glass-bubble');
+            const text = card.querySelector('.bot-content')?.innerText || '';
+            if (text && !savedBookmarks.includes(text)) {
+                savedBookmarks.push(text);
+                showToast('Saved insight to bookmarks!');
+            } else {
+                showToast('Insight is already bookmarked');
+            }
+            const badge = document.getElementById('bookmarkCountBadge');
+            badge.textContent = savedBookmarks.length;
+            badge.classList.remove('hidden');
+        }
+
+        function renderBookmarks() {
+            const list = document.getElementById('bookmarksList');
+            if (savedBookmarks.length === 0) {
+                list.innerHTML = '<p class="text-xs text-slate-400 font-medium text-center py-8">No saved insights yet. Click Save on any response to store it here!</p>';
+                return;
+            }
+            list.innerHTML = savedBookmarks.map((item, idx) => `
+                <div class="p-3 bg-white/80 rounded-2xl border border-white shadow-sm space-y-1.5 relative group">
+                    <p class="text-xs font-medium text-slate-800 line-clamp-3">${escapeHtml(item)}</p>
+                    <div class="flex justify-end gap-2 pt-1">
+                        <button onclick="copyToClipboard('${escapeHtml(item)}')" class="text-[10px] font-bold text-blue-600 hover:underline">Copy</button>
+                        <button onclick="removeBookmark(${idx})" class="text-[10px] font-bold text-rose-500 hover:underline">Remove</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function removeBookmark(idx) {
+            savedBookmarks.splice(idx, 1);
+            const badge = document.getElementById('bookmarkCountBadge');
+            badge.textContent = savedBookmarks.length;
+            if (savedBookmarks.length === 0) badge.classList.add('hidden');
+            renderBookmarks();
+        }
+
+        function clearAllBookmarks() {
+            savedBookmarks = [];
+            document.getElementById('bookmarkCountBadge').classList.add('hidden');
+            renderBookmarks();
+            showToast('Bookmarks cleared');
+        }
+
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showToast('Copied to clipboard!');
+        }
+
+        const conversionRates = {
+            'BTC': { 'USD': 98420.50, 'ETH': 28.52, 'SOL': 462.5, 'USDT': 98420.50 },
+            'ETH': { 'USD': 3450.20, 'ETH': 1, 'SOL': 16.2, 'USDT': 3450.20 },
+            'SOL': { 'USD': 212.80, 'ETH': 0.061, 'SOL': 1, 'USDT': 212.80 }
+        };
+
+        function openConverterModal() { document.getElementById('converterModal').classList.remove('hidden'); calculateConversion(); }
+        function closeConverterModal() { document.getElementById('converterModal').classList.add('hidden'); }
+
+        function calculateConversion() {
+            const amount = parseFloat(document.getElementById('convertAmountInput').value) || 0;
+            const from = document.getElementById('convertFromSelect').value;
+            const to = document.getElementById('convertToSelect').value;
+
+            let rate = conversionRates[from]?.[to] || 1;
+            let result = (amount * rate).toLocaleString(undefined, { maximumFractionDigits: 4 });
+            document.getElementById('convertResultText').textContent = (to === 'USD' || to === 'USDT' ? '$' : '') + result;
+        }
+
+        function openChartModal() {
+            document.getElementById('chartModal').classList.remove('hidden');
+            setTimeout(drawInteractiveChart, 100);
+        }
+        function closeChartModal() { document.getElementById('chartModal').classList.add('hidden'); }
+
+        function switchChartAsset(asset) {
+            document.getElementById('chartModalTitle').textContent = `${asset}/USD Live Telemetry Chart`;
+            const prices = { 'BTC': '$98,420.50', 'ETH': '$3,450.20', 'SOL': '$212.80' };
+            document.getElementById('chartPriceLabel').textContent = prices[asset] || '$100.00';
+            drawInteractiveChart();
+        }
+
+        function drawInteractiveChart() {
+            const canvas = document.getElementById('interactiveChartCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth - 32;
+            canvas.height = 180;
+
+            const w = canvas.width;
+            const h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+
+            const points = [];
+            const count = 30;
+            let current = h / 2;
+            for (let i = 0; i <= count; i++) {
+                current += (Math.random() - 0.48) * 22;
+                current = Math.max(20, Math.min(h - 20, current));
+                points.push({ x: (w / count) * i, y: current });
+            }
+
+            const grad = ctx.createLinearGradient(0, 0, 0, h);
+            grad.addColorStop(0, 'rgba(59, 130, 246, 0.4)');
+            grad.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+            ctx.lineTo(w, h);
+            ctx.lineTo(0, h);
+            ctx.closePath();
+            ctx.fillStyle = grad;
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
+
+        function clearChat() {
+            chatContainer.innerHTML = '';
+            showToast('Chat history cleared');
+        }
+
+        function toggleBackgroundPhysics(enabled) {
+            physicsEnabled = enabled;
+            showToast(`Background floating bubbles ${enabled ? 'enabled' : 'paused'}`);
+        }
+
+        function updateRefreshSpeed(val) {
+            document.getElementById('refreshLabel').textContent = val;
+            showToast(`Telemetry refresh rate set to ${val}`);
+        }
+
+        function initAntiGravityCanvas() {
+            const canvas = document.getElementById('bgCanvas');
+            const ctx = canvas.getContext('2d');
+            let w = canvas.width = window.innerWidth;
+            let h = canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+                drawMiniCharts();
+            });
+
+            const coins = [
+                { symbol: '₿', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.16)' },
+                { symbol: 'Ξ', color: '#6366f1', bg: 'rgba(99, 102, 241, 0.16)' },
+                { symbol: '◎', color: '#14f195', bg: 'rgba(20, 241, 149, 0.16)' },
+                { symbol: '⬡', color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.16)' },
+                { symbol: '⚡', color: '#ec4899', bg: 'rgba(236, 72, 153, 0.16)' },
+                { symbol: '🫧', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.18)' }
+            ];
+
+            const particles = [];
+            for (let i = 0; i < 28; i++) {
+                const coin = coins[i % coins.length];
+                particles.push({
+                    x: Math.random() * w,
+                    y: Math.random() * h,
+                    radius: Math.random() * 18 + 16,
+                    symbol: coin.symbol,
+                    color: coin.color,
+                    bg: coin.bg,
+                    vx: (Math.random() - 0.5) * 0.7,
+                    vy: -Math.random() * 0.6 - 0.2,
+                    floatOffset: Math.random() * Math.PI * 2
+                });
+            }
+
+            let mouseX = -1000, mouseY = -1000;
+            window.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            function animate() {
+                ctx.clearRect(0, 0, w, h);
+
+                if (physicsEnabled) {
+                    particles.forEach(p => {
+                        p.x += p.vx + Math.sin(p.floatOffset) * 0.4;
+                        p.y += p.vy;
+                        p.floatOffset += 0.02;
+
+                        if (p.y < -60) { p.y = h + 60; p.x = Math.random() * w; }
+                        if (p.x < -60) p.x = w + 60;
+                        if (p.x > w + 60) p.x = -60;
+
+                        const dx = mouseX - p.x;
+                        const dy = mouseY - p.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 140) {
+                            const angle = Math.atan2(dy, dx);
+                            p.x -= Math.cos(angle) * 2.5;
+                            p.y -= Math.sin(angle) * 2.5;
+                        }
+
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                        ctx.fillStyle = p.bg;
+                        ctx.fill();
+                        ctx.lineWidth = 1.5;
+                        ctx.strokeStyle = p.color + '88';
+                        ctx.stroke();
+
+                        ctx.beginPath();
+                        ctx.arc(p.x - p.radius * 0.3, p.y - p.radius * 0.3, p.radius * 0.35, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+                        ctx.fill();
+
+                        ctx.fillStyle = p.color;
+                        ctx.font = `bold ${p.radius * 0.85}px 'Plus Jakarta Sans', sans-serif`;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(p.symbol, p.x, p.y);
+                        ctx.restore();
+                    });
+                }
+
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+    </script>
+</body>
+</html>
