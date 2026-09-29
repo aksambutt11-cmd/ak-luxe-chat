@@ -1532,23 +1532,23 @@ button.rail-layer {
   content: '';
   position: absolute;
   top: 0;
-  left: -130%;
-  width: 60%;
+  left: -140%;
+  width: 55%;
   height: 100%;
   background: linear-gradient(
       90deg, 
       transparent 0%, 
-      rgba(255, 255, 255, 0.95) 50%, 
+      rgba(255, 255, 255, 0.45) 50%, 
       transparent 100%
   );
-  transform: skewX(-25deg);
+  transform: skewX(-20deg);
   pointer-events: none;
   transition: left 0s ease;
 }
 
 .apple-glass-interactive:hover::after, .btn-glass-signin:hover::after, .btn-glass-getstarted:hover::after, .market-top-btn:hover::after {
-  left: 170%;
-  transition: left 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0s !important;
+  left: 180%;
+  transition: left 1.15s cubic-bezier(0.2, 0.8, 0.2, 1) 0s !important;
 }
 
 .apple-glass-interactive:hover {

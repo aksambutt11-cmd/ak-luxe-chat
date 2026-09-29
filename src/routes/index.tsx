@@ -300,47 +300,110 @@ function AKChat() {
     };
   }, []);
 
-  // Draw Interactive Chart in Modal
+  // 5. Upgraded Live Market Graph Animation in Modal
   useEffect(() => {
     if (!chartModalOpen || !interactiveChartRef.current) return;
     const canvas = interactiveChartRef.current;
     const ctx = canvas.getContext("2d");
     if (!ctx || !canvas.parentElement) return;
 
-    canvas.width = canvas.parentElement.clientWidth - 32;
-    canvas.height = 180;
-    const w = canvas.width;
-    const h = canvas.height;
-    ctx.clearRect(0, 0, w, h);
+    let animId = 0;
+    let phase = 0;
+    const count = 36;
+    const baseWave = Array.from({ length: count }, (_, i) => {
+      return 90 + Math.sin(i * 0.4) * 28 + Math.cos(i * 0.7) * 16;
+    });
 
-    const points: Array<{ x: number; y: number }> = [];
-    const count = 30;
-    let current = h / 2;
-    for (let i = 0; i <= count; i++) {
-      current += (Math.random() - 0.48) * 22;
-      current = Math.max(20, Math.min(h - 20, current));
-      points.push({ x: (w / count) * i, y: current });
+    function renderLiveChart() {
+      if (!canvas || !ctx || !canvas.parentElement) return;
+      canvas.width = canvas.parentElement.clientWidth - 32;
+      canvas.height = 180;
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      phase += 0.035;
+
+      const points: Array<{ x: number; y: number }> = [];
+      for (let i = 0; i < count; i++) {
+        const x = (w / (count - 1)) * i;
+        // Fluctuating harmonic wave simulating live market activity
+        const fluctuation =
+          Math.sin(phase + i * 0.4) * 8 +
+          Math.sin(phase * 1.5 + i * 0.6) * 5 +
+          Math.cos(phase * 0.8 + i * 0.3) * 4;
+        const y = Math.max(20, Math.min(h - 25, baseWave[i]! + fluctuation));
+        points.push({ x, y });
+      }
+
+      // Fill Gradient
+      const grad = ctx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, "rgba(59, 130, 246, 0.35)");
+      grad.addColorStop(0.6, "rgba(99, 102, 241, 0.12)");
+      grad.addColorStop(1, "rgba(59, 130, 246, 0.0)");
+
+      ctx.beginPath();
+      ctx.moveTo(points[0]!.x, points[0]!.y);
+      for (let i = 1; i < points.length; i++) ctx.lineTo(points[i]!.x, points[i]!.y);
+      ctx.lineTo(w, h);
+      ctx.lineTo(0, h);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Glowing Stroke line
+      ctx.beginPath();
+      ctx.moveTo(points[0]!.x, points[0]!.y);
+      for (let i = 1; i < points.length; i++) ctx.lineTo(points[i]!.x, points[i]!.y);
+      ctx.strokeStyle = "#3b82f6";
+      ctx.lineWidth = 2.8;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.stroke();
+
+      // Trailing moving micro data points along the line
+      for (let i = 2; i < points.length - 1; i += 5) {
+        const pt = points[i]!;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+        ctx.strokeStyle = "#3b82f6";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      // Live Leading Pulse Dot & Direction Arrow
+      const lastPt = points[points.length - 1]!;
+      const prevPt = points[points.length - 2]!;
+      const isUp = lastPt.y <= prevPt.y;
+
+      // Pulse halo
+      const pulseSize = 4 + Math.sin(phase * 4) * 3;
+      ctx.beginPath();
+      ctx.arc(lastPt.x - 2, lastPt.y, pulseSize + 4, 0, Math.PI * 2);
+      ctx.fillStyle = isUp ? "rgba(16, 185, 129, 0.25)" : "rgba(239, 68, 68, 0.25)";
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(lastPt.x - 2, lastPt.y, 4, 0, Math.PI * 2);
+      ctx.fillStyle = isUp ? "#10b981" : "#ef4444";
+      ctx.fill();
+
+      // Direction label
+      ctx.fillStyle = isUp ? "#059669" : "#dc2626";
+      ctx.font = "bold 10px 'Plus Jakarta Sans', sans-serif";
+      ctx.textAlign = "right";
+      ctx.fillText(isUp ? "▲ Dynamic Flow" : "▼ Dynamic Flow", w - 12, 18);
+
+      animId = requestAnimationFrame(renderLiveChart);
     }
 
-    const grad = ctx.createLinearGradient(0, 0, 0, h);
-    grad.addColorStop(0, "rgba(59, 130, 246, 0.4)");
-    grad.addColorStop(1, "rgba(59, 130, 246, 0.0)");
+    renderLiveChart();
 
-    ctx.beginPath();
-    ctx.moveTo(points[0]!.x, points[0]!.y);
-    for (let i = 1; i < points.length; i++) ctx.lineTo(points[i]!.x, points[i]!.y);
-    ctx.lineTo(w, h);
-    ctx.lineTo(0, h);
-    ctx.closePath();
-    ctx.fillStyle = grad;
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.moveTo(points[0]!.x, points[0]!.y);
-    for (let i = 1; i < points.length; i++) ctx.lineTo(points[i]!.x, points[i]!.y);
-    ctx.strokeStyle = "#3b82f6";
-    ctx.lineWidth = 3;
-    ctx.stroke();
+    return () => {
+      cancelAnimationFrame(animId);
+    };
   }, [chartModalOpen, chartAsset]);
 
   // Auto-scroll chat
@@ -576,8 +639,7 @@ function AKChat() {
 
   const filterMarketCategory = (categoryName: string) => {
     setActiveCategory(categoryName);
-    showToast(`Market Filter Active: ${categoryName}`);
-    void sendQuickPrompt(`Show telemetry breakdown for ${categoryName}`);
+    void sendQuickPrompt(`Show market breakdown for ${categoryName}`);
   };
 
   // Convert calculation
@@ -730,70 +792,42 @@ function AKChat() {
               </nav>
             </div>
 
-            {/* PREMIUM SIDEBAR MINI LIVE CHARTS */}
+            {/* 4. PREMIUM CRYPTO AI INTELLIGENCE VISUALIZATION */}
             <div className="space-y-3 pt-1">
               <div className="flex items-center justify-between px-1">
                 <span className="text-[10px] uppercase font-extrabold text-slate-500 tracking-wider flex items-center gap-1.5">
-                  <BarChart3 className="w-3.5 h-3.5 text-blue-600" /> Live Telemetry Charts
+                  <Sparkles className="w-3.5 h-3.5 text-blue-600" /> Crypto AI Neural Core
                 </span>
                 <span className="text-[9px] text-emerald-600 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Active
                 </span>
               </div>
 
-              {/* Mini Chart Card 1: BTC Depth */}
-              <div className="intelligence-glass-panel p-3 space-y-2 relative overflow-hidden group">
+              {/* AI Neural Nexus Visualizer Card */}
+              <div className="intelligence-glass-panel p-3.5 space-y-3 relative overflow-hidden group">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-7 h-7 rounded-xl bg-amber-500/10 border border-amber-300 flex items-center justify-center font-bold text-amber-600 text-xs">
-                      ₿
-                    </span>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+                      <Bot className="w-4 h-4" />
+                    </div>
                     <div>
-                      <h4 className="font-bold text-slate-900 text-xs">Bitcoin Depth</h4>
-                      <span className="text-[10px] text-emerald-600 font-extrabold">$98,420.50</span>
+                      <h4 className="font-extrabold text-slate-900 text-xs">Neural Synthesis</h4>
+                      <span className="text-[10px] text-blue-600 font-bold">99.8% Sync</span>
                     </div>
                   </div>
-                  <span className="text-[10px] font-extrabold text-emerald-600 bg-emerald-100/80 px-1.5 py-0.5 rounded-full">
-                    +3.4%
+                  <span className="text-[9px] font-bold text-slate-500 bg-white/70 px-2 py-0.5 rounded-full border border-white/80">
+                    Pinecone v2
                   </span>
                 </div>
-                <div className="relative h-16 w-full">
-                  <canvas
-                    ref={miniChartBTCRef}
-                    className="w-full h-full cursor-pointer"
-                    onClick={() => {
-                      setChartAsset("BTC");
-                      setChartModalOpen(true);
-                    }}
-                  />
-                </div>
-              </div>
 
-              {/* Mini Chart Card 2: ETH Staking */}
-              <div className="intelligence-glass-panel p-3 space-y-2 relative overflow-hidden">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-7 h-7 rounded-xl bg-indigo-500/10 border border-indigo-300 flex items-center justify-center font-bold text-indigo-600 text-xs">
-                      Ξ
-                    </span>
-                    <div>
-                      <h4 className="font-bold text-slate-900 text-xs">Ethereum Staking</h4>
-                      <span className="text-[10px] text-indigo-600 font-extrabold">3.4% APY</span>
-                    </div>
+                <div className="relative py-1 space-y-1.5 text-[11px]">
+                  <div className="flex items-center justify-between text-slate-600">
+                    <span>Protocol Latency</span>
+                    <span className="font-bold text-slate-800">12ms • Optimal</span>
                   </div>
-                  <span className="text-[10px] font-extrabold text-emerald-600 bg-emerald-100/80 px-1.5 py-0.5 rounded-full">
-                    12 Gwei
-                  </span>
-                </div>
-                <div className="relative h-16 w-full">
-                  <canvas
-                    ref={miniChartETHRef}
-                    className="w-full h-full cursor-pointer"
-                    onClick={() => {
-                      setChartAsset("ETH");
-                      setChartModalOpen(true);
-                    }}
-                  />
+                  <div className="w-full h-1.5 rounded-full bg-slate-200/70 overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-blue-600 to-emerald-500 rounded-full w-[92%] animate-pulse" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -837,7 +871,7 @@ function AKChat() {
                     </span>
                   </div>
                   <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium block truncate">
-                    Real-time crypto market telemetry & risk engine
+                    Real-time crypto market intelligence & risk engine
                   </span>
                 </div>
               </div>
@@ -926,7 +960,7 @@ function AKChat() {
                       AK Luxe Intelligence • v4
                     </span>
                     <span className="text-[10px] text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
-                      Neural Telemetry
+                      Intelligence Active
                     </span>
                   </div>
                   <div className="text-slate-800 font-medium leading-relaxed">
@@ -991,17 +1025,18 @@ function AKChat() {
                         </div>
                         <div className="mt-3 pt-2 border-t border-slate-200/40 flex items-center justify-between">
                           <div className="flex gap-1.5">
+                            {/* 6. Speaker Icon Button without text */}
                             <button
                               type="button"
                               onClick={() => toggleSpeech(msg)}
-                              className="apple-glass-interactive px-2.5 py-1 rounded-lg text-[11px] font-semibold text-slate-600 flex items-center gap-1"
+                              className="apple-glass-interactive p-1.5 sm:px-2 sm:py-1 rounded-lg text-slate-600 hover:text-blue-600 transition-colors flex items-center justify-center"
+                              title={speakingId === msg.id ? "Stop voice" : "Read aloud"}
                             >
                               {speakingId === msg.id ? (
                                 <VolumeX className="w-3.5 h-3.5 text-rose-500" />
                               ) : (
                                 <Volume2 className="w-3.5 h-3.5 text-blue-600" />
                               )}
-                              {speakingId === msg.id ? "Stop Voice" : "Read Aloud"}
                             </button>
                             <button
                               type="button"

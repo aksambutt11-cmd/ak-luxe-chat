@@ -36,6 +36,7 @@ export function ParticleEngine({
       { symbol: "🫧", color: "#38bdf8", bg: "rgba(56, 189, 248, 0.15)" },
     ];
 
+    // Background floating crypto particles
     const particles: Array<{
       x: number;
       y: number;
@@ -48,32 +49,40 @@ export function ParticleEngine({
       floatOffset: number;
     }> = [];
 
-    // Crypto nodes & particles
-    for (let i = 0; i < 26; i++) {
+    for (let i = 0; i < 24; i++) {
       const coin = coins[i % coins.length]!;
       particles.push({
         x: Math.random() * w,
         y: Math.random() * h,
-        radius: Math.random() * 16 + 14,
+        radius: Math.random() * 15 + 13,
         symbol: coin.symbol,
         color: coin.color,
         bg: coin.bg,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: -Math.random() * 0.4 - 0.15,
+        vx: (Math.random() - 0.5) * 0.45,
+        vy: -Math.random() * 0.35 - 0.12,
         floatOffset: Math.random() * Math.PI * 2,
       });
     }
 
-    // Micro blockchain mesh points for subtle background texture
+    // Micro blockchain mesh points
     const meshPoints: Array<{ x: number; y: number; vx: number; vy: number }> = [];
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 28; i++) {
       meshPoints.push({
         x: Math.random() * w,
         y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: -Math.random() * 0.25 - 0.05,
+        vx: (Math.random() - 0.5) * 0.25,
+        vy: -Math.random() * 0.2 - 0.05,
       });
     }
+
+    // 7. Right-Side Crypto AI Core & Blockchain Constellation Nodes
+    const rightConstellation = [
+      { id: "btc", symbol: "₿", color: "#f59e0b", baseX: 160, baseY: 0.22, size: 20, angle: 0 },
+      { id: "eth", symbol: "Ξ", color: "#6366f1", baseX: 85, baseY: 0.42, size: 18, angle: 1.2 },
+      { id: "sol", symbol: "◎", color: "#14f195", baseX: 195, baseY: 0.58, size: 17, angle: 2.4 },
+      { id: "pol", symbol: "⬡", color: "#3b82f6", baseX: 95, baseY: 0.76, size: 16, angle: 3.8 },
+      { id: "ai", symbol: "⚡", color: "#38bdf8", baseX: 155, baseY: 0.88, size: 15, angle: 5.1 },
+    ];
 
     let mouseX = -1000;
     let mouseY = -1000;
@@ -84,12 +93,15 @@ export function ParticleEngine({
     window.addEventListener("mousemove", handleMouseMove);
 
     let animId = 0;
+    let time = 0;
+
     function animate() {
       if (!ctx) return;
       ctx.clearRect(0, 0, w, h);
+      time += 0.015;
 
       if (physicsEnabled) {
-        // 1. Subtle Blockchain Mesh Connections
+        // 1. Subtle Blockchain Mesh Connections across background
         meshPoints.forEach((pt) => {
           pt.x += pt.vx;
           pt.y += pt.vy;
@@ -101,7 +113,6 @@ export function ParticleEngine({
           if (pt.x > w + 10) pt.x = -10;
         });
 
-        // Draw faint blockchain connection lines between close mesh points
         ctx.lineWidth = 0.75;
         for (let i = 0; i < meshPoints.length; i++) {
           for (let j = i + 1; j < meshPoints.length; j++) {
@@ -110,8 +121,8 @@ export function ParticleEngine({
             const dx = p1.x - p2.x;
             const dy = p1.y - p2.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 130) {
-              const alpha = (1 - dist / 130) * 0.08;
+            if (dist < 120) {
+              const alpha = (1 - dist / 120) * 0.07;
               ctx.strokeStyle = `rgba(59, 130, 246, ${alpha})`;
               ctx.beginPath();
               ctx.moveTo(p1.x, p1.y);
@@ -121,17 +132,16 @@ export function ParticleEngine({
           }
         }
 
-        // Draw faint micro blockchain nodes
         meshPoints.forEach((pt) => {
           ctx.beginPath();
           ctx.arc(pt.x, pt.y, 1.5, 0, Math.PI * 2);
-          ctx.fillStyle = "rgba(59, 130, 246, 0.15)";
+          ctx.fillStyle = "rgba(59, 130, 246, 0.12)";
           ctx.fill();
         });
 
-        // 2. Floating Anti-Gravity Crypto Glass Spheres
+        // 2. Floating Background Crypto Particles
         particles.forEach((p) => {
-          p.x += p.vx + Math.sin(p.floatOffset) * 0.35;
+          p.x += p.vx + Math.sin(p.floatOffset) * 0.3;
           p.y += p.vy;
           p.floatOffset += 0.015;
 
@@ -145,29 +155,26 @@ export function ParticleEngine({
           const dx = mouseX - p.x;
           const dy = mouseY - p.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 120) {
+          if (dist < 110) {
             const angle = Math.atan2(dy, dx);
-            p.x -= Math.cos(angle) * 2;
-            p.y -= Math.sin(angle) * 2;
+            p.x -= Math.cos(angle) * 1.8;
+            p.y -= Math.sin(angle) * 1.8;
           }
 
           ctx.save();
-          // Glass circle body
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
           ctx.fillStyle = p.bg;
           ctx.fill();
-          ctx.lineWidth = 1.2;
-          ctx.strokeStyle = p.color + "66";
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = p.color + "55";
           ctx.stroke();
 
-          // Specular highlight bubble reflex
           ctx.beginPath();
           ctx.arc(p.x - p.radius * 0.3, p.y - p.radius * 0.3, p.radius * 0.35, 0, Math.PI * 2);
-          ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+          ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
           ctx.fill();
 
-          // Centered crypto glyph
           ctx.fillStyle = p.color;
           ctx.font = `bold ${Math.round(p.radius * 0.8)}px 'Plus Jakarta Sans', sans-serif`;
           ctx.textAlign = "center";
@@ -175,6 +182,87 @@ export function ParticleEngine({
           ctx.fillText(p.symbol, p.x, p.y);
           ctx.restore();
         });
+
+        // 3. Right-Side Crypto AI Core & Blockchain Constellation (Desktop only: w > 1024)
+        if (w > 1024) {
+          const rightNodesPos: Array<{ x: number; y: number; node: (typeof rightConstellation)[0] }> = [];
+
+          // Parallax offset based on cursor
+          const parallaxX = (mouseX / w - 0.5) * 16;
+          const parallaxY = (mouseY / h - 0.5) * 16;
+
+          rightConstellation.forEach((node) => {
+            const nodeX = w - node.baseX + Math.sin(time + node.angle) * 12 + parallaxX;
+            const nodeY = h * node.baseY + Math.cos(time + node.angle) * 14 + parallaxY;
+            rightNodesPos.push({ x: nodeX, y: nodeY, node });
+          });
+
+          // Draw thin glowing blockchain constellation lines
+          for (let i = 0; i < rightNodesPos.length; i++) {
+            for (let j = i + 1; j < rightNodesPos.length; j++) {
+              const n1 = rightNodesPos[i]!;
+              const n2 = rightNodesPos[j]!;
+              const dx = n1.x - n2.x;
+              const dy = n1.y - n2.y;
+              const dist = Math.sqrt(dx * dx + dy * dy);
+
+              if (dist < 260) {
+                const alpha = (1 - dist / 260) * 0.22;
+                ctx.strokeStyle = `rgba(59, 130, 246, ${alpha})`;
+                ctx.lineWidth = 1.2;
+                ctx.beginPath();
+                ctx.moveTo(n1.x, n1.y);
+                ctx.lineTo(n2.x, n2.y);
+                ctx.stroke();
+
+                // Micro pulse packet traveling along the blockchain line
+                const pulsePos = (time * 0.4 + i * 0.3) % 1;
+                const px = n1.x + (n2.x - n1.x) * pulsePos;
+                const py = n1.y + (n2.y - n1.y) * pulsePos;
+                ctx.beginPath();
+                ctx.arc(px, py, 2, 0, Math.PI * 2);
+                ctx.fillStyle = "rgba(56, 189, 248, 0.6)";
+                ctx.fill();
+              }
+            }
+          }
+
+          // Draw Constellation Nodes with soft glow and crypto symbols
+          rightNodesPos.forEach(({ x, y, node }) => {
+            ctx.save();
+            // Ambient outer glow
+            const nodeGrad = ctx.createRadialGradient(x, y, 2, x, y, node.size * 1.6);
+            nodeGrad.addColorStop(0, node.color + "33");
+            nodeGrad.addColorStop(1, "rgba(255, 255, 255, 0)");
+            ctx.fillStyle = nodeGrad;
+            ctx.beginPath();
+            ctx.arc(x, y, node.size * 1.6, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Glass orb body
+            ctx.beginPath();
+            ctx.arc(x, y, node.size, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+            ctx.fill();
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = node.color + "99";
+            ctx.stroke();
+
+            // Reflex highlight
+            ctx.beginPath();
+            ctx.arc(x - node.size * 0.3, y - node.size * 0.3, node.size * 0.35, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+            ctx.fill();
+
+            // Crypto Glyph
+            ctx.fillStyle = node.color;
+            ctx.font = `bold ${Math.round(node.size * 0.95)}px 'Plus Jakarta Sans', sans-serif`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(node.symbol, x, y);
+            ctx.restore();
+          });
+        }
       }
 
       animId = requestAnimationFrame(animate);
