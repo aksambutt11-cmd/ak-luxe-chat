@@ -10,6 +10,7 @@ export default defineConfig({
     preset: "node-server",
   },
   vite: {
+    assetsInclude: ['**/*.wasm'],
     server: {
       port: 3000,
       host: "0.0.0.0",

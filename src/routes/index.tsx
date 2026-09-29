@@ -171,6 +171,7 @@ function AKChat() {
   const [speechRate, setSpeechRate] = useState(1.0);
   const [soundEffects, setSoundEffects] = useState(true);
   const [autoScroll, setAutoScroll] = useState(true);
+  const [isComposerGlowing, setIsComposerGlowing] = useState(false);
 
   // Toast alerts
   const [toasts, setToasts] = useState<Array<{ id: number; text: string }>>([]);
@@ -498,6 +499,9 @@ function AKChat() {
     const text = input.trim();
     if (!text && !attachedFile) return;
 
+    setIsComposerGlowing(true);
+    window.setTimeout(() => setIsComposerGlowing(false), 900);
+
     const fullPrompt = attachedFile
       ? `[Attached: ${attachedFile.name}] ${isWebSearchActive ? "[Live Web Search Enabled] " : ""}${text}`
       : isWebSearchActive
@@ -520,6 +524,8 @@ function AKChat() {
   };
 
   const sendQuickPrompt = (prompt: string) => {
+    setIsComposerGlowing(true);
+    window.setTimeout(() => setIsComposerGlowing(false), 900);
     setInput(prompt);
     void requestReply(prompt);
   };
@@ -1174,9 +1180,9 @@ function AKChat() {
 
               {/* Chat Input Bar with Exclusive Ambient Glow Halo */}
               <div className="relative group w-full max-w-full">
-                <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-500 to-amber-400 opacity-30 blur-md group-hover:opacity-60 transition duration-500 pointer-events-none" />
+                <div className="absolute -inset-1.5 rounded-2xl bg-gradient-to-r from-blue-600 via-cyan-400 to-indigo-600 opacity-40 blur-lg group-hover:opacity-80 transition duration-500 pointer-events-none chat-box-halo" />
 
-                <div className="relative apple-glass rounded-2xl p-1.5 sm:p-2 flex flex-col gap-1.5 sm:gap-2 border border-white/90 shadow-xl bg-white/80 w-full max-w-full">
+                <div className={`relative apple-glass rounded-2xl p-1.5 sm:p-2 flex flex-col gap-1.5 sm:gap-2 border border-white/90 shadow-xl bg-white/80 w-full max-w-full transition-all duration-300 ${isComposerGlowing ? "composer-glow-active border-blue-500 shadow-blue-500/30" : ""}`}>
                   {/* ChatGPT-Style Plus Menu Dropdown */}
                   {showPlusMenu && (
                     <div className="absolute bottom-14 left-0 z-50 w-60 sm:w-64 max-w-[calc(100vw-32px)] apple-glass rounded-2xl p-2 border border-white/90 shadow-2xl space-y-1 animate-in fade-in zoom-in-95 duration-150">

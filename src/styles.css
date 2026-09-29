@@ -2011,6 +2011,38 @@ button.rail-layer {
   50% { height: 18px; }
 }
 
+@keyframes border-light-travel {
+  0% {
+    border-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0), var(--shadow-glass);
+  }
+  35% {
+    border-color: oklch(0.62 0.24 250);
+    box-shadow: 0 0 25px 3px oklch(0.6 0.22 255 / 0.45), inset 0 0 12px oklch(0.65 0.2 240 / 0.35);
+  }
+  100% {
+    border-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0), var(--shadow-glass);
+  }
+}
+.composer-glow-active {
+  animation: border-light-travel 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes chat-box-breathe {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.01);
+  }
+}
+.chat-box-halo {
+  animation: chat-box-breathe 4s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .model-pop, .glass-dialog, .ak-shell::before, .ticker-marquee, .voice-wave-bar { animation: none !important; }
 }
