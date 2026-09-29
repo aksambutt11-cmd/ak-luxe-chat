@@ -138,6 +138,25 @@ function AKChat() {
   const [convertFrom, setConvertFrom] = useState("BTC");
   const [convertTo, setConvertTo] = useState("USD");
   const [chartAsset, setChartAsset] = useState<"BTC" | "ETH" | "SOL">("BTC");
+  const [chartTimeframe, setChartTimeframe] = useState<"1D" | "1W" | "1M">("1D");
+
+  const timeframeStats: Record<"BTC" | "ETH" | "SOL", Record<"1D" | "1W" | "1M", { change: string; isPositive: boolean; high: string; low: string }>> = {
+    BTC: {
+      "1D": { change: "+3.42%", isPositive: true, high: "$94,820", low: "$91,450" },
+      "1W": { change: "+11.85%", isPositive: true, high: "$95,100", low: "$84,200" },
+      "1M": { change: "+28.60%", isPositive: true, high: "$95,400", low: "$72,150" },
+    },
+    ETH: {
+      "1D": { change: "+4.18%", isPositive: true, high: "$3,490", low: "$3,310" },
+      "1W": { change: "+9.40%", isPositive: true, high: "$3,520", low: "$3,080" },
+      "1M": { change: "+24.15%", isPositive: true, high: "$3,560", low: "$2,690" },
+    },
+    SOL: {
+      "1D": { change: "+8.65%", isPositive: true, high: "$198.50", low: "$179.20" },
+      "1W": { change: "+21.30%", isPositive: true, high: "$202.00", low: "$158.40" },
+      "1M": { change: "+46.80%", isPositive: true, high: "$205.00", low: "$129.00" },
+    },
+  };
 
   // Settings
   const [telemetrySpeed, setTelemetrySpeed] = useState("Realtime");
@@ -356,9 +375,17 @@ function AKChat() {
 
     let animId = 0;
     let phase = 0;
-    const count = 36;
+    const count = 38;
+
+    // Timeframe-specific market dynamics
+    const tfMultiplier = chartTimeframe === "1D" ? 1 : chartTimeframe === "1W" ? 1.6 : 2.4;
+    const tfPeriod = chartTimeframe === "1D" ? 0.45 : chartTimeframe === "1W" ? 0.28 : 0.18;
+    const assetOffset = chartAsset === "BTC" ? 0 : chartAsset === "ETH" ? Math.PI / 3 : Math.PI / 1.8;
+
     const baseWave = Array.from({ length: count }, (_, i) => {
-      return 90 + Math.sin(i * 0.4) * 28 + Math.cos(i * 0.7) * 16;
+      // Create distinctive harmonic waveforms for 1D, 1W, and 1M
+      const trend = (i / count) * (chartTimeframe === "1M" ? -35 : chartTimeframe === "1W" ? -22 : -10);
+      return 105 + Math.sin(i * tfPeriod + assetOffset) * 24 * tfMultiplier + Math.cos(i * 0.7) * 12 + trend;
     });
 
     function renderLiveChart() {
@@ -369,25 +396,35 @@ function AKChat() {
       const h = canvas.height;
       ctx.clearRect(0, 0, w, h);
 
-      phase += 0.035;
+      phase += 0.038;
 
       const points: Array<{ x: number; y: number }> = [];
       for (let i = 0; i < count; i++) {
         const x = (w / (count - 1)) * i;
-        // Fluctuating harmonic wave simulating live market activity
+        // Fluctuating harmonic wave simulating live market activity per timeframe
         const fluctuation =
-          Math.sin(phase + i * 0.4) * 8 +
-          Math.sin(phase * 1.5 + i * 0.6) * 5 +
-          Math.cos(phase * 0.8 + i * 0.3) * 4;
-        const y = Math.max(20, Math.min(h - 25, baseWave[i]! + fluctuation));
+          Math.sin(phase + i * 0.45) * (6 * tfMultiplier) +
+          Math.sin(phase * 1.6 + i * 0.7) * 4 +
+          Math.cos(phase * 0.9 + i * 0.3) * 3;
+        const y = Math.max(18, Math.min(h - 22, baseWave[i]! + fluctuation));
         points.push({ x, y });
       }
 
+      // Dynamic Color Scheme per Asset
+      const primaryColor =
+        chartAsset === "BTC" ? "#f59e0b" : chartAsset === "ETH" ? "#6366f1" : "#10b981";
+      const fillColorTop =
+        chartAsset === "BTC"
+          ? "rgba(245, 158, 11, 0.35)"
+          : chartAsset === "ETH"
+          ? "rgba(99, 102, 241, 0.35)"
+          : "rgba(16, 185, 129, 0.35)";
+
       // Fill Gradient
       const grad = ctx.createLinearGradient(0, 0, 0, h);
-      grad.addColorStop(0, "rgba(59, 130, 246, 0.35)");
-      grad.addColorStop(0.6, "rgba(99, 102, 241, 0.12)");
-      grad.addColorStop(1, "rgba(59, 130, 246, 0.0)");
+      grad.addColorStop(0, fillColorTop);
+      grad.addColorStop(0.6, "rgba(59, 130, 246, 0.08)");
+      grad.addColorStop(1, "rgba(0, 0, 0, 0.0)");
 
       ctx.beginPath();
       ctx.moveTo(points[0]!.x, points[0]!.y);
@@ -402,7 +439,7 @@ function AKChat() {
       ctx.beginPath();
       ctx.moveTo(points[0]!.x, points[0]!.y);
       for (let i = 1; i < points.length; i++) ctx.lineTo(points[i]!.x, points[i]!.y);
-      ctx.strokeStyle = "#3b82f6";
+      ctx.strokeStyle = primaryColor;
       ctx.lineWidth = 2.8;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
@@ -415,7 +452,7 @@ function AKChat() {
         ctx.arc(pt.x, pt.y, 2.5, 0, Math.PI * 2);
         ctx.fillStyle = "#ffffff";
         ctx.fill();
-        ctx.strokeStyle = "#3b82f6";
+        ctx.strokeStyle = primaryColor;
         ctx.lineWidth = 1.5;
         ctx.stroke();
       }
@@ -438,10 +475,14 @@ function AKChat() {
       ctx.fill();
 
       // Direction label
-      ctx.fillStyle = isUp ? "#059669" : "#dc2626";
+      ctx.fillStyle = isUp ? "#10b981" : "#f43f5e";
       ctx.font = "bold 10px 'Plus Jakarta Sans', sans-serif";
       ctx.textAlign = "right";
-      ctx.fillText(isUp ? "▲ Dynamic Flow" : "▼ Dynamic Flow", w - 12, 18);
+      ctx.fillText(
+        `${chartTimeframe} Vector • ${isUp ? "▲ Bullish Flow" : "▼ Liquidation Pressure"}`,
+        w - 12,
+        18
+      );
 
       animId = requestAnimationFrame(renderLiveChart);
     }
@@ -451,7 +492,7 @@ function AKChat() {
     return () => {
       cancelAnimationFrame(animId);
     };
-  }, [chartModalOpen, chartAsset]);
+  }, [chartModalOpen, chartAsset, chartTimeframe]);
 
   // Auto-scroll chat
   useEffect(() => {
@@ -1802,11 +1843,11 @@ function AKChat() {
                   <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
                     <span>{chartAsset}/USD Live Telemetry Chart</span>
                     <span className="text-xs text-emerald-600 font-extrabold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                      +3.42%
+                      {timeframeStats[chartAsset][chartTimeframe].change}
                     </span>
                   </h3>
                   <p className="text-[11px] text-slate-500 font-medium">
-                    Real-time market depth & algorithmic trend vectors
+                    {chartTimeframe} Market Depth • High: {timeframeStats[chartAsset][chartTimeframe].high} • Low: {timeframeStats[chartAsset][chartTimeframe].low}
                   </p>
                 </div>
               </div>
@@ -1824,10 +1865,10 @@ function AKChat() {
                 <button
                   type="button"
                   onClick={() => setChartAsset("BTC")}
-                  className={`apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold ${
+                  className={`apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                     chartAsset === "BTC"
-                      ? "text-blue-700 bg-white/90 border-blue-300"
-                      : "text-slate-700"
+                      ? "text-amber-800 bg-amber-500/15 border border-amber-300"
+                      : "text-slate-700 hover:text-slate-900"
                   }`}
                 >
                   Bitcoin (BTC)
@@ -1835,10 +1876,10 @@ function AKChat() {
                 <button
                   type="button"
                   onClick={() => setChartAsset("ETH")}
-                  className={`apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold ${
+                  className={`apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                     chartAsset === "ETH"
-                      ? "text-blue-700 bg-white/90 border-blue-300"
-                      : "text-slate-700"
+                      ? "text-indigo-800 bg-indigo-500/15 border border-indigo-300"
+                      : "text-slate-700 hover:text-slate-900"
                   }`}
                 >
                   Ethereum (ETH)
@@ -1846,34 +1887,30 @@ function AKChat() {
                 <button
                   type="button"
                   onClick={() => setChartAsset("SOL")}
-                  className={`apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold ${
+                  className={`apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                     chartAsset === "SOL"
-                      ? "text-blue-700 bg-white/90 border-blue-300"
-                      : "text-slate-700"
+                      ? "text-emerald-800 bg-emerald-500/15 border border-emerald-300"
+                      : "text-slate-700 hover:text-slate-900"
                   }`}
                 >
                   Solana (SOL)
                 </button>
               </div>
-              <div className="flex gap-1 bg-slate-200/50 p-1 rounded-xl">
-                <button
-                  type="button"
-                  className="px-2.5 py-1 rounded-lg text-[11px] font-bold text-blue-700 bg-white shadow-xs"
-                >
-                  1D
-                </button>
-                <button
-                  type="button"
-                  className="px-2.5 py-1 rounded-lg text-[11px] font-semibold text-slate-600 hover:text-slate-900"
-                >
-                  1W
-                </button>
-                <button
-                  type="button"
-                  className="px-2.5 py-1 rounded-lg text-[11px] font-semibold text-slate-600 hover:text-slate-900"
-                >
-                  1M
-                </button>
+              <div className="flex gap-1 bg-slate-200/60 p-1 rounded-xl border border-slate-300/40">
+                {(["1D", "1W", "1M"] as const).map((tf) => (
+                  <button
+                    key={tf}
+                    type="button"
+                    onClick={() => setChartTimeframe(tf)}
+                    className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                      chartTimeframe === tf
+                        ? "text-blue-700 bg-white shadow-xs scale-100"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+                    }`}
+                  >
+                    {tf}
+                  </button>
+                ))}
               </div>
             </div>
 
