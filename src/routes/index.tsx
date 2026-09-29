@@ -48,7 +48,7 @@ type ChatMessage = {
   id: string;
   role: "user" | "assistant";
   content: string;
-  attachedFile?: string;
+  attachedFile?: string | undefined;
   prompt?: string;
   error?: boolean;
 };
