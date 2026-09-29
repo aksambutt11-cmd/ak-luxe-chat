@@ -641,14 +641,20 @@ function AKChat() {
       {/* MAIN INTERFACE LAYOUT */}
       <div className="relative z-10 flex-1 flex overflow-hidden p-2 sm:p-3 gap-2 sm:gap-3 w-full h-[calc(100dvh-37px)] max-w-full">
         {/* SIDEBAR NAVIGATION & PREMIUM APPLE GLASS CHARTS */}
-        <aside className="w-72 apple-glass rounded-2xl flex flex-col justify-between p-4 shrink-0 hidden lg:flex overflow-y-auto">
-          <div className="space-y-4">
+        <aside className="w-72 rounded-3xl flex flex-col justify-between p-4 shrink-0 hidden lg:flex overflow-y-auto backdrop-blur-3xl bg-white/45 border border-white/80 shadow-[0_20px_50px_rgba(8,_112,_184,_0.08)] ring-1 ring-white/70 relative overflow-hidden group select-none transition-all duration-300">
+          {/* Liquid Glass Ambient Reflections */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/20 to-white/40 pointer-events-none" />
+          <div className="absolute -top-16 -left-16 w-44 h-44 rounded-full bg-blue-400/15 blur-2xl pointer-events-none animate-pulse" />
+          <div className="absolute -bottom-16 -right-16 w-44 h-44 rounded-full bg-indigo-400/15 blur-2xl pointer-events-none" />
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-600 via-indigo-500 to-amber-500 opacity-90 shadow-sm" />
+
+          <div className="space-y-4 relative z-10">
             {/* AK Monogram Logo Badge */}
             <div
-              className="flex items-center gap-3 cursor-pointer"
+              className="flex items-center gap-3 cursor-pointer group/logo"
               onClick={() => showToast("AK Luxe Crypto Intelligence Active")}
             >
-              <div className="w-11 h-11 ak-glass-badge shrink-0">
+              <div className="w-11 h-11 ak-glass-badge shrink-0 shadow-md group-hover/logo:scale-105 group-hover/logo:shadow-blue-500/20 transition-all duration-300 border border-white/90">
                 <svg
                   className="w-7 h-7 ak-svg-icon"
                   viewBox="0 0 100 100"
@@ -669,19 +675,27 @@ function AKChat() {
                 </svg>
               </div>
               <div>
-                <h1 className="font-extrabold text-slate-900 text-base leading-none tracking-tight">
-                  AK Luxe
-                </h1>
-                <span className="text-[11px] text-slate-500 font-semibold tracking-wide">
-                  Crypto Intelligence
+                <div className="flex items-center gap-1.5">
+                  <h1 className="font-extrabold text-slate-900 text-base leading-none tracking-tight">
+                    AK Luxe
+                  </h1>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                </div>
+                <span className="text-[11px] text-slate-500 font-bold tracking-wide flex items-center gap-1 mt-0.5">
+                  Crypto Neural Core
                 </span>
               </div>
             </div>
 
             {/* Intelligence Layers Section */}
-            <div className="intelligence-glass-panel p-3">
-              <span className="text-[10px] uppercase font-extrabold text-slate-500 tracking-wider mb-2 block px-1 flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5 text-blue-600" /> Intelligence Layers
+            <div className="p-3 rounded-2xl bg-white/50 backdrop-blur-2xl border border-white/90 shadow-[0_4px_16px_rgba(255,255,255,0.4)] space-y-2">
+              <span className="text-[10px] uppercase font-extrabold text-slate-500 tracking-wider block px-1 flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <Layers className="w-3.5 h-3.5 text-blue-600" /> Intelligence Layers
+                </span>
+                <span className="text-[9px] font-bold text-blue-600 bg-blue-500/10 px-1.5 py-0.5 rounded-full border border-blue-300/40">
+                  Active
+                </span>
               </span>
               <nav className="space-y-1.5">
                 <button
@@ -691,17 +705,20 @@ function AKChat() {
                     showToast("Switched active layer to Market structure");
                     void sendQuickPrompt("Give me an overview of the current crypto market structure.");
                   }}
-                  className={`intelligence-layer-btn w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all ${
+                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all duration-200 cursor-pointer ${
                     activeLayer === "Market structure"
-                      ? "text-blue-700 bg-white/90 border border-blue-200/90 shadow-sm"
-                      : "text-slate-700 apple-glass-interactive"
+                      ? "text-blue-700 bg-white/95 border border-blue-300 shadow-sm translate-x-0.5 ring-1 ring-blue-400/30"
+                      : "text-slate-700 bg-white/40 hover:bg-white/80 hover:translate-x-0.5 border border-transparent hover:border-white/80"
                   }`}
                 >
                   <span className="flex items-center gap-2">
                     <LineChart className="w-3.5 h-3.5 text-blue-600" /> Market structure
                   </span>
                   {activeLayer === "Market structure" && (
-                    <span className="w-2 h-2 rounded-full bg-blue-600 animate-ping" />
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600" />
+                    </span>
                   )}
                 </button>
 
@@ -714,17 +731,20 @@ function AKChat() {
                       "What are the most important on-chain signals to watch right now?"
                     );
                   }}
-                  className={`intelligence-layer-btn w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all ${
+                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all duration-200 cursor-pointer ${
                     activeLayer === "On-chain signals"
-                      ? "text-blue-700 bg-white/90 border border-blue-200/90 shadow-sm"
-                      : "text-slate-700 apple-glass-interactive"
+                      ? "text-indigo-700 bg-white/95 border border-indigo-300 shadow-sm translate-x-0.5 ring-1 ring-indigo-400/30"
+                      : "text-slate-700 bg-white/40 hover:bg-white/80 hover:translate-x-0.5 border border-transparent hover:border-white/80"
                   }`}
                 >
                   <span className="flex items-center gap-2">
                     <Activity className="w-3.5 h-3.5 text-indigo-500" /> On-chain signals
                   </span>
                   {activeLayer === "On-chain signals" && (
-                    <span className="w-2 h-2 rounded-full bg-blue-600 animate-ping" />
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-600" />
+                    </span>
                   )}
                 </button>
 
@@ -735,17 +755,20 @@ function AKChat() {
                     showToast("Switched active layer to Risk context");
                     void sendQuickPrompt("Summarize the current risk context for crypto investors.");
                   }}
-                  className={`intelligence-layer-btn w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all ${
+                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all duration-200 cursor-pointer ${
                     activeLayer === "Risk context"
-                      ? "text-blue-700 bg-white/90 border border-blue-200/90 shadow-sm"
-                      : "text-slate-700 apple-glass-interactive"
+                      ? "text-amber-700 bg-white/95 border border-amber-300 shadow-sm translate-x-0.5 ring-1 ring-amber-400/30"
+                      : "text-slate-700 bg-white/40 hover:bg-white/80 hover:translate-x-0.5 border border-transparent hover:border-white/80"
                   }`}
                 >
                   <span className="flex items-center gap-2">
                     <ShieldAlert className="w-3.5 h-3.5 text-amber-500" /> Risk context
                   </span>
                   {activeLayer === "Risk context" && (
-                    <span className="w-2 h-2 rounded-full bg-blue-600 animate-ping" />
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-600" />
+                    </span>
                   )}
                 </button>
               </nav>
@@ -757,63 +780,67 @@ function AKChat() {
                 <span className="text-[10px] uppercase font-extrabold text-slate-500 tracking-wider flex items-center gap-1.5">
                   <BarChart3 className="w-3.5 h-3.5 text-blue-600" /> Live Crypto Markets
                 </span>
-                <span className="text-[9px] text-emerald-600 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
+                <span className="text-[9px] text-emerald-700 font-extrabold bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-300/60 shadow-2xs flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Real-time
                 </span>
               </div>
 
               {/* Mini Chart Card 1: BTC Depth */}
-              <div className="intelligence-glass-panel p-3 space-y-2 relative overflow-hidden group">
+              <div
+                onClick={() => {
+                  setChartAsset("BTC");
+                  setChartModalOpen(true);
+                }}
+                className="p-3 rounded-2xl bg-white/55 hover:bg-white/80 backdrop-blur-2xl border border-white/90 shadow-[0_4px_16px_rgba(255,255,255,0.4)] space-y-2 relative overflow-hidden group/btc cursor-pointer transition-all duration-200 hover:scale-[1.015] hover:shadow-md"
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="w-7 h-7 rounded-xl bg-amber-500/10 border border-amber-300 flex items-center justify-center font-bold text-amber-600 text-xs">
+                    <span className="w-7 h-7 rounded-xl bg-amber-500/15 border border-amber-300/80 flex items-center justify-center font-extrabold text-amber-600 text-xs shadow-2xs group-hover/btc:scale-105 transition-transform">
                       ₿
                     </span>
                     <div>
                       <h4 className="font-bold text-slate-900 text-xs">Bitcoin Depth</h4>
-                      <span className="text-[10px] text-emerald-600 font-extrabold">$98,420.50</span>
+                      <span className="text-[10px] text-emerald-600 font-mono font-extrabold">$93,840.00</span>
                     </div>
                   </div>
-                  <span className="text-[10px] font-extrabold text-emerald-600 bg-emerald-100/80 px-1.5 py-0.5 rounded-full">
-                    +3.4%
+                  <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-500/15 border border-emerald-300/60 px-2 py-0.5 rounded-full">
+                    +3.42%
                   </span>
                 </div>
                 <div className="relative h-16 w-full">
                   <canvas
                     ref={miniChartBTCRef}
-                    className="w-full h-full cursor-pointer"
-                    onClick={() => {
-                      setChartAsset("BTC");
-                      setChartModalOpen(true);
-                    }}
+                    className="w-full h-full"
                   />
                 </div>
               </div>
 
               {/* Mini Chart Card 2: ETH Staking */}
-              <div className="intelligence-glass-panel p-3 space-y-2 relative overflow-hidden">
+              <div
+                onClick={() => {
+                  setChartAsset("ETH");
+                  setChartModalOpen(true);
+                }}
+                className="p-3 rounded-2xl bg-white/55 hover:bg-white/80 backdrop-blur-2xl border border-white/90 shadow-[0_4px_16px_rgba(255,255,255,0.4)] space-y-2 relative overflow-hidden group/eth cursor-pointer transition-all duration-200 hover:scale-[1.015] hover:shadow-md"
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="w-7 h-7 rounded-xl bg-indigo-500/10 border border-indigo-300 flex items-center justify-center font-bold text-indigo-600 text-xs">
+                    <span className="w-7 h-7 rounded-xl bg-indigo-500/15 border border-indigo-300/80 flex items-center justify-center font-extrabold text-indigo-600 text-xs shadow-2xs group-hover/eth:scale-105 transition-transform">
                       Ξ
                     </span>
                     <div>
                       <h4 className="font-bold text-slate-900 text-xs">Ethereum Staking</h4>
-                      <span className="text-[10px] text-indigo-600 font-extrabold">3.4% APY</span>
+                      <span className="text-[10px] text-indigo-600 font-mono font-extrabold">3.4% APY</span>
                     </div>
                   </div>
-                  <span className="text-[10px] font-extrabold text-emerald-600 bg-emerald-100/80 px-1.5 py-0.5 rounded-full">
+                  <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-500/15 border border-emerald-300/60 px-2 py-0.5 rounded-full">
                     12 Gwei
                   </span>
                 </div>
                 <div className="relative h-16 w-full">
                   <canvas
                     ref={miniChartETHRef}
-                    className="w-full h-full cursor-pointer"
-                    onClick={() => {
-                      setChartAsset("ETH");
-                      setChartModalOpen(true);
-                    }}
+                    className="w-full h-full"
                   />
                 </div>
               </div>
@@ -821,14 +848,18 @@ function AKChat() {
           </div>
 
           {/* Sidebar Footer */}
-          <div className="pt-3 mt-3 border-t border-slate-200/50 flex items-center justify-between text-xs text-slate-500 font-medium shrink-0">
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" /> Engine Active
+          <div className="pt-3 mt-3 border-t border-white/60 flex items-center justify-between text-xs text-slate-500 font-medium shrink-0 relative z-10">
+            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-300/60 text-emerald-700 text-[10px] font-extrabold shadow-2xs">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              </span>
+              Engine Active
             </span>
             <button
               type="button"
               onClick={() => setSettingsModalOpen(true)}
-              className="apple-glass-interactive p-2 rounded-xl text-slate-700 hover:text-blue-600 flex items-center gap-1 font-semibold"
+              className="p-2 rounded-xl text-slate-700 hover:text-blue-600 bg-white/50 hover:bg-white/80 border border-white/80 shadow-2xs flex items-center gap-1 font-semibold transition-all hover:rotate-45 duration-300"
               title="Crypto Settings"
             >
               <Settings className="w-4 h-4" />
