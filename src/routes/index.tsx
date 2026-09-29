@@ -106,6 +106,24 @@ function AKChat() {
   const [chartModalOpen, setChartModalOpen] = useState(false);
   const [converterModalOpen, setConverterModalOpen] = useState(false);
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+  const [welcomePopupOpen, setWelcomePopupOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const seen = sessionStorage.getItem("ak_welcome_dismissed");
+      if (!seen) {
+        setWelcomePopupOpen(true);
+      }
+    }
+  }, []);
+
+  const dismissWelcomePopup = () => {
+    setWelcomePopupOpen(false);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("ak_welcome_dismissed", "true");
+    }
+    showToast("Welcome to AK Luxe Terminal");
+  };
 
   // Attachments & Extras
   const [showPlusMenu, setShowPlusMenu] = useState(false);
@@ -1232,8 +1250,8 @@ function AKChat() {
                       </button>
 
                       {modelDropdownOpen && (
-                        <div className="absolute bottom-12 left-0 z-50 w-56 apple-glass rounded-2xl p-2 border border-white/90 shadow-2xl space-y-1 animate-in fade-in zoom-in-95 duration-150">
-                          <span className="text-[10px] font-extrabold uppercase text-slate-400 px-2 py-1 block">
+                        <div className="absolute bottom-12 left-0 z-50 w-60 apple-model-dropdown rounded-2xl p-2.5 border border-white/95 shadow-2xl space-y-1">
+                          <span className="text-[10px] font-extrabold uppercase text-slate-500 px-2 py-1 block tracking-wider">
                             Select AI Engine
                           </span>
                           <button
@@ -1244,10 +1262,20 @@ function AKChat() {
                               setModelDropdownOpen(false);
                               showToast("Switched active AI engine to AK-Crypto v4");
                             }}
-                            className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-slate-800 hover:bg-blue-50 flex items-center justify-between"
+                            className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all ${
+                              activeModel === "AK-Crypto v4"
+                                ? "bg-blue-600 text-white shadow-xs"
+                                : "text-slate-800 hover:bg-blue-50/80"
+                            }`}
                           >
                             <span>AK-Crypto v4</span>
-                            <span className="text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-mono">
+                            <span
+                              className={`text-[9px] px-1.5 py-0.5 rounded font-mono ${
+                                activeModel === "AK-Crypto v4"
+                                  ? "bg-white/20 text-white"
+                                  : "bg-blue-100 text-blue-700"
+                              }`}
+                            >
                               Fast
                             </span>
                           </button>
@@ -1259,10 +1287,20 @@ function AKChat() {
                               setModelDropdownOpen(false);
                               showToast("Switched active AI engine to GPT-4o Crypto");
                             }}
-                            className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-blue-50 flex items-center justify-between"
+                            className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all ${
+                              activeModel === "GPT-4o Crypto"
+                                ? "bg-blue-600 text-white shadow-xs"
+                                : "text-slate-800 hover:bg-blue-50/80"
+                            }`}
                           >
                             <span>GPT-4o Crypto</span>
-                            <span className="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-mono">
+                            <span
+                              className={`text-[9px] px-1.5 py-0.5 rounded font-mono ${
+                                activeModel === "GPT-4o Crypto"
+                                  ? "bg-white/20 text-white"
+                                  : "bg-emerald-100 text-emerald-700"
+                              }`}
+                            >
                               Smart
                             </span>
                           </button>
@@ -1274,10 +1312,20 @@ function AKChat() {
                               setModelDropdownOpen(false);
                               showToast("Switched active AI engine to Claude 3.5 Sonnet");
                             }}
-                            className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-blue-50 flex items-center justify-between"
+                            className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all ${
+                              activeModel === "Claude 3.5 Sonnet"
+                                ? "bg-blue-600 text-white shadow-xs"
+                                : "text-slate-800 hover:bg-blue-50/80"
+                            }`}
                           >
                             <span>Claude 3.5 Sonnet</span>
-                            <span className="text-[9px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-mono">
+                            <span
+                              className={`text-[9px] px-1.5 py-0.5 rounded font-mono ${
+                                activeModel === "Claude 3.5 Sonnet"
+                                  ? "bg-white/20 text-white"
+                                  : "bg-purple-100 text-purple-700"
+                              }`}
+                            >
                               Deep
                             </span>
                           </button>
@@ -1289,10 +1337,20 @@ function AKChat() {
                               setModelDropdownOpen(false);
                               showToast("Switched active AI engine to DeepSeek R1");
                             }}
-                            className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-blue-50 flex items-center justify-between"
+                            className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all ${
+                              activeModel === "DeepSeek R1"
+                                ? "bg-blue-600 text-white shadow-xs"
+                                : "text-slate-800 hover:bg-blue-50/80"
+                            }`}
                           >
                             <span>DeepSeek R1</span>
-                            <span className="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-mono">
+                            <span
+                              className={`text-[9px] px-1.5 py-0.5 rounded font-mono ${
+                                activeModel === "DeepSeek R1"
+                                  ? "bg-white/20 text-white"
+                                  : "bg-amber-100 text-amber-700"
+                              }`}
+                            >
                               Math
                             </span>
                           </button>
@@ -1367,7 +1425,169 @@ function AKChat() {
             </div>
           </div>
         </main>
+
+        {/* 2. Subtle Floating Right-Side Crypto Decorative Elements */}
+        <aside
+          className="w-64 flex flex-col justify-between py-1 shrink-0 hidden xl:flex pointer-events-none select-none"
+          aria-hidden="true"
+        >
+          {/* Card 1: Bitcoin Layer-1 Orbit */}
+          <div className="apple-glass rounded-2xl p-3.5 space-y-2 border border-white/90 shadow-lg crypto-float-1 pointer-events-auto">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/15 border border-amber-300/80 flex items-center justify-center text-amber-600 font-black text-sm shadow-xs">
+                  ₿
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-slate-900 text-xs">Bitcoin Core</h4>
+                  <span className="text-[10px] text-slate-500 font-medium">Layer-1 Settlement</span>
+                </div>
+              </div>
+              <span className="text-[9px] font-extrabold text-emerald-600 bg-emerald-100/90 px-2 py-0.5 rounded-full">
+                Active
+              </span>
+            </div>
+            <div className="pt-1.5 border-t border-slate-200/50 flex items-center justify-between text-[10px] text-slate-600">
+              <span>Mempool State</span>
+              <span className="font-bold text-slate-800">Clear • Optimal</span>
+            </div>
+          </div>
+
+          {/* Card 2: Ethereum Staking & L2 Ecosystem */}
+          <div className="apple-glass rounded-2xl p-3.5 space-y-2 border border-white/90 shadow-lg crypto-float-2 pointer-events-auto">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-indigo-500/15 border border-indigo-300/80 flex items-center justify-center text-indigo-600 font-black text-sm shadow-xs">
+                  Ξ
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-slate-900 text-xs">Ethereum Network</h4>
+                  <span className="text-[10px] text-slate-500 font-medium">Rollup Consensus</span>
+                </div>
+              </div>
+              <span className="text-[9px] font-extrabold text-blue-600 bg-blue-100/90 px-2 py-0.5 rounded-full">
+                Synced
+              </span>
+            </div>
+            <div className="pt-1.5 border-t border-slate-200/50 flex items-center justify-between text-[10px] text-slate-600">
+              <span>L2 Rollup TPS</span>
+              <span className="font-bold text-slate-800">Peak Capacity</span>
+            </div>
+          </div>
+
+          {/* Card 3: Multichain Telemetry & AI Node */}
+          <div className="apple-glass rounded-2xl p-3.5 space-y-2 border border-white/90 shadow-lg crypto-float-3 pointer-events-auto">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-cyan-500/15 border border-cyan-300/80 flex items-center justify-center text-cyan-600 font-black text-sm shadow-xs">
+                  ◎
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-slate-900 text-xs">Liquidity Matrix</h4>
+                  <span className="text-[10px] text-slate-500 font-medium">Cross-Chain Radar</span>
+                </div>
+              </div>
+              <span className="text-[9px] font-extrabold text-emerald-600 bg-emerald-100/90 px-2 py-0.5 rounded-full flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
+              </span>
+            </div>
+            <div className="pt-1.5 border-t border-slate-200/50 flex items-center justify-between text-[10px] text-slate-600">
+              <span>Pinecone Agent</span>
+              <span className="font-bold text-slate-800">Telemetry Online</span>
+            </div>
+          </div>
+        </aside>
       </div>
+
+      {/* 1. FIRST-VISIT ANTIGRAVITY WELCOME POPUP */}
+      {welcomePopupOpen && (
+        <div className="fixed inset-0 z-50 welcome-popup-backdrop flex items-center justify-center p-4 transition-all">
+          <div className="welcome-popup-card w-full max-w-lg rounded-3xl p-6 sm:p-7 shadow-2xl relative space-y-5">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 ak-glass-badge p-2 shrink-0">
+                  <svg className="w-8 h-8 ak-svg-icon" viewBox="0 0 100 100" fill="none">
+                    <path
+                      d="M18 78 L42 22 L54 22 L36 60 L62 22 L78 22 L50 62 L80 78 L63 78 L42 66 L30 78 Z"
+                      fill="url(#akGoldGradient)"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-100/90 px-2 py-0.5 rounded-full">
+                      Next-Gen Crypto Intelligence
+                    </span>
+                  </div>
+                  <h3 className="font-extrabold text-slate-900 text-lg sm:text-xl tracking-tight mt-0.5">
+                    Welcome to AK Luxe
+                  </h3>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={dismissWelcomePopup}
+                className="apple-glass-interactive p-2 rounded-xl text-slate-500 hover:text-slate-900 transition-colors"
+                title="Dismiss"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
+              Institutional-grade digital asset research, real-time market telemetry, on-chain signal
+              analysis, and portfolio risk intelligence powered by CME Community AI Agents & Pinecone.
+            </p>
+
+            {/* Feature Highlights */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+              <div className="p-3 rounded-2xl bg-white/70 border border-white/90 shadow-xs space-y-1">
+                <div className="flex items-center gap-1.5 text-blue-600 font-bold text-xs">
+                  <TrendingUp className="w-3.5 h-3.5" />
+                  <span>Market Depth</span>
+                </div>
+                <p className="text-[10px] text-slate-500 leading-tight">
+                  Liquidation clusters & order book telemetry
+                </p>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-white/70 border border-white/90 shadow-xs space-y-1">
+                <div className="flex items-center gap-1.5 text-indigo-600 font-bold text-xs">
+                  <Activity className="w-3.5 h-3.5" />
+                  <span>On-Chain</span>
+                </div>
+                <p className="text-[10px] text-slate-500 leading-tight">
+                  Whale flow tracking & staking yield audits
+                </p>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-white/70 border border-white/90 shadow-xs space-y-1">
+                <div className="flex items-center gap-1.5 text-amber-600 font-bold text-xs">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Risk Radar</span>
+                </div>
+                <p className="text-[10px] text-slate-500 leading-tight">
+                  Protocol vulnerabilities & volatility context
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-2 flex items-center justify-between gap-3">
+              <span className="text-[11px] text-slate-500 font-medium hidden sm:inline">
+                Session memory initialized
+              </span>
+              <button
+                type="button"
+                onClick={dismissWelcomePopup}
+                className="w-full sm:w-auto btn-glass-getstarted px-6 py-3 rounded-2xl font-extrabold text-xs text-white shadow-lg flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
+              >
+                <span>Launch Crypto Terminal</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* SIGN IN MODAL */}
       {authModalOpen && (
