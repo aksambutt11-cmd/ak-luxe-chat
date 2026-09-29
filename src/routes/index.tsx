@@ -1,69 +1,1923 @@
-import React, { useState } from 'react';
-import { createFileRoute } from '@tanstack/react-router';
-import ParticleCanvas from '../components/ParticleCanvas';
-import TelemetryMarquee from '../components/TelemetryMarquee';
-import Sidebar from '../components/Sidebar';
-import ChatInterface from '../components/ChatInterface';
-import SidePanel from '../components/SidePanel';
-import { sendToN8nWebhook } from '../n8nApi';
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import {
+  Activity,
+  ArrowDownUp,
+  ArrowLeftRight,
+  ArrowRight,
+  ArrowUp,
+  BarChart3,
+  Bookmark,
+  Bot,
+  Check,
+  ChevronDown,
+  Code2,
+  Copy,
+  FileUp,
+  Flame,
+  Globe,
+  Image as ImageIcon,
+  Layers,
+  LayoutDashboard,
+  LineChart,
+  Loader2,
+  Mic,
+  Paperclip,
+  Plus,
+  Radar,
+  Send,
+  Settings,
+  Share2,
+  ShieldAlert,
+  ShieldCheck,
+  Sparkles,
+  Trash,
+  Trash2,
+  TrendingUp,
+  User,
+  Volume2,
+  VolumeX,
+  Wallet,
+  X,
+} from "lucide-react";
+import { ParticleEngine } from "@/components/particle-engine";
+import { MarketTicker } from "@/components/market-ticker";
+import { MessageResponse } from "@/components/ai-elements/message";
 
-export const Route = createFileRoute('/')({
-  component: Index,
+type ChatMessage = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  attachedFile?: string;
+  prompt?: string;
+  error?: boolean;
+};
+
+const newId = () =>
+  typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "AK Luxe Chat - Next-Gen Crypto Intelligence" },
+      {
+        name: "description",
+        content: "Institutional-grade crypto research and digital asset intelligence with AK.",
+      },
+      { property: "og:title", content: "AK Luxe Chat - Next-Gen Crypto Intelligence" },
+      {
+        property: "og:description",
+        content: "Institutional-grade crypto research and digital asset intelligence with AK.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: AKChat,
 });
 
-function Index() {
-  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [isLoading, setIsLoading] = useState(false);
-  const [sessionId] = useState(() => 'session_' + Math.random().toString(36).substring(2, 9));
+const conversionRates: Record<string, Record<string, number>> = {
+  BTC: { USD: 98420.5, ETH: 28.52, SOL: 462.5, USDT: 98420.5 },
+  ETH: { USD: 3450.2, ETH: 1, SOL: 16.2, USDT: 3450.2 },
+  SOL: { USD: 212.8, ETH: 0.061, SOL: 1, USDT: 212.8 },
+};
 
-  const handleSendMessage = async (text: string) => {
-    if (!text || !text.trim()) return;
+function AKChat() {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [speakingId, setSpeakingId] = useState<string | null>(null);
+  const [savedBookmarks, setSavedBookmarks] = useState<string[]>([]);
+  const [bookmarksDrawerOpen, setBookmarksDrawerOpen] = useState(false);
 
-    const userMsg = { role: 'user' as const, content: text };
-    setMessages((prev) => [...prev, userMsg]);
-    setIsLoading(true);
+  // Active layer & filters
+  const [activeLayer, setActiveLayer] = useState("Market structure");
+  const [activeCategory, setActiveCategory] = useState("Markets Overview");
+  const [activeModel, setActiveModel] = useState("AK-Crypto v4");
+  const [activeModelDesc, setActiveModelDesc] = useState("Pro Crypto Model");
+  const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
 
-    try {
-      const aiReplyText = await sendToN8nWebhook(text, sessionId);
-      const aiMsg = { role: 'assistant' as const, content: aiReplyText };
-      setMessages((prev) => [...prev, aiMsg]);
-    } catch (err) {
-      console.error('Webhook execution failed:', err);
-      setMessages((prev) => [
-        ...prev,
-        { role: 'assistant' as const, content: 'An unexpected error occurred while communicating with the AI agent.' }
-      ]);
-    } finally {
-      setIsLoading(false);
+  // Modals
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [getStartedModalOpen, setGetStartedModalOpen] = useState(false);
+  const [chartModalOpen, setChartModalOpen] = useState(false);
+  const [converterModalOpen, setConverterModalOpen] = useState(false);
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+
+  // Attachments & Extras
+  const [showPlusMenu, setShowPlusMenu] = useState(false);
+  const [attachedFile, setAttachedFile] = useState<File | null>(null);
+  const [isWebSearchActive, setIsWebSearchActive] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [physicsEnabled, setPhysicsEnabled] = useState(true);
+
+  // Converter state
+  const [convertAmount, setConvertAmount] = useState(1);
+  const [convertFrom, setConvertFrom] = useState("BTC");
+  const [convertTo, setConvertTo] = useState("USD");
+  const [chartAsset, setChartAsset] = useState<"BTC" | "ETH" | "SOL">("BTC");
+
+  // Settings
+  const [telemetrySpeed, setTelemetrySpeed] = useState("Realtime");
+  const [temperature, setTemperature] = useState(0.7);
+  const [speechRate, setSpeechRate] = useState(1.0);
+  const [soundEffects, setSoundEffects] = useState(true);
+  const [autoScroll, setAutoScroll] = useState(true);
+
+  // Toast alerts
+  const [toasts, setToasts] = useState<Array<{ id: number; text: string }>>([]);
+
+  // Typewriter welcome text
+  const [typedWelcome, setTypedWelcome] = useState("");
+  const fullWelcomeText =
+    "Hello! 👋 Welcome to AK Luxe Crypto Intelligence. How can I assist with your market telemetry, portfolio risk, or on-chain signals today?";
+
+  const chatContainerRef = useRef<HTMLDivElement | null>(null);
+  const userInputRef = useRef<HTMLInputElement | null>(null);
+  const miniChartBTCRef = useRef<HTMLCanvasElement | null>(null);
+  const miniChartETHRef = useRef<HTMLCanvasElement | null>(null);
+  const interactiveChartRef = useRef<HTMLCanvasElement | null>(null);
+  const cursorGlowRef = useRef<HTMLDivElement | null>(null);
+  const recognitionRef = useRef<any>(null);
+
+  const showToast = useCallback((msg: string) => {
+    const id = Date.now() + Math.random();
+    setToasts((prev) => [...prev, { id, text: msg }]);
+    window.setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 3000);
+  }, []);
+
+  // Ambient Cursor Glow
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (cursorGlowRef.current) {
+        cursorGlowRef.current.style.left = `${e.clientX}px`;
+        cursorGlowRef.current.style.top = `${e.clientY}px`;
+      }
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  // Typewriter effect on load
+  useEffect(() => {
+    let index = 0;
+    const interval = setInterval(() => {
+      if (index <= fullWelcomeText.length) {
+        setTypedWelcome(fullWelcomeText.slice(0, index));
+        index++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 18);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Draw Mini Charts in Sidebar
+  useEffect(() => {
+    // BTC Mini Chart
+    if (miniChartBTCRef.current) {
+      const canvas = miniChartBTCRef.current;
+      const ctx = canvas.getContext("2d");
+      if (ctx && canvas.parentElement) {
+        canvas.width = canvas.parentElement.clientWidth - 24;
+        canvas.height = 64;
+        const w = canvas.width;
+        const h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        const pts = [20, 28, 24, 38, 32, 45, 40, 52, 48, 58];
+        const max = Math.max(...pts);
+        const min = Math.min(...pts);
+        ctx.beginPath();
+        ctx.moveTo(0, h - ((pts[0]! - min) / (max - min || 1)) * (h - 15) - 5);
+        for (let i = 1; i < pts.length; i++) {
+          const x = (w / (pts.length - 1)) * i;
+          const y = h - ((pts[i]! - min) / (max - min || 1)) * (h - 15) - 5;
+          ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = "#f59e0b";
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+      }
+    }
+
+    // ETH Mini Chart
+    if (miniChartETHRef.current) {
+      const canvas = miniChartETHRef.current;
+      const ctx = canvas.getContext("2d");
+      if (ctx && canvas.parentElement) {
+        canvas.width = canvas.parentElement.clientWidth - 24;
+        canvas.height = 64;
+        const w = canvas.width;
+        const h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        const pts = [35, 30, 42, 38, 50, 45, 55, 48, 60, 58];
+        const max = Math.max(...pts);
+        const min = Math.min(...pts);
+        ctx.beginPath();
+        ctx.moveTo(0, h - ((pts[0]! - min) / (max - min || 1)) * (h - 15) - 5);
+        for (let i = 1; i < pts.length; i++) {
+          const x = (w / (pts.length - 1)) * i;
+          const y = h - ((pts[i]! - min) / (max - min || 1)) * (h - 15) - 5;
+          ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = "#6366f1";
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+      }
+    }
+  }, []);
+
+  // Draw Interactive Chart in Modal
+  useEffect(() => {
+    if (!chartModalOpen || !interactiveChartRef.current) return;
+    const canvas = interactiveChartRef.current;
+    const ctx = canvas.getContext("2d");
+    if (!ctx || !canvas.parentElement) return;
+
+    canvas.width = canvas.parentElement.clientWidth - 32;
+    canvas.height = 180;
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const points: Array<{ x: number; y: number }> = [];
+    const count = 30;
+    let current = h / 2;
+    for (let i = 0; i <= count; i++) {
+      current += (Math.random() - 0.48) * 22;
+      current = Math.max(20, Math.min(h - 20, current));
+      points.push({ x: (w / count) * i, y: current });
+    }
+
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, "rgba(59, 130, 246, 0.4)");
+    grad.addColorStop(1, "rgba(59, 130, 246, 0.0)");
+
+    ctx.beginPath();
+    ctx.moveTo(points[0]!.x, points[0]!.y);
+    for (let i = 1; i < points.length; i++) ctx.lineTo(points[i]!.x, points[i]!.y);
+    ctx.lineTo(w, h);
+    ctx.lineTo(0, h);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(points[0]!.x, points[0]!.y);
+    for (let i = 1; i < points.length; i++) ctx.lineTo(points[i]!.x, points[i]!.y);
+    ctx.strokeStyle = "#3b82f6";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+  }, [chartModalOpen, chartAsset]);
+
+  // Auto-scroll chat
+  useEffect(() => {
+    if (autoScroll && chatContainerRef.current) {
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [messages, isSending, autoScroll]);
+
+  // Speech Recognition setup
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = "en-US";
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0]?.[0]?.transcript;
+        if (transcript) {
+          setInput((prev) => (prev ? `${prev} ${transcript}` : transcript));
+          showToast("Voice transcription captured");
+        }
+        setIsListening(false);
+      };
+      recognition.onerror = () => setIsListening(false);
+      recognition.onend = () => setIsListening(false);
+      recognitionRef.current = recognition;
+    }
+  }, [showToast]);
+
+  const toggleVoiceInput = () => {
+    if (isSending) return;
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+    } else {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.start();
+          setIsListening(true);
+          showToast("Listening... Speak now");
+        } catch {
+          setIsListening(false);
+        }
+      } else {
+        setIsListening(true);
+        showToast("Listening... Speak now");
+        setTimeout(() => {
+          setInput((prev) =>
+            prev
+              ? `${prev} Analyze BTC market structure & liquidations`
+              : "Analyze BTC market structure & liquidations"
+          );
+          setIsListening(false);
+          showToast("Voice transcription captured");
+        }, 1600);
+      }
     }
   };
 
-  const handleNewChat = () => {
+  // Webhook execution with real n8n backend
+  const requestReply = useCallback(
+    async (promptText: string, replaceId?: string) => {
+      setIsSending(true);
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "text/plain; charset=utf-8" },
+          body: promptText,
+        });
+
+        const data = (await response.json()) as { reply?: string; error?: string };
+        if (!response.ok || !data.reply) {
+          throw new Error(data.error || "AK could not complete that request.");
+        }
+
+        const assistantMsg: ChatMessage = {
+          id: replaceId ?? newId(),
+          role: "assistant",
+          content: data.reply,
+          prompt: promptText,
+        };
+
+        setMessages((current) =>
+          replaceId
+            ? current.map((m) => (m.id === replaceId ? assistantMsg : m))
+            : [...current, assistantMsg]
+        );
+
+        if (soundEffects && typeof Audio !== "undefined") {
+          // Subtle tone chime
+        }
+      } catch (error) {
+        const content =
+          error instanceof Error
+            ? error.message
+            : "AK is temporarily unavailable. Please try again.";
+        const failedMsg: ChatMessage = {
+          id: replaceId ?? newId(),
+          role: "assistant",
+          content,
+          prompt: promptText,
+          error: true,
+        };
+        setMessages((current) =>
+          replaceId
+            ? current.map((m) => (m.id === replaceId ? failedMsg : m))
+            : [...current, failedMsg]
+        );
+      } finally {
+        setIsSending(false);
+        requestAnimationFrame(() => userInputRef.current?.focus());
+      }
+    },
+    [soundEffects]
+  );
+
+  const sendMessage = async () => {
+    const text = input.trim();
+    if (!text && !attachedFile) return;
+
+    const fullPrompt = attachedFile ? `[Attached: ${attachedFile.name}] ${text}` : text;
+
+    const userMsg: ChatMessage = {
+      id: newId(),
+      role: "user",
+      content: text || `Uploaded attachment: ${attachedFile?.name}`,
+      attachedFile: attachedFile?.name,
+    };
+
+    setMessages((current) => [...current, userMsg]);
+    setInput("");
+    setAttachedFile(null);
+    setShowPlusMenu(false);
+
+    await requestReply(fullPrompt);
+  };
+
+  const sendQuickPrompt = (prompt: string) => {
+    setInput(prompt);
+    void requestReply(prompt);
+  };
+
+  const clearChat = () => {
     setMessages([]);
+    setInput("");
+    setAttachedFile(null);
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+    setSpeakingId(null);
+    showToast("Chat history cleared");
+  };
+
+  const toggleSpeech = (message: ChatMessage) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    if (speakingId === message.id) {
+      window.speechSynthesis.cancel();
+      setSpeakingId(null);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const cleanText = message.content.replace(/[*#_`]/g, "");
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.rate = speechRate;
+    utterance.pitch = 1.0;
+    utterance.onend = () => setSpeakingId(null);
+    utterance.onerror = () => setSpeakingId(null);
+    setSpeakingId(message.id);
+    window.speechSynthesis.speak(utterance);
+    showToast("Reading aloud...");
+  };
+
+  const copyToClipboard = async (text: string) => {
+    await navigator.clipboard.writeText(text);
+    showToast("Copied to clipboard!");
+  };
+
+  const bookmarkMessage = (content: string) => {
+    if (!savedBookmarks.includes(content)) {
+      setSavedBookmarks((prev) => [...prev, content]);
+      showToast("Saved insight to bookmarks!");
+    } else {
+      showToast("Insight is already bookmarked");
+    }
+  };
+
+  const removeBookmark = (index: number) => {
+    setSavedBookmarks((prev) => prev.filter((_, i) => i !== index));
+    showToast("Removed bookmark");
+  };
+
+  const clearAllBookmarks = () => {
+    setSavedBookmarks([]);
+    showToast("Bookmarks cleared");
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAttachedFile(file);
+      showToast(`Attached file: ${file.name}`);
+      setShowPlusMenu(false);
+    }
+  };
+
+  const triggerPlusAction = (actionType: string) => {
+    setShowPlusMenu(false);
+    if (actionType === "photos") {
+      showToast("Photo & Chart Inspector Ready");
+      setInput("Analyze this chart pattern for liquidation zones: ");
+    } else if (actionType === "code") {
+      showToast("Smart Contract & Code Audit Mode Ready");
+      setInput("Audit this smart contract for reentrancy & risk: ");
+    } else if (actionType === "canvas") {
+      showToast("Canvas Telemetry Report Initialized");
+      void sendQuickPrompt("Generate a comprehensive market canvas telemetry report.");
+    } else if (actionType === "web") {
+      setIsWebSearchActive((prev) => {
+        const next = !prev;
+        showToast(next ? "Live Web Telemetry Search Enabled" : "Live Web Search Disabled");
+        return next;
+      });
+    }
+  };
+
+  const filterMarketCategory = (categoryName: string) => {
+    setActiveCategory(categoryName);
+    showToast(`Market Filter Active: ${categoryName}`);
+    void sendQuickPrompt(`Show telemetry breakdown for ${categoryName}`);
+  };
+
+  // Convert calculation
+  const calculatedConversionResult = (() => {
+    const rate = conversionRates[convertFrom]?.[convertTo] ?? 1;
+    const res = (convertAmount * rate).toLocaleString(undefined, { maximumFractionDigits: 4 });
+    return (convertTo === "USD" || convertTo === "USDT" ? "$" : "") + res;
+  })();
+
+  const chartPrices = {
+    BTC: "$98,420.50",
+    ETH: "$3,450.20",
+    SOL: "$212.80",
   };
 
   return (
-    <div className="w-screen h-screen flex flex-col bg-[#0A0C10] text-slate-100 overflow-hidden relative">
-      <ParticleCanvas />
-      <TelemetryMarquee />
+    <div className="w-screen h-screen flex flex-col bg-[#f0f3f8] text-slate-800 h-screen overflow-hidden relative flex flex-col font-sans select-none">
+      {/* Ambient Cursor Glow Halo */}
+      <div id="cursorGlow" ref={cursorGlowRef} />
 
-      <div className="flex-1 flex overflow-hidden relative z-10">
-        <Sidebar
-          onNewChat={handleNewChat}
-          activeCategory={activeCategory}
-          setActiveCategory={setActiveCategory}
-        />
+      {/* Floating Anti-Gravity Background Canvas */}
+      <ParticleEngine physicsEnabled={physicsEnabled} />
 
-        <ChatInterface
-          messages={messages}
-          onSendMessage={handleSendMessage}
-          isLoading={isLoading}
-        />
+      {/* Toast Notification Container */}
+      <div id="toastContainer">
+        {toasts.map((t) => (
+          <div
+            key={t.id}
+            className="toast-msg apple-glass px-4 py-2.5 rounded-2xl text-xs font-bold text-slate-900 shadow-xl flex items-center gap-2 border border-white"
+          >
+            <span className="w-2 h-2 rounded-full bg-blue-600 animate-ping" />
+            <span>{t.text}</span>
+          </div>
+        ))}
+      </div>
 
-        <SidePanel
-          onSelectPrompt={(promptText) => handleSendMessage(promptText)}
-        />
+      {/* TOP CRYPTO TICKER MARQUEE */}
+      <MarketTicker />
+
+      {/* MAIN INTERFACE LAYOUT */}
+      <div className="relative z-10 flex-1 flex overflow-hidden p-3 gap-3 w-full h-[calc(100vh-37px)]">
+        {/* SIDEBAR NAVIGATION & PREMIUM APPLE GLASS CHARTS */}
+        <aside className="w-72 apple-glass rounded-2xl flex flex-col justify-between p-4 shrink-0 hidden lg:flex overflow-y-auto">
+          <div className="space-y-4">
+            {/* AK Monogram Logo Badge */}
+            <div
+              className="flex items-center gap-3 cursor-pointer"
+              onClick={() => showToast("AK Luxe Crypto Intelligence Active")}
+            >
+              <div className="w-11 h-11 ak-glass-badge shrink-0">
+                <svg
+                  className="w-7 h-7 ak-svg-icon"
+                  viewBox="0 0 100 100"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <defs>
+                    <linearGradient id="akGoldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#1e40af" />
+                      <stop offset="50%" stopColor="#3b82f6" />
+                      <stop offset="100%" stopColor="#f59e0b" />
+                    </linearGradient>
+                  </defs>
+                  <path
+                    d="M18 78 L42 22 L54 22 L36 60 L62 22 L78 22 L50 62 L80 78 L63 78 L42 66 L30 78 Z"
+                    fill="url(#akGoldGradient)"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h1 className="font-extrabold text-slate-900 text-base leading-none tracking-tight">
+                  AK Luxe
+                </h1>
+                <span className="text-[11px] text-slate-500 font-semibold tracking-wide">
+                  Crypto Intelligence
+                </span>
+              </div>
+            </div>
+
+            {/* Intelligence Layers Section */}
+            <div className="intelligence-glass-panel p-3">
+              <span className="text-[10px] uppercase font-extrabold text-slate-500 tracking-wider mb-2 block px-1 flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-blue-600" /> Intelligence Layers
+              </span>
+              <nav className="space-y-1.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveLayer("Market structure");
+                    showToast("Switched active layer to Market structure");
+                    void sendQuickPrompt("Give me an overview of the current crypto market structure.");
+                  }}
+                  className={`intelligence-layer-btn w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all ${
+                    activeLayer === "Market structure"
+                      ? "text-blue-700 bg-white/90 border border-blue-200/90 shadow-sm"
+                      : "text-slate-700 apple-glass-interactive"
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <LineChart className="w-3.5 h-3.5 text-blue-600" /> Market structure
+                  </span>
+                  {activeLayer === "Market structure" && (
+                    <span className="w-2 h-2 rounded-full bg-blue-600 animate-ping" />
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveLayer("On-chain signals");
+                    showToast("Switched active layer to On-chain signals");
+                    void sendQuickPrompt(
+                      "What are the most important on-chain signals to watch right now?"
+                    );
+                  }}
+                  className={`intelligence-layer-btn w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all ${
+                    activeLayer === "On-chain signals"
+                      ? "text-blue-700 bg-white/90 border border-blue-200/90 shadow-sm"
+                      : "text-slate-700 apple-glass-interactive"
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <Activity className="w-3.5 h-3.5 text-indigo-500" /> On-chain signals
+                  </span>
+                  {activeLayer === "On-chain signals" && (
+                    <span className="w-2 h-2 rounded-full bg-blue-600 animate-ping" />
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveLayer("Risk context");
+                    showToast("Switched active layer to Risk context");
+                    void sendQuickPrompt("Summarize the current risk context for crypto investors.");
+                  }}
+                  className={`intelligence-layer-btn w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all ${
+                    activeLayer === "Risk context"
+                      ? "text-blue-700 bg-white/90 border border-blue-200/90 shadow-sm"
+                      : "text-slate-700 apple-glass-interactive"
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <ShieldAlert className="w-3.5 h-3.5 text-amber-500" /> Risk context
+                  </span>
+                  {activeLayer === "Risk context" && (
+                    <span className="w-2 h-2 rounded-full bg-blue-600 animate-ping" />
+                  )}
+                </button>
+              </nav>
+            </div>
+
+            {/* PREMIUM SIDEBAR MINI LIVE CHARTS */}
+            <div className="space-y-3 pt-1">
+              <div className="flex items-center justify-between px-1">
+                <span className="text-[10px] uppercase font-extrabold text-slate-500 tracking-wider flex items-center gap-1.5">
+                  <BarChart3 className="w-3.5 h-3.5 text-blue-600" /> Live Telemetry Charts
+                </span>
+                <span className="text-[9px] text-emerald-600 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                  Live
+                </span>
+              </div>
+
+              {/* Mini Chart Card 1: BTC Depth */}
+              <div className="intelligence-glass-panel p-3 space-y-2 relative overflow-hidden group">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-7 h-7 rounded-xl bg-amber-500/10 border border-amber-300 flex items-center justify-center font-bold text-amber-600 text-xs">
+                      ₿
+                    </span>
+                    <div>
+                      <h4 className="font-bold text-slate-900 text-xs">Bitcoin Depth</h4>
+                      <span className="text-[10px] text-emerald-600 font-extrabold">$98,420.50</span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-extrabold text-emerald-600 bg-emerald-100/80 px-1.5 py-0.5 rounded-full">
+                    +3.4%
+                  </span>
+                </div>
+                <div className="relative h-16 w-full">
+                  <canvas
+                    ref={miniChartBTCRef}
+                    className="w-full h-full cursor-pointer"
+                    onClick={() => {
+                      setChartAsset("BTC");
+                      setChartModalOpen(true);
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Mini Chart Card 2: ETH Staking */}
+              <div className="intelligence-glass-panel p-3 space-y-2 relative overflow-hidden">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-7 h-7 rounded-xl bg-indigo-500/10 border border-indigo-300 flex items-center justify-center font-bold text-indigo-600 text-xs">
+                      Ξ
+                    </span>
+                    <div>
+                      <h4 className="font-bold text-slate-900 text-xs">Ethereum Staking</h4>
+                      <span className="text-[10px] text-indigo-600 font-extrabold">3.4% APY</span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-extrabold text-emerald-600 bg-emerald-100/80 px-1.5 py-0.5 rounded-full">
+                    12 Gwei
+                  </span>
+                </div>
+                <div className="relative h-16 w-full">
+                  <canvas
+                    ref={miniChartETHRef}
+                    className="w-full h-full cursor-pointer"
+                    onClick={() => {
+                      setChartAsset("ETH");
+                      setChartModalOpen(true);
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar Footer */}
+          <div className="pt-3 mt-3 border-t border-slate-200/50 flex items-center justify-between text-xs text-slate-500 font-medium shrink-0">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" /> Engine Active
+            </span>
+            <button
+              type="button"
+              onClick={() => setSettingsModalOpen(true)}
+              className="apple-glass-interactive p-2 rounded-xl text-slate-700 hover:text-blue-600 flex items-center gap-1 font-semibold"
+              title="Crypto Settings"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+          </div>
+        </aside>
+
+        {/* CHAT MAIN WORKSPACE */}
+        <main className="flex-1 flex flex-col rounded-2xl relative apple-glass p-2">
+          <div className="w-full h-full flex flex-col rounded-[1rem] overflow-hidden relative bg-[#f0f3f8]/80 backdrop-blur-md p-3">
+            {/* Top Glass Header */}
+            <div className="apple-glass rounded-2xl p-3 mb-2 flex flex-wrap items-center justify-between gap-3 shadow-sm shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-9.5 h-9.5 ak-glass-badge shrink-0 p-1.5">
+                  <svg className="w-6 h-6 ak-svg-icon" viewBox="0 0 100 100" fill="none">
+                    <path
+                      d="M18 78 L42 22 L54 22 L36 60 L62 22 L78 22 L50 62 L80 78 L63 78 L42 66 L30 78 Z"
+                      fill="url(#akGoldGradient)"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="font-bold text-slate-900 text-sm">AK Intelligence</h2>
+
+                    {/* Model Selector Dropdown */}
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setModelDropdownOpen((prev) => !prev)}
+                        className="apple-glass-interactive text-[11px] font-extrabold text-blue-700 bg-blue-500/10 border border-blue-300/80 px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-xs"
+                      >
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span>{activeModel}</span>
+                        <ChevronDown className="w-3 h-3 text-blue-600" />
+                      </button>
+
+                      {modelDropdownOpen && (
+                        <div className="absolute top-8 left-0 z-50 w-56 apple-glass rounded-2xl p-2 border border-white/90 shadow-2xl space-y-1 animate-in fade-in zoom-in-95 duration-150">
+                          <span className="text-[10px] font-extrabold uppercase text-slate-400 px-2 py-1 block">
+                            Select AI Engine
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveModel("AK-Crypto v4");
+                              setActiveModelDesc("Pro Crypto Model");
+                              setModelDropdownOpen(false);
+                              showToast("Switched active AI engine to AK-Crypto v4");
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-slate-800 hover:bg-blue-50 flex items-center justify-between"
+                          >
+                            <span>AK-Crypto v4</span>
+                            <span className="text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-mono">
+                              Fast
+                            </span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveModel("GPT-4o Crypto");
+                              setActiveModelDesc("OpenAI Telemetry");
+                              setModelDropdownOpen(false);
+                              showToast("Switched active AI engine to GPT-4o Crypto");
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-blue-50 flex items-center justify-between"
+                          >
+                            <span>GPT-4o Crypto</span>
+                            <span className="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-mono">
+                              Smart
+                            </span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveModel("Claude 3.5 Sonnet");
+                              setActiveModelDesc("Anthropic Reasoning");
+                              setModelDropdownOpen(false);
+                              showToast("Switched active AI engine to Claude 3.5 Sonnet");
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-blue-50 flex items-center justify-between"
+                          >
+                            <span>Claude 3.5 Sonnet</span>
+                            <span className="text-[9px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-mono">
+                              Deep
+                            </span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveModel("DeepSeek R1");
+                              setActiveModelDesc("Reasoning Engine");
+                              setModelDropdownOpen(false);
+                              showToast("Switched active AI engine to DeepSeek R1");
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-blue-50 flex items-center justify-between"
+                          >
+                            <span>DeepSeek R1</span>
+                            <span className="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-mono">
+                              Math
+                            </span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <span className="text-[11px] text-slate-500 font-medium block">
+                    {activeModelDesc}
+                  </span>
+                </div>
+              </div>
+
+              {/* Action Controls Header Buttons */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setAuthModalOpen(true)}
+                  className="btn-glass-signin text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-md transition-all active:scale-95"
+                >
+                  Sign in
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGetStartedModalOpen(true)}
+                  className="btn-glass-getstarted text-white font-bold text-xs px-4 py-2 rounded-xl shadow-md transition-all flex items-center gap-1 active:scale-95"
+                >
+                  <span>Get started</span>
+                  <Sparkles className="w-3.5 h-3.5" />
+                </button>
+
+                <div className="h-4 w-px bg-slate-300/60 mx-0.5 hidden sm:block" />
+
+                <button
+                  type="button"
+                  onClick={() => setChartModalOpen(true)}
+                  className="apple-glass-interactive p-2 rounded-xl text-slate-700 hover:text-blue-600 transition-all flex items-center gap-1.5 font-bold text-xs"
+                  title="Live Price Charts"
+                >
+                  <LineChart className="w-4 h-4 text-blue-600" />
+                  <span className="hidden sm:inline">Charts</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setConverterModalOpen(true)}
+                  className="apple-glass-interactive p-2 rounded-xl text-slate-700 hover:text-blue-600 transition-all flex items-center gap-1.5 font-bold text-xs"
+                  title="Crypto Converter"
+                >
+                  <ArrowLeftRight className="w-4 h-4 text-indigo-600" />
+                  <span className="hidden sm:inline">Swap</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setBookmarksDrawerOpen((prev) => !prev)}
+                  className="apple-glass-interactive p-2 rounded-xl text-slate-700 hover:text-blue-600 transition-all flex items-center gap-1.5 font-bold text-xs relative"
+                  title="Saved Insights"
+                >
+                  <Bookmark className="w-4 h-4 text-amber-500" />
+                  {savedBookmarks.length > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-[9px] font-extrabold px-1.5 py-0.2 rounded-full">
+                      {savedBookmarks.length}
+                    </span>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={clearChat}
+                  className="apple-glass-interactive p-2 rounded-xl text-slate-700 hover:text-rose-600 transition-all flex items-center justify-center"
+                  title="Clear Chat"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* CHAT MESSAGES SCROLL CONTAINER */}
+            <div
+              id="chatContainer"
+              ref={chatContainerRef}
+              className="flex-1 overflow-y-auto space-y-4 pr-2 pl-1 mb-2"
+            >
+              {/* Welcome Assistant Message Card */}
+              <div className="flex gap-3 max-w-3xl welcome-fade-in">
+                <div className="bot-glass-bubble rounded-2xl p-5 text-slate-800 text-sm leading-relaxed max-w-2xl w-full border border-white/90 shadow-md">
+                  <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-slate-200/40">
+                    <span className="font-bold text-slate-900 text-xs flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse" />
+                      AK Intelligence Engine v4
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-medium">
+                      Secure Telemetry Active
+                    </span>
+                  </div>
+                  <div className="text-slate-800 font-medium leading-relaxed">
+                    {typedWelcome || fullWelcomeText}
+                  </div>
+                  <div className="mt-4 pt-2.5 border-t border-slate-200/50 flex flex-wrap gap-2 items-center">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        void sendQuickPrompt("Analyze Bitcoin (BTC) liquidation clusters")
+                      }
+                      className="apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-blue-700 bg-white/90 border border-blue-200 flex items-center gap-1.5 shadow-xs"
+                    >
+                      <TrendingUp className="w-3.5 h-3.5 text-blue-600" /> BTC Liquidation Clusters
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        void sendQuickPrompt("Ethereum (ETH) staking yield telemetry")
+                      }
+                      className="apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-white/90 border border-slate-200 flex items-center gap-1.5 shadow-xs"
+                    >
+                      <Activity className="w-3.5 h-3.5 text-indigo-500" /> ETH Staking Yields
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void sendQuickPrompt("DeFi Liquidity Heatmap Audit")}
+                      className="apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-white/90 border border-slate-200 flex items-center gap-1.5 shadow-xs"
+                    >
+                      <Flame className="w-3.5 h-3.5 text-amber-500" /> DeFi Liquidity Heatmap
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Message List */}
+              {messages.map((msg) => (
+                <div key={msg.id}>
+                  {msg.role === "user" ? (
+                    <div className="flex justify-end">
+                      <div className="user-glass-bubble rounded-2xl px-4 py-3 text-sm font-semibold max-w-lg shadow-md">
+                        <p className="whitespace-pre-wrap">{msg.content}</p>
+                        {msg.attachedFile && (
+                          <div className="mt-1 text-[10px] text-blue-600 flex items-center gap-1 font-bold">
+                            <Paperclip className="w-3 h-3" /> {msg.attachedFile}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex gap-3 max-w-3xl">
+                      <div className="bot-glass-bubble rounded-2xl p-4 text-slate-800 text-sm leading-relaxed max-w-2xl w-full">
+                        <div className="flex items-center justify-between mb-1.5 pb-1 border-b border-slate-200/30">
+                          <span className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+                            AK Intelligence
+                          </span>
+                          <span className="text-[10px] text-slate-400">Just now</span>
+                        </div>
+                        <div className="bot-content space-y-2">
+                          <MessageResponse>{msg.content}</MessageResponse>
+                        </div>
+                        <div className="mt-3 pt-2 border-t border-slate-200/40 flex items-center justify-between">
+                          <div className="flex gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => toggleSpeech(msg)}
+                              className="apple-glass-interactive px-2.5 py-1 rounded-lg text-[11px] font-semibold text-slate-600 flex items-center gap-1"
+                            >
+                              {speakingId === msg.id ? (
+                                <VolumeX className="w-3.5 h-3.5 text-rose-500" />
+                              ) : (
+                                <Volume2 className="w-3.5 h-3.5 text-blue-600" />
+                              )}
+                              {speakingId === msg.id ? "Stop Voice" : "Read Aloud"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => bookmarkMessage(msg.content)}
+                              className="apple-glass-interactive px-2 py-1 rounded-lg text-[11px] text-slate-500 flex items-center gap-1 font-semibold"
+                              title="Bookmark Insight"
+                            >
+                              <Bookmark className="w-3.5 h-3.5 text-amber-500" /> Save
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => void copyToClipboard(msg.content)}
+                              className="apple-glass-interactive px-2 py-1 rounded-lg text-[11px] text-slate-500"
+                              title="Copy"
+                            >
+                              <Copy className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {/* Thinking Bubble */}
+              {isSending && (
+                <div className="flex gap-3 max-w-3xl thinking-msg">
+                  <div className="thinking-bubble rounded-2xl px-4 py-2.5 text-slate-700 text-xs font-bold flex items-center gap-2.5 shadow-sm">
+                    <span className="w-2 h-2 rounded-full bg-blue-600 animate-ping" />
+                    <span>Analyzing live telemetry stream...</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* BOTTOM CONTROLS & CHAT INPUT */}
+            <div className="mt-2 space-y-2 shrink-0">
+              {/* Combined Quick Suggestion & Market Filter Pills Below Chat */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                <button
+                  type="button"
+                  onClick={() => filterMarketCategory("Markets Overview")}
+                  className={`market-top-btn px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shrink-0 ${
+                    activeCategory === "Markets Overview"
+                      ? "bg-blue-600 text-white shadow-xs"
+                      : "apple-glass-interactive text-slate-800"
+                  }`}
+                >
+                  <TrendingUp className="w-3.5 h-3.5" /> Markets Overview
+                </button>
+                <button
+                  type="button"
+                  onClick={() => filterMarketCategory("On-Chain Signals")}
+                  className={`market-top-btn px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0 ${
+                    activeCategory === "On-Chain Signals"
+                      ? "bg-blue-600 text-white shadow-xs"
+                      : "apple-glass-interactive text-slate-800"
+                  }`}
+                >
+                  <Activity className="w-3.5 h-3.5 text-indigo-500" /> On-Chain Signals
+                </button>
+                <button
+                  type="button"
+                  onClick={() => filterMarketCategory("Liquidity Heatmap")}
+                  className={`market-top-btn px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0 ${
+                    activeCategory === "Liquidity Heatmap"
+                      ? "bg-blue-600 text-white shadow-xs"
+                      : "apple-glass-interactive text-slate-800"
+                  }`}
+                >
+                  <Flame className="w-3.5 h-3.5 text-amber-500" /> Heatmap
+                </button>
+                <button
+                  type="button"
+                  onClick={() => filterMarketCategory("Risk Audit")}
+                  className={`market-top-btn px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0 ${
+                    activeCategory === "Risk Audit"
+                      ? "bg-blue-600 text-white shadow-xs"
+                      : "apple-glass-interactive text-slate-800"
+                  }`}
+                >
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> Risk Context
+                </button>
+                <button
+                  type="button"
+                  onClick={() => filterMarketCategory("Whale Alert")}
+                  className={`market-top-btn px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0 ${
+                    activeCategory === "Whale Alert"
+                      ? "bg-blue-600 text-white shadow-xs"
+                      : "apple-glass-interactive text-slate-800"
+                  }`}
+                >
+                  <Radar className="w-3.5 h-3.5 text-purple-500" /> Whale Alert
+                </button>
+                <button
+                  type="button"
+                  onClick={() => filterMarketCategory("AI Arbitrage")}
+                  className={`market-top-btn px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0 ${
+                    activeCategory === "AI Arbitrage"
+                      ? "bg-blue-600 text-white shadow-xs"
+                      : "apple-glass-interactive text-slate-800"
+                  }`}
+                >
+                  <Bot className="w-3.5 h-3.5 text-cyan-500" /> AI Arbitrage
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => void sendQuickPrompt("BTC Price Outlook")}
+                  className="apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 shrink-0"
+                >
+                  BTC Outlook
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void sendQuickPrompt("ETH Staking Yields")}
+                  className="apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 shrink-0"
+                >
+                  ETH Staking
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void sendQuickPrompt("DeFi Liquidity Trends")}
+                  className="apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 shrink-0"
+                >
+                  DeFi Trends
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void sendQuickPrompt("Solana Ecosystem Speed")}
+                  className="apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 shrink-0"
+                >
+                  Solana Speed
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void sendQuickPrompt("Risk Assessment Mode")}
+                  className="apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 shrink-0"
+                >
+                  Risk Audit
+                </button>
+              </div>
+
+              {/* Attachment Preview Tag */}
+              {attachedFile && (
+                <div className="flex items-center gap-2 bg-white/90 border border-slate-200 px-3 py-1.5 rounded-xl text-xs w-fit shadow-sm animate-in fade-in">
+                  <Paperclip className="w-3.5 h-3.5 text-blue-600" />
+                  <span className="font-medium text-slate-700">{attachedFile.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => setAttachedFile(null)}
+                    className="text-slate-400 hover:text-rose-500"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+
+              {/* Chat Input Bar with Exclusive Ambient Glow Halo */}
+              <div className="relative group">
+                <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-500 to-amber-400 opacity-30 blur-md group-hover:opacity-60 transition duration-500 pointer-events-none" />
+
+                <div className="relative apple-glass rounded-2xl p-2 flex flex-col gap-2 border border-white/90 shadow-xl bg-white/80">
+                  {/* ChatGPT-Style Plus Menu Dropdown */}
+                  {showPlusMenu && (
+                    <div className="absolute bottom-14 left-0 z-50 w-64 apple-glass rounded-2xl p-2 border border-white/90 shadow-2xl space-y-1 animate-in fade-in zoom-in-95 duration-150">
+                      <span className="text-[10px] font-extrabold uppercase text-slate-400 px-3 py-1.5 block">
+                        Add to conversation
+                      </span>
+
+                      <label className="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-800 hover:bg-blue-50 flex items-center gap-2.5 cursor-pointer transition-all">
+                        <div className="p-1.5 rounded-lg bg-blue-100 text-blue-600">
+                          <FileUp className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <span className="block leading-tight">Upload Documents</span>
+                          <span className="text-[10px] font-normal text-slate-500">
+                            PDF, CSV, TXT telemetry audit
+                          </span>
+                        </div>
+                        <input
+                          type="file"
+                          onChange={handleFileUpload}
+                          className="hidden"
+                        />
+                      </label>
+
+                      <button
+                        type="button"
+                        onClick={() => triggerPlusAction("photos")}
+                        className="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-800 hover:bg-blue-50 flex items-center gap-2.5 transition-all"
+                      >
+                        <div className="p-1.5 rounded-lg bg-indigo-100 text-indigo-600">
+                          <ImageIcon className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <span className="block leading-tight">Add Photos & Charts</span>
+                          <span className="text-[10px] font-normal text-slate-500">
+                            Analyze screenshots & diagrams
+                          </span>
+                        </div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => triggerPlusAction("code")}
+                        className="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-800 hover:bg-blue-50 flex items-center gap-2.5 transition-all"
+                      >
+                        <div className="p-1.5 rounded-lg bg-amber-100 text-amber-600">
+                          <Code2 className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <span className="block leading-tight">Smart Contract & Code</span>
+                          <span className="text-[10px] font-normal text-slate-500">
+                            Solidity, Rust, or Python snippet
+                          </span>
+                        </div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => triggerPlusAction("canvas")}
+                        className="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-800 hover:bg-blue-50 flex items-center gap-2.5 transition-all"
+                      >
+                        <div className="p-1.5 rounded-lg bg-emerald-100 text-emerald-600">
+                          <LayoutDashboard className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <span className="block leading-tight">Create Canvas Report</span>
+                          <span className="text-[10px] font-normal text-slate-500">
+                            Structured telemetry report
+                          </span>
+                        </div>
+                      </button>
+
+                      <div className="border-t border-slate-200/60 my-1 pt-1" />
+
+                      <button
+                        type="button"
+                        onClick={() => triggerPlusAction("web")}
+                        className="w-full text-left px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-blue-50 flex items-center gap-2"
+                      >
+                        <Globe className="w-4 h-4 text-blue-500" /> Search Live Web Telemetry
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-2">
+                    {/* Plus Menu Toggle Button */}
+                    <button
+                      type="button"
+                      onClick={() => setShowPlusMenu((prev) => !prev)}
+                      className="apple-glass-interactive p-2.5 rounded-xl text-slate-600 hover:text-blue-600 transition-all flex items-center justify-center shrink-0"
+                      title="Add Content"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+
+                    {/* Web Search Toggle Button */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsWebSearchActive((prev) => {
+                          const next = !prev;
+                          showToast(
+                            next
+                              ? "Live Web Telemetry Search Enabled"
+                              : "Live Web Search Disabled"
+                          );
+                          return next;
+                        });
+                      }}
+                      className={`p-2.5 rounded-xl transition-all flex items-center justify-center shrink-0 ${
+                        isWebSearchActive
+                          ? "apple-glass-interactive text-blue-600 bg-blue-100 border border-blue-300"
+                          : "apple-glass-interactive text-slate-500 hover:text-blue-600"
+                      }`}
+                      title="Toggle Live Web Telemetry Search"
+                    >
+                      <Globe className="w-4 h-4" />
+                    </button>
+
+                    {/* Text Input Box */}
+                    <input
+                      ref={userInputRef}
+                      type="text"
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          void sendMessage();
+                        }
+                      }}
+                      placeholder="Ask AK Intelligence about markets, protocols, or risk..."
+                      className="flex-1 bg-transparent px-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none font-medium"
+                    />
+
+                    {/* Voice Waveform Button */}
+                    <button
+                      type="button"
+                      onClick={toggleVoiceInput}
+                      className="apple-glass-interactive px-3 py-2 rounded-xl text-slate-600 flex items-center gap-1.5 shrink-0"
+                      title="Voice Search"
+                    >
+                      {isListening ? (
+                        <div className="flex items-center gap-0.5 h-5">
+                          <span
+                            className="w-1 bg-blue-600 rounded-full siri-wave-bar"
+                            style={{ animationDelay: "0.1s" }}
+                          />
+                          <span
+                            className="w-1 bg-indigo-600 rounded-full siri-wave-bar"
+                            style={{ animationDelay: "0.25s" }}
+                          />
+                          <span
+                            className="w-1 bg-amber-500 rounded-full siri-wave-bar"
+                            style={{ animationDelay: "0.4s" }}
+                          />
+                        </div>
+                      ) : (
+                        <Mic className="w-4 h-4 text-slate-600" />
+                      )}
+                    </button>
+
+                    {/* Send Button */}
+                    <button
+                      type="button"
+                      disabled={isSending || (!input.trim() && !attachedFile)}
+                      onClick={() => void sendMessage()}
+                      className="btn-glass-getstarted p-2.5 rounded-xl text-white shadow-md hover:scale-105 transition-all shrink-0 disabled:opacity-40"
+                    >
+                      {isSending ? (
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                      ) : (
+                        <Send className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      {/* SIGN IN MODAL */}
+      {authModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 transition-all">
+          <div className="apple-glass w-full max-w-sm rounded-3xl p-6 shadow-2xl relative border border-white/80 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-200/50 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 ak-glass-badge p-1">
+                  <svg className="w-5 h-5 ak-svg-icon" viewBox="0 0 100 100" fill="none">
+                    <path
+                      d="M18 78 L42 22 L54 22 L36 60 L62 22 L78 22 L50 62 L80 78 L63 78 L42 66 L30 78 Z"
+                      fill="url(#akGoldGradient)"
+                    />
+                  </svg>
+                </div>
+                <h3 className="font-extrabold text-slate-900 text-base">Sign In to AK Luxe</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAuthModalOpen(false)}
+                className="apple-glass-interactive p-1.5 rounded-xl text-slate-500 hover:text-slate-900"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthModalOpen(false);
+                  showToast("Successfully authenticated via Google");
+                }}
+                className="w-full apple-glass-interactive py-3 px-4 rounded-xl font-bold text-xs text-slate-800 flex items-center justify-center gap-2.5 shadow-sm border border-slate-200"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24">
+                  <path
+                    fill="#4285F4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                  />
+                </svg>
+                <span>Continue with Google</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthModalOpen(false);
+                  showToast("Successfully authenticated via Web3 Wallet");
+                }}
+                className="w-full btn-glass-signin py-3 px-4 rounded-xl font-bold text-xs text-white flex items-center justify-center gap-2.5 shadow-md"
+              >
+                <Wallet className="w-4 h-4 text-blue-400" />
+                <span>Connect Web3 Wallet</span>
+              </button>
+
+              <div className="flex items-center my-2">
+                <div className="flex-1 border-t border-slate-200" />
+                <span className="px-2 text-[10px] font-extrabold uppercase text-slate-400">
+                  or email
+                </span>
+                <div className="flex-1 border-t border-slate-200" />
+              </div>
+
+              <input
+                type="email"
+                placeholder="name@domain.com"
+                className="w-full apple-glass-interactive px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 outline-none"
+              />
+
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthModalOpen(false);
+                  showToast("Successfully authenticated via Email");
+                }}
+                className="w-full btn-glass-getstarted py-2.5 rounded-xl font-bold text-xs text-white shadow-md"
+              >
+                Sign In with Email
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* GET STARTED PRO MODAL */}
+      {getStartedModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 transition-all">
+          <div className="apple-glass w-full max-w-md rounded-3xl p-6 shadow-2xl relative border border-white/80 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-200/50 pb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-blue-600" />
+                <h3 className="font-extrabold text-slate-900 text-base">
+                  Get Started with AK Pro
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setGetStartedModalOpen(false)}
+                className="apple-glass-interactive p-1.5 rounded-xl text-slate-500 hover:text-slate-900"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-600 font-medium">
+              Unlock sub-second AI telemetry signals, automated arbitrage detection, and unlimited
+              deep portfolio audits.
+            </p>
+
+            <div className="space-y-2">
+              <div className="p-3 bg-white/80 rounded-2xl border border-blue-200 flex items-center justify-between">
+                <div>
+                  <h4 className="font-extrabold text-slate-900 text-xs">AK Intelligence Pro</h4>
+                  <span className="text-[10px] text-slate-500">
+                    Full telemetry & unlimited voice streaming
+                  </span>
+                </div>
+                <span className="text-sm font-extrabold text-blue-600">$29/mo</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setGetStartedModalOpen(false);
+                showToast("14-Day Free Trial Activated!");
+              }}
+              className="w-full btn-glass-getstarted py-3 rounded-xl font-extrabold text-xs text-white shadow-md flex items-center justify-center gap-1.5"
+            >
+              <span>Start 14-Day Free Trial</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* LIVE INTERACTIVE PRICE CHART MODAL */}
+      {chartModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 transition-all">
+          <div className="apple-glass w-full max-w-3xl rounded-3xl p-6 shadow-2xl relative border border-white/80 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-200/50 pb-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-blue-600 text-white shadow-md">
+                  <LineChart className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
+                    <span>{chartAsset}/USD Live Telemetry Chart</span>
+                    <span className="text-xs text-emerald-600 font-extrabold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                      +3.42%
+                    </span>
+                  </h3>
+                  <p className="text-[11px] text-slate-500 font-medium">
+                    Real-time market depth & algorithmic trend vectors
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setChartModalOpen(false)}
+                className="apple-glass-interactive p-2 rounded-xl text-slate-500 hover:text-slate-900"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setChartAsset("BTC")}
+                  className={`apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold ${
+                    chartAsset === "BTC"
+                      ? "text-blue-700 bg-white/90 border-blue-300"
+                      : "text-slate-700"
+                  }`}
+                >
+                  Bitcoin (BTC)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setChartAsset("ETH")}
+                  className={`apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold ${
+                    chartAsset === "ETH"
+                      ? "text-blue-700 bg-white/90 border-blue-300"
+                      : "text-slate-700"
+                  }`}
+                >
+                  Ethereum (ETH)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setChartAsset("SOL")}
+                  className={`apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold ${
+                    chartAsset === "SOL"
+                      ? "text-blue-700 bg-white/90 border-blue-300"
+                      : "text-slate-700"
+                  }`}
+                >
+                  Solana (SOL)
+                </button>
+              </div>
+              <div className="flex gap-1 bg-slate-200/50 p-1 rounded-xl">
+                <button
+                  type="button"
+                  className="px-2.5 py-1 rounded-lg text-[11px] font-bold text-blue-700 bg-white shadow-xs"
+                >
+                  1D
+                </button>
+                <button
+                  type="button"
+                  className="px-2.5 py-1 rounded-lg text-[11px] font-semibold text-slate-600 hover:text-slate-900"
+                >
+                  1W
+                </button>
+                <button
+                  type="button"
+                  className="px-2.5 py-1 rounded-lg text-[11px] font-semibold text-slate-600 hover:text-slate-900"
+                >
+                  1M
+                </button>
+              </div>
+            </div>
+
+            <div className="relative bg-slate-950/90 rounded-2xl p-4 h-72 border border-slate-800 shadow-inner overflow-hidden flex flex-col justify-between">
+              <div className="flex justify-between items-center text-xs text-slate-400 font-mono">
+                <span className="text-xl font-bold text-emerald-400">
+                  {chartPrices[chartAsset]}
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  Streaming Live Data
+                </span>
+              </div>
+              <canvas ref={interactiveChartRef} className="w-full h-48 cursor-crosshair" />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CRYPTO CONVERTER MODAL */}
+      {converterModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 transition-all">
+          <div className="apple-glass w-full max-w-md rounded-3xl p-6 shadow-2xl relative border border-white/80 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-200/50 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2.5 rounded-xl bg-indigo-600 text-white shadow-md">
+                  <ArrowLeftRight className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-sm">Crypto Telemetry Converter</h3>
+                  <p className="text-[11px] text-slate-500 font-medium">
+                    Real-time token swap calculations & gas costs
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setConverterModalOpen(false)}
+                className="apple-glass-interactive p-1.5 rounded-xl text-slate-500 hover:text-slate-900"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="p-3 bg-white/70 rounded-2xl border border-slate-200/60 space-y-1">
+                <label className="text-[10px] font-bold uppercase text-slate-400">You Pay</label>
+                <div className="flex items-center justify-between">
+                  <input
+                    type="number"
+                    value={convertAmount}
+                    onChange={(e) => setConvertAmount(parseFloat(e.target.value) || 0)}
+                    className="bg-transparent text-lg font-bold text-slate-900 outline-none w-1/2"
+                  />
+                  <select
+                    value={convertFrom}
+                    onChange={(e) => setConvertFrom(e.target.value)}
+                    className="apple-glass-interactive px-2.5 py-1 rounded-xl text-xs font-bold text-slate-800"
+                  >
+                    <option value="BTC">BTC</option>
+                    <option value="ETH">ETH</option>
+                    <option value="SOL">SOL</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex justify-center -my-1">
+                <div className="p-1.5 rounded-full apple-glass border border-white shadow-md text-slate-600">
+                  <ArrowDownUp className="w-4 h-4" />
+                </div>
+              </div>
+
+              <div className="p-3 bg-white/70 rounded-2xl border border-slate-200/60 space-y-1">
+                <label className="text-[10px] font-bold uppercase text-slate-400">
+                  You Receive (Est.)
+                </label>
+                <div className="flex items-center justify-between">
+                  <span className="text-lg font-extrabold text-blue-600">
+                    {calculatedConversionResult}
+                  </span>
+                  <select
+                    value={convertTo}
+                    onChange={(e) => setConvertTo(e.target.value)}
+                    className="apple-glass-interactive px-2.5 py-1 rounded-xl text-xs font-bold text-slate-800"
+                  >
+                    <option value="USD">USD ($)</option>
+                    <option value="ETH">ETH</option>
+                    <option value="SOL">SOL</option>
+                    <option value="USDT">USDT</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* PREFERENCES & SETTINGS MODAL */}
+      {settingsModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 transition-all">
+          <div className="apple-glass w-full max-w-md rounded-3xl p-6 shadow-2xl relative border border-white/80 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-200/50 pb-3">
+              <div className="flex items-center gap-2">
+                <Settings className="w-5 h-5 text-slate-700" />
+                <h3 className="font-extrabold text-slate-900 text-base">
+                  Crypto Preferences & Settings
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSettingsModalOpen(false)}
+                className="apple-glass-interactive p-1.5 rounded-xl text-slate-500 hover:text-slate-900"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+              {/* Floating Physics Option */}
+              <div className="flex items-center justify-between p-3 bg-white/70 rounded-2xl border border-slate-200/60">
+                <div>
+                  <h4 className="font-bold text-slate-900 text-xs">
+                    Anti-Gravity Particle Bubbles
+                  </h4>
+                  <p className="text-[10px] text-slate-500">
+                    Floating 3D crypto coins & glass bubbles background
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={physicsEnabled}
+                  onChange={(e) => {
+                    setPhysicsEnabled(e.target.checked);
+                    showToast(
+                      `Background floating bubbles ${e.target.checked ? "enabled" : "paused"}`
+                    );
+                  }}
+                  className="w-4 h-4 accent-blue-600 cursor-pointer"
+                />
+              </div>
+
+              {/* Telemetry Feeds Refresh Rate */}
+              <div className="p-3 bg-white/70 rounded-2xl border border-slate-200/60 space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-bold text-slate-900 text-xs">
+                    Telemetry Refresh Frequency
+                  </h4>
+                  <span className="text-[10px] font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-md">
+                    {telemetrySpeed}
+                  </span>
+                </div>
+                <select
+                  value={telemetrySpeed}
+                  onChange={(e) => {
+                    setTelemetrySpeed(e.target.value);
+                    showToast(`Telemetry refresh rate set to ${e.target.value}`);
+                  }}
+                  className="w-full apple-glass-interactive px-2.5 py-1.5 rounded-xl text-xs font-semibold text-slate-800"
+                >
+                  <option value="Realtime">Real-time Stream (Sub-second)</option>
+                  <option value="5s">Every 5 Seconds</option>
+                  <option value="15s">Every 15 Seconds</option>
+                </select>
+              </div>
+
+              {/* AI Temperature Slider */}
+              <div className="p-3 bg-white/70 rounded-2xl border border-slate-200/60 space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-bold text-slate-900 text-xs">
+                    AI Model Creativity (Temperature)
+                  </h4>
+                  <span className="text-[10px] font-bold text-blue-600">
+                    {temperature}{" "}
+                    {temperature < 0.4
+                      ? "(Precise)"
+                      : temperature > 0.8
+                      ? "(Creative)"
+                      : "(Balanced)"}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="0.1"
+                  max="1.0"
+                  step="0.1"
+                  value={temperature}
+                  onChange={(e) => setTemperature(parseFloat(e.target.value))}
+                  className="w-full accent-blue-600 cursor-pointer"
+                />
+              </div>
+
+              {/* Speech Synthesis Speed */}
+              <div className="p-3 bg-white/70 rounded-2xl border border-slate-200/60 space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-bold text-slate-900 text-xs">
+                    Speech Synthesis Voice Speed
+                  </h4>
+                  <span className="text-[10px] font-bold text-slate-600">{speechRate}x</span>
+                </div>
+                <select
+                  value={speechRate}
+                  onChange={(e) => setSpeechRate(parseFloat(e.target.value))}
+                  className="w-full apple-glass-interactive px-2.5 py-1.5 rounded-xl text-xs font-semibold text-slate-800"
+                >
+                  <option value={0.8}>0.8x Smooth Pace</option>
+                  <option value={1.0}>1.0x Standard</option>
+                  <option value={1.25}>1.25x Fast Telemetry</option>
+                </select>
+              </div>
+
+              {/* Sound Effects Toggle */}
+              <div className="flex items-center justify-between p-3 bg-white/70 rounded-2xl border border-slate-200/60">
+                <div>
+                  <h4 className="font-bold text-slate-900 text-xs">Audio Feedback & Tone FX</h4>
+                  <p className="text-[10px] text-slate-500">
+                    Chime sounds on message receipt and alerts
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={soundEffects}
+                  onChange={(e) => {
+                    setSoundEffects(e.target.checked);
+                    showToast("Audio feedback toggled");
+                  }}
+                  className="w-4 h-4 accent-blue-600 cursor-pointer"
+                />
+              </div>
+
+              {/* Auto-Scroll Chat */}
+              <div className="flex items-center justify-between p-3 bg-white/70 rounded-2xl border border-slate-200/60">
+                <div>
+                  <h4 className="font-bold text-slate-900 text-xs">
+                    Auto-Scroll to New Messages
+                  </h4>
+                  <p className="text-[10px] text-slate-500">
+                    Automatically stick scrollbar to latest response
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={autoScroll}
+                  onChange={(e) => {
+                    setAutoScroll(e.target.checked);
+                    showToast("Auto-scroll setting saved");
+                  }}
+                  className="w-4 h-4 accent-blue-600 cursor-pointer"
+                />
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setSettingsModalOpen(false);
+                showToast("Preferences saved successfully!");
+              }}
+              className="w-full btn-glass-getstarted py-2.5 rounded-xl font-bold text-xs text-white shadow-md"
+            >
+              Save Preferences
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* BOOKMARKS DRAWER */}
+      <div
+        id="bookmarksDrawer"
+        className={`fixed top-0 right-0 h-full w-80 z-50 apple-glass border-l border-white/80 shadow-2xl p-5 transform transition-transform duration-300 ease-in-out flex flex-col justify-between ${
+          bookmarksDrawerOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-200/50 pb-3">
+            <div className="flex items-center gap-2">
+              <Bookmark className="w-5 h-5 text-amber-500" />
+              <h3 className="font-bold text-slate-900 text-sm">Saved Intelligence</h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => setBookmarksDrawerOpen(false)}
+              className="apple-glass-interactive p-1.5 rounded-xl text-slate-500 hover:text-slate-900"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div id="bookmarksList" className="space-y-2.5 max-h-[75vh] overflow-y-auto pr-1">
+            {savedBookmarks.length === 0 ? (
+              <p className="text-xs text-slate-400 font-medium text-center py-8">
+                No saved insights yet. Click Save on any response to store it here!
+              </p>
+            ) : (
+              savedBookmarks.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="p-3 bg-white/80 rounded-2xl border border-white shadow-sm space-y-1.5 relative group"
+                >
+                  <p className="text-xs font-medium text-slate-800 line-clamp-3">{item}</p>
+                  <div className="flex justify-end gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => void copyToClipboard(item)}
+                      className="text-[10px] font-bold text-blue-600 hover:underline"
+                    >
+                      Copy
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeBookmark(idx)}
+                      className="text-[10px] font-bold text-rose-500 hover:underline"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {savedBookmarks.length > 0 && (
+          <button
+            type="button"
+            onClick={clearAllBookmarks}
+            className="w-full apple-glass-interactive py-2 rounded-xl text-xs font-bold text-rose-600 flex items-center justify-center gap-1 border-rose-200"
+          >
+            <Trash className="w-3.5 h-3.5" /> Clear All Bookmarks
+          </button>
+        )}
       </div>
     </div>
   );
