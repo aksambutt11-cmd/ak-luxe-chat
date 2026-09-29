@@ -44,6 +44,7 @@ import { ParticleEngine } from "@/components/particle-engine";
 import { MarketTicker } from "@/components/market-ticker";
 import { MessageResponse } from "@/components/ai-elements/message";
 import { AntigravityHero } from "@/components/antigravity-hero";
+import { LiveCryptoChart } from "@/components/live-crypto-chart";
 
 type ChatMessage = {
   id: string;
@@ -139,6 +140,11 @@ function AKChat() {
   const [convertTo, setConvertTo] = useState("USD");
   const [chartAsset, setChartAsset] = useState<"BTC" | "ETH" | "SOL">("BTC");
   const [chartTimeframe, setChartTimeframe] = useState<"1D" | "1W" | "1M">("1D");
+  const [chartPrices, setChartPrices] = useState<Record<string, string>>({
+    BTC: "$93,840.00",
+    ETH: "$3,385.00",
+    SOL: "$188.40",
+  });
 
   const timeframeStats: Record<"BTC" | "ETH" | "SOL", Record<"1D" | "1W" | "1M", { change: string; isPositive: boolean; high: string; low: string }>> = {
     BTC: {
@@ -177,7 +183,6 @@ function AKChat() {
   const userInputRef = useRef<HTMLInputElement | null>(null);
   const miniChartBTCRef = useRef<HTMLCanvasElement | null>(null);
   const miniChartETHRef = useRef<HTMLCanvasElement | null>(null);
-  const interactiveChartRef = useRef<HTMLCanvasElement | null>(null);
   const cursorGlowRef = useRef<HTMLDivElement | null>(null);
   const recognitionRef = useRef<any>(null);
 
@@ -365,134 +370,6 @@ function AKChat() {
       cancelAnimationFrame(animId);
     };
   }, []);
-
-  // 5. Upgraded Live Market Graph Animation in Modal
-  useEffect(() => {
-    if (!chartModalOpen || !interactiveChartRef.current) return;
-    const canvas = interactiveChartRef.current;
-    const ctx = canvas.getContext("2d");
-    if (!ctx || !canvas.parentElement) return;
-
-    let animId = 0;
-    let phase = 0;
-    const count = 38;
-
-    // Timeframe-specific market dynamics
-    const tfMultiplier = chartTimeframe === "1D" ? 1 : chartTimeframe === "1W" ? 1.6 : 2.4;
-    const tfPeriod = chartTimeframe === "1D" ? 0.45 : chartTimeframe === "1W" ? 0.28 : 0.18;
-    const assetOffset = chartAsset === "BTC" ? 0 : chartAsset === "ETH" ? Math.PI / 3 : Math.PI / 1.8;
-
-    const baseWave = Array.from({ length: count }, (_, i) => {
-      // Create distinctive harmonic waveforms for 1D, 1W, and 1M
-      const trend = (i / count) * (chartTimeframe === "1M" ? -35 : chartTimeframe === "1W" ? -22 : -10);
-      return 105 + Math.sin(i * tfPeriod + assetOffset) * 24 * tfMultiplier + Math.cos(i * 0.7) * 12 + trend;
-    });
-
-    function renderLiveChart() {
-      if (!canvas || !ctx || !canvas.parentElement) return;
-      canvas.width = canvas.parentElement.clientWidth - 32;
-      canvas.height = 180;
-      const w = canvas.width;
-      const h = canvas.height;
-      ctx.clearRect(0, 0, w, h);
-
-      phase += 0.038;
-
-      const points: Array<{ x: number; y: number }> = [];
-      for (let i = 0; i < count; i++) {
-        const x = (w / (count - 1)) * i;
-        // Fluctuating harmonic wave simulating live market activity per timeframe
-        const fluctuation =
-          Math.sin(phase + i * 0.45) * (6 * tfMultiplier) +
-          Math.sin(phase * 1.6 + i * 0.7) * 4 +
-          Math.cos(phase * 0.9 + i * 0.3) * 3;
-        const y = Math.max(18, Math.min(h - 22, baseWave[i]! + fluctuation));
-        points.push({ x, y });
-      }
-
-      // Dynamic Color Scheme per Asset
-      const primaryColor =
-        chartAsset === "BTC" ? "#f59e0b" : chartAsset === "ETH" ? "#6366f1" : "#10b981";
-      const fillColorTop =
-        chartAsset === "BTC"
-          ? "rgba(245, 158, 11, 0.35)"
-          : chartAsset === "ETH"
-          ? "rgba(99, 102, 241, 0.35)"
-          : "rgba(16, 185, 129, 0.35)";
-
-      // Fill Gradient
-      const grad = ctx.createLinearGradient(0, 0, 0, h);
-      grad.addColorStop(0, fillColorTop);
-      grad.addColorStop(0.6, "rgba(59, 130, 246, 0.08)");
-      grad.addColorStop(1, "rgba(0, 0, 0, 0.0)");
-
-      ctx.beginPath();
-      ctx.moveTo(points[0]!.x, points[0]!.y);
-      for (let i = 1; i < points.length; i++) ctx.lineTo(points[i]!.x, points[i]!.y);
-      ctx.lineTo(w, h);
-      ctx.lineTo(0, h);
-      ctx.closePath();
-      ctx.fillStyle = grad;
-      ctx.fill();
-
-      // Glowing Stroke line
-      ctx.beginPath();
-      ctx.moveTo(points[0]!.x, points[0]!.y);
-      for (let i = 1; i < points.length; i++) ctx.lineTo(points[i]!.x, points[i]!.y);
-      ctx.strokeStyle = primaryColor;
-      ctx.lineWidth = 2.8;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-      ctx.stroke();
-
-      // Trailing moving micro data points along the line
-      for (let i = 2; i < points.length - 1; i += 5) {
-        const pt = points[i]!;
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = "#ffffff";
-        ctx.fill();
-        ctx.strokeStyle = primaryColor;
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-      }
-
-      // Live Leading Pulse Dot & Direction Arrow
-      const lastPt = points[points.length - 1]!;
-      const prevPt = points[points.length - 2]!;
-      const isUp = lastPt.y <= prevPt.y;
-
-      // Pulse halo
-      const pulseSize = 4 + Math.sin(phase * 4) * 3;
-      ctx.beginPath();
-      ctx.arc(lastPt.x - 2, lastPt.y, pulseSize + 4, 0, Math.PI * 2);
-      ctx.fillStyle = isUp ? "rgba(16, 185, 129, 0.25)" : "rgba(239, 68, 68, 0.25)";
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.arc(lastPt.x - 2, lastPt.y, 4, 0, Math.PI * 2);
-      ctx.fillStyle = isUp ? "#10b981" : "#ef4444";
-      ctx.fill();
-
-      // Direction label
-      ctx.fillStyle = isUp ? "#10b981" : "#f43f5e";
-      ctx.font = "bold 10px 'Plus Jakarta Sans', sans-serif";
-      ctx.textAlign = "right";
-      ctx.fillText(
-        `${chartTimeframe} Vector • ${isUp ? "▲ Bullish Flow" : "▼ Liquidation Pressure"}`,
-        w - 12,
-        18
-      );
-
-      animId = requestAnimationFrame(renderLiveChart);
-    }
-
-    renderLiveChart();
-
-    return () => {
-      cancelAnimationFrame(animId);
-    };
-  }, [chartModalOpen, chartAsset, chartTimeframe]);
 
   // Auto-scroll chat
   useEffect(() => {
@@ -736,12 +613,6 @@ function AKChat() {
     const res = (convertAmount * rate).toLocaleString(undefined, { maximumFractionDigits: 4 });
     return (convertTo === "USD" || convertTo === "USDT" ? "$" : "") + res;
   })();
-
-  const chartPrices = {
-    BTC: "$98,420.50",
-    ETH: "$3,450.20",
-    SOL: "$212.80",
-  };
 
   return (
     <div className="w-screen h-screen flex flex-col bg-[#f0f3f8] text-slate-800 h-screen overflow-hidden relative flex flex-col font-sans select-none">
@@ -1914,18 +1785,14 @@ function AKChat() {
               </div>
             </div>
 
-            <div className="relative bg-slate-950/90 rounded-2xl p-4 h-72 border border-slate-800 shadow-inner overflow-hidden flex flex-col justify-between">
-              <div className="flex justify-between items-center text-xs text-slate-400 font-mono">
-                <span className="text-xl font-bold text-emerald-400">
-                  {chartPrices[chartAsset]}
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  Streaming Live Data
-                </span>
-              </div>
-              <canvas ref={interactiveChartRef} className="w-full h-48 cursor-crosshair" />
-            </div>
+            {/* Realistic Pro Live Financial Chart Engine */}
+            <LiveCryptoChart
+              asset={chartAsset}
+              timeframe={chartTimeframe}
+              onPriceUpdate={(price) => {
+                setChartPrices((prev) => ({ ...prev, [chartAsset]: price }));
+              }}
+            />
           </div>
         </div>
       )}
