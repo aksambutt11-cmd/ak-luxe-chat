@@ -792,42 +792,70 @@ function AKChat() {
               </nav>
             </div>
 
-            {/* 4. PREMIUM CRYPTO AI INTELLIGENCE VISUALIZATION */}
+            {/* LIVE CRYPTO CHARTS BELOW INTELLIGENCE LAYERS */}
             <div className="space-y-3 pt-1">
               <div className="flex items-center justify-between px-1">
                 <span className="text-[10px] uppercase font-extrabold text-slate-500 tracking-wider flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-blue-600" /> Crypto AI Neural Core
+                  <BarChart3 className="w-3.5 h-3.5 text-blue-600" /> Live Crypto Markets
                 </span>
                 <span className="text-[9px] text-emerald-600 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Active
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
                 </span>
               </div>
 
-              {/* AI Neural Nexus Visualizer Card */}
-              <div className="intelligence-glass-panel p-3.5 space-y-3 relative overflow-hidden group">
+              {/* Mini Chart Card 1: BTC Depth */}
+              <div className="intelligence-glass-panel p-3 space-y-2 relative overflow-hidden group">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-                      <Bot className="w-4 h-4" />
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-7 h-7 rounded-xl bg-amber-500/10 border border-amber-300 flex items-center justify-center font-bold text-amber-600 text-xs">
+                      ₿
+                    </span>
                     <div>
-                      <h4 className="font-extrabold text-slate-900 text-xs">Neural Synthesis</h4>
-                      <span className="text-[10px] text-blue-600 font-bold">99.8% Sync</span>
+                      <h4 className="font-bold text-slate-900 text-xs">Bitcoin Depth</h4>
+                      <span className="text-[10px] text-emerald-600 font-extrabold">$98,420.50</span>
                     </div>
                   </div>
-                  <span className="text-[9px] font-bold text-slate-500 bg-white/70 px-2 py-0.5 rounded-full border border-white/80">
-                    Pinecone v2
+                  <span className="text-[10px] font-extrabold text-emerald-600 bg-emerald-100/80 px-1.5 py-0.5 rounded-full">
+                    +3.4%
                   </span>
                 </div>
+                <div className="relative h-16 w-full">
+                  <canvas
+                    ref={miniChartBTCRef}
+                    className="w-full h-full cursor-pointer"
+                    onClick={() => {
+                      setChartAsset("BTC");
+                      setChartModalOpen(true);
+                    }}
+                  />
+                </div>
+              </div>
 
-                <div className="relative py-1 space-y-1.5 text-[11px]">
-                  <div className="flex items-center justify-between text-slate-600">
-                    <span>Protocol Latency</span>
-                    <span className="font-bold text-slate-800">12ms • Optimal</span>
+              {/* Mini Chart Card 2: ETH Staking */}
+              <div className="intelligence-glass-panel p-3 space-y-2 relative overflow-hidden">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-7 h-7 rounded-xl bg-indigo-500/10 border border-indigo-300 flex items-center justify-center font-bold text-indigo-600 text-xs">
+                      Ξ
+                    </span>
+                    <div>
+                      <h4 className="font-bold text-slate-900 text-xs">Ethereum Staking</h4>
+                      <span className="text-[10px] text-indigo-600 font-extrabold">3.4% APY</span>
+                    </div>
                   </div>
-                  <div className="w-full h-1.5 rounded-full bg-slate-200/70 overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-blue-600 to-emerald-500 rounded-full w-[92%] animate-pulse" />
-                  </div>
+                  <span className="text-[10px] font-extrabold text-emerald-600 bg-emerald-100/80 px-1.5 py-0.5 rounded-full">
+                    12 Gwei
+                  </span>
+                </div>
+                <div className="relative h-16 w-full">
+                  <canvas
+                    ref={miniChartETHRef}
+                    className="w-full h-full cursor-pointer"
+                    onClick={() => {
+                      setChartAsset("ETH");
+                      setChartModalOpen(true);
+                    }}
+                  />
                 </div>
               </div>
             </div>
