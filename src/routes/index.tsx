@@ -1025,28 +1025,40 @@ function AKChat() {
               ref={chatContainerRef}
               className="flex-1 overflow-y-auto space-y-3 sm:space-y-4 pr-1.5 sm:pr-2 pl-0.5 mb-2"
             >
-              {/* 2. Premium AI x Crypto Welcome Intro */}
+              {/* 2. Ultra-Premium AI x Crypto Welcome Intro */}
               <div className="flex gap-3 max-w-3xl welcome-fade-in">
-                <div className="bot-glass-bubble rounded-2xl p-4 sm:p-5 text-slate-800 text-xs sm:text-sm leading-relaxed max-w-2xl w-full border border-white/90 shadow-md">
-                  <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-slate-200/40">
-                    <span className="font-bold text-slate-900 text-xs flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse" />
-                      AK Luxe Intelligence • v4
-                    </span>
-                    <span className="text-[10px] text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
-                      Intelligence Active
+                <div className="bot-glass-bubble rounded-2xl p-4 sm:p-5 text-slate-800 text-xs sm:text-sm leading-relaxed max-w-2xl w-full border border-white/95 shadow-lg relative overflow-hidden backdrop-blur-xl bg-gradient-to-br from-white/95 via-white/85 to-[#f4f7fc]/90">
+                  {/* Top Ambient Glow Ribbon */}
+                  <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-600 via-indigo-500 to-amber-400 opacity-90" />
+
+                  <div className="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-200/60">
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-xs">
+                        <Sparkles className="w-3 h-3" />
+                      </div>
+                      <span className="font-extrabold text-slate-900 text-xs tracking-tight flex items-center gap-1.5">
+                        AK Luxe Intelligence <span className="text-slate-400 font-normal">•</span> <span className="text-blue-600 font-bold">Institutional AI Engine</span>
+                      </span>
+                    </div>
+
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-500/10 border border-emerald-300/60 px-2.5 py-0.5 rounded-full flex items-center gap-1.5 shadow-2xs">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      Neural Sync Active
                     </span>
                   </div>
+
                   <div className="text-slate-800 font-medium leading-relaxed">
                     {typedWelcome || fullWelcomeText}
                   </div>
-                  <div className="mt-3.5 pt-2.5 border-t border-slate-200/50 flex flex-wrap gap-1.5 sm:gap-2 items-center">
+
+                  {/* Starter Capsules */}
+                  <div className="mt-4 pt-3 border-t border-slate-200/50 flex flex-wrap gap-2 items-center">
                     <button
                       type="button"
                       onClick={() =>
                         void sendQuickPrompt("Analyze Bitcoin (BTC) liquidation clusters")
                       }
-                      className="apple-glass-interactive px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-bold text-blue-700 bg-white/90 border border-blue-200 flex items-center gap-1.5 shadow-xs"
+                      className="apple-glass-interactive px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold text-blue-700 bg-white/95 border border-blue-200 flex items-center gap-1.5 shadow-xs transition-transform hover:scale-[1.02] active:scale-[0.98]"
                     >
                       <TrendingUp className="w-3.5 h-3.5 text-blue-600" /> BTC Liquidation Clusters
                     </button>
@@ -1055,16 +1067,23 @@ function AKChat() {
                       onClick={() =>
                         void sendQuickPrompt("Ethereum (ETH) staking yield telemetry")
                       }
-                      className="apple-glass-interactive px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-bold text-slate-700 bg-white/90 border border-slate-200 flex items-center gap-1.5 shadow-xs"
+                      className="apple-glass-interactive px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold text-indigo-700 bg-white/95 border border-indigo-200 flex items-center gap-1.5 shadow-xs transition-transform hover:scale-[1.02] active:scale-[0.98]"
                     >
                       <Activity className="w-3.5 h-3.5 text-indigo-500" /> ETH Staking Yields
                     </button>
                     <button
                       type="button"
                       onClick={() => void sendQuickPrompt("DeFi Liquidity Heatmap Audit")}
-                      className="apple-glass-interactive px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-bold text-slate-700 bg-white/90 border border-slate-200 flex items-center gap-1.5 shadow-xs"
+                      className="apple-glass-interactive px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold text-amber-800 bg-white/95 border border-amber-200 flex items-center gap-1.5 shadow-xs transition-transform hover:scale-[1.02] active:scale-[0.98]"
                     >
                       <Flame className="w-3.5 h-3.5 text-amber-500" /> DeFi Liquidity Heatmap
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void sendQuickPrompt("Audit whale order flows and counterparty risk")}
+                      className="apple-glass-interactive px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold text-slate-700 bg-white/95 border border-slate-200 flex items-center gap-1.5 shadow-xs transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                      <ShieldAlert className="w-3.5 h-3.5 text-emerald-600" /> Whale Flow & Risk Audit
                     </button>
                   </div>
                 </div>
