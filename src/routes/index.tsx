@@ -269,7 +269,7 @@ function AuthDialog({ mode }: { mode: "signin" | "signup" }) {
     >
       <DialogTrigger asChild>
         <Button
-          className={signin ? "auth-signin" : ""}
+          className={signin ? "auth-signin" : "auth-signup"}
           size="sm"
           variant={signin ? "glass" : "send"}
         >
@@ -567,9 +567,12 @@ function AKChat() {
             </div>
           </header>
 
-          <section className="chat-stage" aria-label="Conversation with AK">
+          <section
+            className={`chat-stage ${messages.length > 0 ? "has-conversation" : ""}`}
+            aria-label="Conversation with AK"
+          >
             <Conversation className="ak-conversation">
-              <ConversationContent className="mx-auto min-h-full w-full max-w-3xl gap-7 px-4 pb-10 pt-8 sm:px-6 sm:pt-12">
+              <ConversationContent className="mx-auto min-h-full w-full max-w-3xl gap-8 px-4 pb-12 pt-8 sm:px-6 sm:pt-12">
                 {messages.length === 0 ? (
                   <div className="empty-state animate-fade-in">
                     <div className="empty-mark-wrap">
@@ -658,12 +661,14 @@ function AKChat() {
                 ) : (
                   messages.map((message) => (
                     <Message
-                      className="animate-message-in max-w-full"
+                      className={`animate-message-in message-block ${
+                        message.role === "user" ? "message-block-user" : "message-block-assistant"
+                      } max-w-full`}
                       from={message.role}
                       key={message.id}
                     >
                       {message.role === "assistant" ? (
-                        <div className="flex items-start gap-3 sm:gap-4">
+                        <div className="flex items-start gap-3 sm:gap-4 w-full">
                           <AKMark active={isSending} />
                           <div className="min-w-0 flex-1">
                             <MessageContent
@@ -702,8 +707,11 @@ function AKChat() {
                 )}
 
                 {isSending && (
-                  <Message className="animate-message-in max-w-full" from="assistant">
-                    <div className="flex items-center gap-3 sm:gap-4">
+                  <Message
+                    className="animate-message-in message-block message-block-assistant max-w-full"
+                    from="assistant"
+                  >
+                    <div className="flex items-center gap-3 sm:gap-4 w-full">
                       <AKMark active />
                       <MessageContent className="assistant-message py-3.5">
                         <Shimmer className="text-sm">AK is thinking…</Shimmer>
