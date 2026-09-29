@@ -48,7 +48,7 @@ type ChatMessage = {
   id: string;
   role: "user" | "assistant";
   content: string;
-  attachedFile?: string | undefined;
+  attachedFile?: string;
   prompt?: string;
   error?: boolean;
 };
@@ -764,96 +764,31 @@ function AKChat() {
                 <div>
                   <div className="flex items-center gap-2">
                     <h2 className="font-bold text-slate-900 text-sm">AK Intelligence</h2>
-
-                    {/* Model Selector Dropdown */}
-                    <div className="relative">
-                      <button
-                        type="button"
-                        onClick={() => setModelDropdownOpen((prev) => !prev)}
-                        className="apple-glass-interactive text-[11px] font-extrabold text-blue-700 bg-blue-500/10 border border-blue-300/80 px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-xs"
-                      >
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                        <span>{activeModel}</span>
-                        <ChevronDown className="w-3 h-3 text-blue-600" />
-                      </button>
-
-                      {modelDropdownOpen && (
-                        <div className="absolute top-8 left-0 z-50 w-56 apple-glass rounded-2xl p-2 border border-white/90 shadow-2xl space-y-1 animate-in fade-in zoom-in-95 duration-150">
-                          <span className="text-[10px] font-extrabold uppercase text-slate-400 px-2 py-1 block">
-                            Select AI Engine
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setActiveModel("AK-Crypto v4");
-                              setActiveModelDesc("Pro Crypto Model");
-                              setModelDropdownOpen(false);
-                              showToast("Switched active AI engine to AK-Crypto v4");
-                            }}
-                            className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-slate-800 hover:bg-blue-50 flex items-center justify-between"
-                          >
-                            <span>AK-Crypto v4</span>
-                            <span className="text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-mono">
-                              Fast
-                            </span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setActiveModel("GPT-4o Crypto");
-                              setActiveModelDesc("OpenAI Telemetry");
-                              setModelDropdownOpen(false);
-                              showToast("Switched active AI engine to GPT-4o Crypto");
-                            }}
-                            className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-blue-50 flex items-center justify-between"
-                          >
-                            <span>GPT-4o Crypto</span>
-                            <span className="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-mono">
-                              Smart
-                            </span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setActiveModel("Claude 3.5 Sonnet");
-                              setActiveModelDesc("Anthropic Reasoning");
-                              setModelDropdownOpen(false);
-                              showToast("Switched active AI engine to Claude 3.5 Sonnet");
-                            }}
-                            className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-blue-50 flex items-center justify-between"
-                          >
-                            <span>Claude 3.5 Sonnet</span>
-                            <span className="text-[9px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-mono">
-                              Deep
-                            </span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setActiveModel("DeepSeek R1");
-                              setActiveModelDesc("Reasoning Engine");
-                              setModelDropdownOpen(false);
-                              showToast("Switched active AI engine to DeepSeek R1");
-                            }}
-                            className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-blue-50 flex items-center justify-between"
-                          >
-                            <span>DeepSeek R1</span>
-                            <span className="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-mono">
-                              Math
-                            </span>
-                          </button>
-                        </div>
-                      )}
-                    </div>
+                    <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live Telemetry
+                    </span>
                   </div>
                   <span className="text-[11px] text-slate-500 font-medium block">
-                    {activeModelDesc}
+                    Real-time crypto market telemetry & risk engine
                   </span>
                 </div>
               </div>
 
               {/* Action Controls Header Buttons */}
               <div className="flex items-center gap-2 flex-wrap">
+                {/* 1. Clean, Premium New Chat Button */}
+                <button
+                  type="button"
+                  onClick={clearChat}
+                  className="apple-glass-interactive px-3.5 py-2 rounded-xl text-slate-800 hover:text-blue-600 transition-all flex items-center gap-1.5 font-bold text-xs shadow-xs"
+                  title="Start a fresh conversation"
+                >
+                  <Plus className="w-4 h-4 text-blue-600" />
+                  <span>New Chat</span>
+                </button>
+
+                <div className="h-4 w-px bg-slate-300/60 mx-0.5 hidden sm:block" />
+
                 <button
                   type="button"
                   onClick={() => setAuthModalOpen(true)}
@@ -904,15 +839,6 @@ function AKChat() {
                       {savedBookmarks.length}
                     </span>
                   )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={clearChat}
-                  className="apple-glass-interactive p-2 rounded-xl text-slate-700 hover:text-rose-600 transition-all flex items-center justify-center"
-                  title="Clear Chat"
-                >
-                  <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -1291,6 +1217,89 @@ function AKChat() {
                       <Globe className="w-4 h-4" />
                     </button>
 
+                    {/* 2. Compact Glassy Model Selector inside Input Bar */}
+                    <div className="relative shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setModelDropdownOpen((prev) => !prev)}
+                        className="apple-glass-interactive text-[11px] font-bold text-blue-700 bg-blue-500/10 border border-blue-300/80 px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow-xs transition-all hover:bg-blue-500/20"
+                        title="Select AI Model"
+                      >
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="font-semibold hidden xs:inline">{activeModel}</span>
+                        <span className="font-semibold xs:hidden">{activeModel.split(" ")[0]}</span>
+                        <ChevronDown className="w-3 h-3 text-blue-600" />
+                      </button>
+
+                      {modelDropdownOpen && (
+                        <div className="absolute bottom-12 left-0 z-50 w-56 apple-glass rounded-2xl p-2 border border-white/90 shadow-2xl space-y-1 animate-in fade-in zoom-in-95 duration-150">
+                          <span className="text-[10px] font-extrabold uppercase text-slate-400 px-2 py-1 block">
+                            Select AI Engine
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveModel("AK-Crypto v4");
+                              setActiveModelDesc("Pro Crypto Model");
+                              setModelDropdownOpen(false);
+                              showToast("Switched active AI engine to AK-Crypto v4");
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-slate-800 hover:bg-blue-50 flex items-center justify-between"
+                          >
+                            <span>AK-Crypto v4</span>
+                            <span className="text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-mono">
+                              Fast
+                            </span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveModel("GPT-4o Crypto");
+                              setActiveModelDesc("OpenAI Telemetry");
+                              setModelDropdownOpen(false);
+                              showToast("Switched active AI engine to GPT-4o Crypto");
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-blue-50 flex items-center justify-between"
+                          >
+                            <span>GPT-4o Crypto</span>
+                            <span className="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-mono">
+                              Smart
+                            </span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveModel("Claude 3.5 Sonnet");
+                              setActiveModelDesc("Anthropic Reasoning");
+                              setModelDropdownOpen(false);
+                              showToast("Switched active AI engine to Claude 3.5 Sonnet");
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-blue-50 flex items-center justify-between"
+                          >
+                            <span>Claude 3.5 Sonnet</span>
+                            <span className="text-[9px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-mono">
+                              Deep
+                            </span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveModel("DeepSeek R1");
+                              setActiveModelDesc("Reasoning Engine");
+                              setModelDropdownOpen(false);
+                              showToast("Switched active AI engine to DeepSeek R1");
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-blue-50 flex items-center justify-between"
+                          >
+                            <span>DeepSeek R1</span>
+                            <span className="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-mono">
+                              Math
+                            </span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
                     {/* Text Input Box */}
                     <input
                       ref={userInputRef}
@@ -1304,7 +1313,7 @@ function AKChat() {
                         }
                       }}
                       placeholder="Ask AK Intelligence about markets, protocols, or risk..."
-                      className="flex-1 bg-transparent px-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none font-medium"
+                      className="flex-1 bg-transparent px-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none font-medium min-w-0"
                     />
 
                     {/* Voice Waveform Button */}
@@ -1334,17 +1343,22 @@ function AKChat() {
                       )}
                     </button>
 
-                    {/* Send Button */}
+                    {/* 3. Gemini-Style Send Button */}
                     <button
                       type="button"
                       disabled={isSending || (!input.trim() && !attachedFile)}
                       onClick={() => void sendMessage()}
-                      className="btn-glass-getstarted p-2.5 rounded-xl text-white shadow-md hover:scale-105 transition-all shrink-0 disabled:opacity-40"
+                      className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 shrink-0 ${
+                        input.trim() || attachedFile
+                          ? "bg-gradient-to-tr from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md shadow-blue-500/30 hover:scale-105 active:scale-95 cursor-pointer ring-1 ring-white/60"
+                          : "bg-slate-200/70 dark:bg-slate-800/60 text-slate-400 cursor-not-allowed opacity-60"
+                      }`}
+                      title="Send message"
                     >
                       {isSending ? (
                         <Loader2 className="w-4 h-4 animate-spin text-white" />
                       ) : (
-                        <Send className="w-4 h-4" />
+                        <ArrowUp className="w-4 h-4 stroke-[2.5]" />
                       )}
                     </button>
                   </div>
