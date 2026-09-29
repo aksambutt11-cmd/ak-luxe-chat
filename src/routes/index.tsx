@@ -195,7 +195,7 @@ function AKChat() {
     return () => clearInterval(interval);
   }, []);
 
-  // 4. Live Telemetry Flowing Graph Animations
+  // 4. Live Real-Time Flowing Crypto Graphs Animation (Minimal & Premium)
   useEffect(() => {
     let animId = 0;
     let phase = 0;
@@ -223,71 +223,117 @@ function AKChat() {
       const h = canvas.height;
       ctx.clearRect(0, 0, w, h);
 
-      // Compute smoothly oscillating points
+      // 1. Subtle Institutional Micro-Grid Lines
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.04)";
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(0, h * 0.35);
+      ctx.lineTo(w, h * 0.35);
+      ctx.moveTo(0, h * 0.7);
+      ctx.lineTo(w, h * 0.7);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 2. Compute smooth oscillating real-time data points
       const pts = basePts.map(
-        (val, i) => val + Math.sin(phase + phaseOffset + i * 0.55) * 3.5
+        (val, i) =>
+          val +
+          Math.sin(phase + phaseOffset + i * 0.6) * 3.8 +
+          Math.cos(phase * 1.3 + i * 0.4) * 1.5
       );
 
       const max = Math.max(...pts) + 4;
       const min = Math.min(...pts) - 4;
 
-      // Draw subtle gradient under sparkline
+      const coords: Array<{ x: number; y: number }> = [];
+      for (let i = 0; i < pts.length; i++) {
+        const x = (w / (pts.length - 1)) * i;
+        const y = h - ((pts[i]! - min) / (max - min || 1)) * (h - 20) - 6;
+        coords.push({ x, y });
+      }
+
+      // 3. Faint Baseline Volume Bars
+      ctx.fillStyle = fillColor;
+      for (let i = 0; i < coords.length; i++) {
+        const barH = 4 + Math.abs(Math.sin(phase + i)) * 8;
+        ctx.fillRect(coords[i]!.x - 2, h - barH, 4, barH);
+      }
+
+      // 4. Smooth Bézier Curve Path
+      ctx.beginPath();
+      ctx.moveTo(coords[0]!.x, coords[0]!.y);
+      for (let i = 0; i < coords.length - 1; i++) {
+        const cpX = (coords[i]!.x + coords[i + 1]!.x) / 2;
+        const cpY = (coords[i]!.y + coords[i + 1]!.y) / 2;
+        ctx.quadraticCurveTo(coords[i]!.x, coords[i]!.y, cpX, cpY);
+      }
+      const lastCoord = coords[coords.length - 1]!;
+      ctx.lineTo(lastCoord.x, lastCoord.y);
+
+      // Area Fill
+      ctx.save();
+      const fillPath = new Path2D();
+      fillPath.moveTo(coords[0]!.x, coords[0]!.y);
+      for (let i = 0; i < coords.length - 1; i++) {
+        const cpX = (coords[i]!.x + coords[i + 1]!.x) / 2;
+        const cpY = (coords[i]!.y + coords[i + 1]!.y) / 2;
+        fillPath.quadraticCurveTo(coords[i]!.x, coords[i]!.y, cpX, cpY);
+      }
+      fillPath.lineTo(lastCoord.x, lastCoord.y);
+      fillPath.lineTo(w, h);
+      fillPath.lineTo(0, h);
+      fillPath.closePath();
+
       const grad = ctx.createLinearGradient(0, 0, 0, h);
       grad.addColorStop(0, fillColor);
       grad.addColorStop(1, "rgba(255, 255, 255, 0)");
-
-      ctx.beginPath();
-      const firstY = h - ((pts[0]! - min) / (max - min || 1)) * (h - 18) - 6;
-      ctx.moveTo(0, firstY);
-
-      for (let i = 1; i < pts.length; i++) {
-        const x = (w / (pts.length - 1)) * i;
-        const y = h - ((pts[i]! - min) / (max - min || 1)) * (h - 18) - 6;
-        ctx.lineTo(x, y);
-      }
-      ctx.lineTo(w, h);
-      ctx.lineTo(0, h);
-      ctx.closePath();
       ctx.fillStyle = grad;
-      ctx.fill();
+      ctx.fill(fillPath);
+      ctx.restore();
 
-      // Draw glowing stroke line
-      ctx.beginPath();
-      ctx.moveTo(0, firstY);
-      for (let i = 1; i < pts.length; i++) {
-        const x = (w / (pts.length - 1)) * i;
-        const y = h - ((pts[i]! - min) / (max - min || 1)) * (h - 18) - 6;
-        ctx.lineTo(x, y);
-      }
+      // Glowing Stroke Line
       ctx.strokeStyle = strokeColor;
-      ctx.lineWidth = 2.2;
+      ctx.lineWidth = 2.4;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
       ctx.stroke();
 
-      // Glowing head pulse dot on the latest live telemetry point
-      const lastX = w;
-      const lastY = h - ((pts[pts.length - 1]! - min) / (max - min || 1)) * (h - 18) - 6;
+      // 5. Leading Edge Pulse Beacon & Expanding Radar Wave
+      const pulsePhase = (phase * 2) % (Math.PI * 2);
+      const ringRadius = 4 + Math.sin(pulsePhase) * 5;
+      const ringAlpha = Math.max(0, 0.4 - (ringRadius / 9) * 0.4);
+
+      // Radar ring
       ctx.beginPath();
-      ctx.arc(lastX - 2, lastY, 3, 0, Math.PI * 2);
+      ctx.arc(lastCoord.x - 2, lastCoord.y, ringRadius + 2, 0, Math.PI * 2);
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = 1;
+      ctx.fillStyle = `rgba(255, 255, 255, ${ringAlpha})`;
+      ctx.fill();
+      ctx.stroke();
+
+      // Center solid beacon
+      ctx.beginPath();
+      ctx.arc(lastCoord.x - 2, lastCoord.y, 3, 0, Math.PI * 2);
       ctx.fillStyle = strokeColor;
       ctx.fill();
     }
 
     function renderGraphs() {
-      phase += 0.04;
+      phase += 0.038;
       drawFlowingSparkline(
         miniChartBTCRef.current,
         basePtsBTC,
         "#f59e0b",
-        "rgba(245, 158, 11, 0.18)",
+        "rgba(245, 158, 11, 0.2)",
         0
       );
       drawFlowingSparkline(
         miniChartETHRef.current,
         basePtsETH,
         "#6366f1",
-        "rgba(99, 102, 241, 0.18)",
+        "rgba(99, 102, 241, 0.2)",
         Math.PI / 2
       );
       animId = requestAnimationFrame(renderGraphs);
