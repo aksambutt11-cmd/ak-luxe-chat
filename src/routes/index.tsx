@@ -58,10 +58,18 @@ import {
   Trash2,
   Sparkles,
   ChevronDown,
+  Volume2,
+  VolumeX,
+  Share2,
 } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { ParticleEngine } from "@/components/particle-engine";
 import { BitcoinField } from "@/components/bitcoin-field";
+import { MarketTicker } from "@/components/market-ticker";
+import { UserBubble } from "@/components/user-bubble";
+import { VoiceInput } from "@/components/voice-input";
+import { CryptoChartCard } from "@/components/crypto-chart-card";
+import { ShareCardDialog } from "@/components/share-card-dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 type ChatMessage = {
@@ -333,6 +341,26 @@ function AKChat() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [pop, setPop] = useState<{ x: number; y: number; text: string; key: number } | null>(null);
+  const [speakingId, setSpeakingId] = useState<string | null>(null);
+  const [shareMessage, setShareMessage] = useState<ChatMessage | null>(null);
+
+  const toggleSpeech = (message: ChatMessage) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    if (speakingId === message.id) {
+      window.speechSynthesis.cancel();
+      setSpeakingId(null);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const cleanText = message.content.replace(/[*#_`]/g, "");
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.onend = () => setSpeakingId(null);
+    utterance.onerror = () => setSpeakingId(null);
+    setSpeakingId(message.id);
+    window.speechSynthesis.speak(utterance);
+  };
 
   const focusComposer = useCallback(() => {
     requestAnimationFrame(() => textareaRef.current?.focus());
@@ -489,6 +517,7 @@ function AKChat() {
         </aside>
 
         <div className="ak-workspace">
+          <MarketTicker />
           <header className="ak-header" aria-label="AK chat header">
             <div className="flex min-w-0 items-center gap-3">
               <div className="mobile-brand-mark">
@@ -675,7 +704,44 @@ function AKChat() {
                               className={`assistant-message ${message.error ? "assistant-error" : ""}`}
                             >
                               <MessageResponse>{message.content}</MessageResponse>
+                              {/(btc|bitcoin|eth|ethereum|sol|solana|price|chart|candle|bull|bear|technical|breakout)/i.test(
+                                message.content + (message.prompt || "")
+                              ) && (
+                                <CryptoChartCard
+                                  symbol={
+                                    /eth|ethereum/i.test(message.content)
+                                      ? "ETH/USDT"
+                                      : /sol|solana/i.test(message.content)
+                                      ? "SOL/USDT"
+                                      : "BTC/USDT"
+                                  }
+                                />
+                              )}
                             </MessageContent>
+                            {!isSending && (
+                              <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                                <span className="text-[10px] text-muted-foreground mr-1 flex items-center gap-1 font-semibold uppercase tracking-wider">
+                                  <Sparkles className="size-2.5 text-sky-400" />
+                                  Follow-up:
+                                </span>
+                                {[
+                                  "Analyze Liquidation Heatmap",
+                                  "Show Token Distribution",
+                                  "BTC Funding Rates",
+                                  "On-Chain Whales",
+                                ].map((pill) => (
+                                  <button
+                                    key={pill}
+                                    type="button"
+                                    disabled={isSending}
+                                    onClick={() => void sendPrompt(pill)}
+                                    className="followup-pill"
+                                  >
+                                    {pill}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
                             <MessageActions className="assistant-actions mt-2 opacity-100 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
                               <MessageAction
                                 label="Copy response"
@@ -683,6 +749,20 @@ function AKChat() {
                                 tooltip={copiedId === message.id ? "Copied" : "Copy"}
                               >
                                 {copiedId === message.id ? <Check /> : <Copy />}
+                              </MessageAction>
+                              <MessageAction
+                                label={speakingId === message.id ? "Stop voice" : "Read aloud (TTS)"}
+                                onClick={() => toggleSpeech(message)}
+                                tooltip={speakingId === message.id ? "Stop voice" : "Read aloud (TTS)"}
+                              >
+                                {speakingId === message.id ? <VolumeX className="text-rose-400" /> : <Volume2 />}
+                              </MessageAction>
+                              <MessageAction
+                                label="Share Analysis Card"
+                                onClick={() => setShareMessage(message)}
+                                tooltip="Share Card"
+                              >
+                                <Share2 />
                               </MessageAction>
                               <MessageAction
                                 disabled={isSending || !message.prompt}
@@ -699,7 +779,7 @@ function AKChat() {
                         </div>
                       ) : (
                         <MessageContent className="user-message">
-                          <p className="whitespace-pre-wrap leading-7">{message.content}</p>
+                          <UserBubble content={message.content} />
                         </MessageContent>
                       )}
                     </Message>
@@ -756,12 +836,21 @@ function AKChat() {
                       Shift + Enter for a new line
                     </span>
                   </div>
-                  <PromptInputSubmit
-                    className={`send-button ml-auto size-9 rounded-full ${input.trim() ? "is-ready" : ""}`}
-                    disabled={!input.trim() || isSending}
-                    status={isSending ? "submitted" : "ready"}
-                    variant="send"
-                  />
+                  <div className="ml-auto flex items-center gap-2">
+                    <VoiceInput
+                      disabled={isSending}
+                      onTranscript={(transcript) => {
+                        setInput((prev) => (prev ? `${prev} ${transcript}` : transcript));
+                        requestAnimationFrame(() => textareaRef.current?.focus());
+                      }}
+                    />
+                    <PromptInputSubmit
+                      className={`send-button size-9 rounded-full ${input.trim() ? "is-ready" : ""}`}
+                      disabled={!input.trim() || isSending}
+                      status={isSending ? "submitted" : "ready"}
+                      variant="send"
+                    />
+                  </div>
                 </PromptInputFooter>
               </PromptInput>
               <p className="mt-2.5 text-center text-[11px] text-muted-foreground/70">
@@ -771,6 +860,12 @@ function AKChat() {
           </section>
         </div>
       </main>
+      <ShareCardDialog
+        open={Boolean(shareMessage)}
+        onOpenChange={(open) => !open && setShareMessage(null)}
+        messageContent={shareMessage?.content || ""}
+        userPrompt={shareMessage?.prompt}
+      />
     </TooltipProvider>
   );
 }
