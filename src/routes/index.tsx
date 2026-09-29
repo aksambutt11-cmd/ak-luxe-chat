@@ -980,9 +980,9 @@ function AKChat() {
               {/* Thinking Bubble */}
               {isSending && (
                 <div className="flex gap-3 max-w-3xl thinking-msg">
-                  <div className="thinking-bubble rounded-2xl px-4 py-2.5 text-slate-700 text-xs font-bold flex items-center gap-2.5 shadow-sm">
-                    <span className="w-2 h-2 rounded-full bg-blue-600 animate-ping" />
-                    <span>Analyzing live telemetry stream...</span>
+                  <div className="thinking-bubble rounded-2xl px-4 py-2.5 text-slate-700 text-xs font-bold flex items-center gap-2 shadow-sm">
+                    <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+                    <span>Thinking</span>
                   </div>
                 </div>
               )}
@@ -1425,78 +1425,6 @@ function AKChat() {
             </div>
           </div>
         </main>
-
-        {/* 2. Subtle Floating Right-Side Crypto Decorative Elements */}
-        <aside
-          className="w-64 flex flex-col justify-between py-1 shrink-0 hidden xl:flex pointer-events-none select-none"
-          aria-hidden="true"
-        >
-          {/* Card 1: Bitcoin Layer-1 Orbit */}
-          <div className="apple-glass rounded-2xl p-3.5 space-y-2 border border-white/90 shadow-lg crypto-float-1 pointer-events-auto">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-amber-500/15 border border-amber-300/80 flex items-center justify-center text-amber-600 font-black text-sm shadow-xs">
-                  ₿
-                </div>
-                <div>
-                  <h4 className="font-extrabold text-slate-900 text-xs">Bitcoin Core</h4>
-                  <span className="text-[10px] text-slate-500 font-medium">Layer-1 Settlement</span>
-                </div>
-              </div>
-              <span className="text-[9px] font-extrabold text-emerald-600 bg-emerald-100/90 px-2 py-0.5 rounded-full">
-                Active
-              </span>
-            </div>
-            <div className="pt-1.5 border-t border-slate-200/50 flex items-center justify-between text-[10px] text-slate-600">
-              <span>Mempool State</span>
-              <span className="font-bold text-slate-800">Clear • Optimal</span>
-            </div>
-          </div>
-
-          {/* Card 2: Ethereum Staking & L2 Ecosystem */}
-          <div className="apple-glass rounded-2xl p-3.5 space-y-2 border border-white/90 shadow-lg crypto-float-2 pointer-events-auto">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-indigo-500/15 border border-indigo-300/80 flex items-center justify-center text-indigo-600 font-black text-sm shadow-xs">
-                  Ξ
-                </div>
-                <div>
-                  <h4 className="font-extrabold text-slate-900 text-xs">Ethereum Network</h4>
-                  <span className="text-[10px] text-slate-500 font-medium">Rollup Consensus</span>
-                </div>
-              </div>
-              <span className="text-[9px] font-extrabold text-blue-600 bg-blue-100/90 px-2 py-0.5 rounded-full">
-                Synced
-              </span>
-            </div>
-            <div className="pt-1.5 border-t border-slate-200/50 flex items-center justify-between text-[10px] text-slate-600">
-              <span>L2 Rollup TPS</span>
-              <span className="font-bold text-slate-800">Peak Capacity</span>
-            </div>
-          </div>
-
-          {/* Card 3: Multichain Telemetry & AI Node */}
-          <div className="apple-glass rounded-2xl p-3.5 space-y-2 border border-white/90 shadow-lg crypto-float-3 pointer-events-auto">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-cyan-500/15 border border-cyan-300/80 flex items-center justify-center text-cyan-600 font-black text-sm shadow-xs">
-                  ◎
-                </div>
-                <div>
-                  <h4 className="font-extrabold text-slate-900 text-xs">Liquidity Matrix</h4>
-                  <span className="text-[10px] text-slate-500 font-medium">Cross-Chain Radar</span>
-                </div>
-              </div>
-              <span className="text-[9px] font-extrabold text-emerald-600 bg-emerald-100/90 px-2 py-0.5 rounded-full flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
-              </span>
-            </div>
-            <div className="pt-1.5 border-t border-slate-200/50 flex items-center justify-between text-[10px] text-slate-600">
-              <span>Pinecone Agent</span>
-              <span className="font-bold text-slate-800">Telemetry Online</span>
-            </div>
-          </div>
-        </aside>
       </div>
 
       {/* 1. FIRST-VISIT ANTIGRAVITY WELCOME POPUP */}
