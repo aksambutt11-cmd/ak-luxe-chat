@@ -1,52 +1,69 @@
-/** Limited, tasteful floating Bitcoin coins drifting behind the UI. */
-const coins = [
-  { left: 6, size: 34, dur: 38, delay: -4, depth: "far" },
-  { left: 18, size: 58, dur: 30, delay: -20, depth: "near" },
-  { left: 34, size: 26, dur: 46, delay: -12, depth: "far" },
-  { left: 57, size: 42, dur: 34, delay: -28, depth: "mid" },
-  { left: 72, size: 24, dur: 50, delay: -6, depth: "far" },
-  { left: 84, size: 64, dur: 28, delay: -15, depth: "near" },
-  { left: 94, size: 32, dur: 42, delay: -33, depth: "mid" },
+/** Floating Bitcoins and other crypto coins drifting specifically behind the chat interface. */
+const coinTypes = [
+  { symbol: "₿", name: "Bitcoin", face: "#FCE7B2", mid: "#E0A546", dark: "#8A5A1C", rim: "#FFF1CC" },
+  { symbol: "Ξ", name: "Ethereum", face: "#E2E8F0", mid: "#818CF8", dark: "#312E81", rim: "#C7D2FE" },
+  { symbol: "◎", name: "Solana", face: "#D1FAE5", mid: "#10B981", dark: "#065F46", rim: "#A7F3D0" },
+  { symbol: "₮", name: "Tether", face: "#CCFBF1", mid: "#14B8A6", dark: "#134E4A", rim: "#99F6E4" },
+  { symbol: "Ⓑ", name: "BNB", face: "#FEF3C7", mid: "#F59E0B", dark: "#78350F", rim: "#FDE68A" },
+  { symbol: "Ð", name: "Dogecoin", face: "#FEF08A", mid: "#CA8A04", dark: "#713F12", rim: "#FEF08A" },
 ] as const;
 
-function Coin({ size }: { size: number }) {
+const coins = [
+  { typeIndex: 0, left: 8, size: 34, dur: 36, delay: -3, depth: "far" },
+  { typeIndex: 1, left: 22, size: 50, dur: 30, delay: -16, depth: "near" },
+  { typeIndex: 2, left: 38, size: 26, dur: 44, delay: -10, depth: "far" },
+  { typeIndex: 3, left: 54, size: 44, dur: 28, delay: -22, depth: "mid" },
+  { typeIndex: 4, left: 68, size: 36, dur: 38, delay: -6, depth: "far" },
+  { typeIndex: 5, left: 82, size: 56, dur: 26, delay: -12, depth: "near" },
+  { typeIndex: 0, left: 91, size: 30, dur: 40, delay: -28, depth: "mid" },
+] as const;
+
+function CoinItem({ typeIndex, size }: { typeIndex: number; size: number }) {
+  const coin = coinTypes[typeIndex % coinTypes.length]!;
+  const gradId = `chat-coin-face-${typeIndex}-${size}`;
+  const rimId = `chat-coin-rim-${typeIndex}-${size}`;
+
   return (
     <svg viewBox="0 0 64 64" width={size} height={size}>
       <defs>
-        <radialGradient id="btc-face" cx="35%" cy="30%" r="75%">
-          <stop offset="0%" stopColor="#FCE7B2" />
-          <stop offset="45%" stopColor="#E0A546" />
-          <stop offset="100%" stopColor="#8A5A1C" />
+        <radialGradient id={gradId} cx="35%" cy="30%" r="75%">
+          <stop offset="0%" stopColor={coin.face} />
+          <stop offset="45%" stopColor={coin.mid} />
+          <stop offset="100%" stopColor={coin.dark} />
         </radialGradient>
-        <linearGradient id="btc-rim" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#FFF1CC" />
-          <stop offset="55%" stopColor="#B77A2A" />
-          <stop offset="100%" stopColor="#5E3C12" />
+        <linearGradient id={rimId} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor={coin.rim} />
+          <stop offset="55%" stopColor={coin.mid} />
+          <stop offset="100%" stopColor={coin.dark} />
         </linearGradient>
       </defs>
-      <circle cx="32" cy="32" r="30" fill="url(#btc-rim)" />
-      <circle cx="32" cy="32" r="26" fill="url(#btc-face)" />
-      <circle cx="32" cy="32" r="22.5" fill="none" stroke="#FFF3D6" strokeOpacity="0.35" />
+      <circle cx="32" cy="32" r="30" fill={`url(#${rimId})`} />
+      <circle cx="32" cy="32" r="26" fill={`url(#${gradId})`} />
+      <circle cx="32" cy="32" r="22.5" fill="none" stroke={coin.rim} strokeOpacity="0.4" />
       <text
         x="32"
         y="42"
         textAnchor="middle"
-        fontSize="28"
+        fontSize="26"
         fontWeight="700"
         fontFamily="Space Grotesk, sans-serif"
-        fill="#FFF6E0"
-        fillOpacity="0.92"
+        fill="#FFFFFF"
+        fillOpacity="0.95"
       >
-        ₿
+        {coin.symbol}
       </text>
-      <ellipse cx="24" cy="18" rx="12" ry="5" fill="#FFFFFF" opacity="0.28" />
+      <ellipse cx="24" cy="18" rx="12" ry="5" fill="#FFFFFF" opacity="0.3" />
     </svg>
   );
 }
 
-export function BitcoinField() {
+export interface BitcoinFieldProps {
+  className?: string;
+}
+
+export function BitcoinField({ className = "bitcoin-field" }: BitcoinFieldProps) {
   return (
-    <div className="bitcoin-field" aria-hidden="true">
+    <div className={className} aria-hidden="true">
       {coins.map((c, i) => (
         <span
           key={i}
@@ -58,7 +75,7 @@ export function BitcoinField() {
           }}
         >
           <span className="btc-spin" style={{ animationDuration: `${c.dur / 3}s` }}>
-            <Coin size={c.size} />
+            <CoinItem typeIndex={c.typeIndex} size={c.size} />
           </span>
         </span>
       ))}

@@ -41,6 +41,7 @@ import {
   X,
 } from "lucide-react";
 import { ParticleEngine } from "@/components/particle-engine";
+import { BitcoinField } from "@/components/bitcoin-field";
 import { MarketTicker } from "@/components/market-ticker";
 import { MessageResponse } from "@/components/ai-elements/message";
 import { AntigravityHero } from "@/components/antigravity-hero";
@@ -497,7 +498,11 @@ function AKChat() {
     const text = input.trim();
     if (!text && !attachedFile) return;
 
-    const fullPrompt = attachedFile ? `[Attached: ${attachedFile.name}] ${text}` : text;
+    const fullPrompt = attachedFile
+      ? `[Attached: ${attachedFile.name}] ${isWebSearchActive ? "[Live Web Search Enabled] " : ""}${text}`
+      : isWebSearchActive
+        ? `[Live Web Search Enabled] ${text}`
+        : text;
 
     const userMsg: ChatMessage = {
       id: newId(),
@@ -870,6 +875,8 @@ function AKChat() {
         {/* CHAT MAIN WORKSPACE */}
         <main className="flex-1 flex flex-col rounded-2xl sm:rounded-3xl relative apple-glass p-1 sm:p-2 min-w-0 max-w-full overflow-hidden">
           <div className="w-full h-full flex flex-col rounded-[0.85rem] sm:rounded-[1rem] overflow-hidden relative bg-[#f0f3f8]/80 backdrop-blur-md p-1.5 sm:p-3 min-w-0">
+            {/* Animated Crypto Coin Background specifically behind chat interface */}
+            <BitcoinField className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-45" />
             {/* Top Glass Header */}
             <div className="apple-glass rounded-xl sm:rounded-2xl p-2 sm:p-3 mb-1.5 sm:mb-2 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2 sm:gap-3 shadow-xs shrink-0">
               <div className="flex items-center justify-between md:justify-start gap-2 sm:gap-3 min-w-0 w-full md:w-auto">

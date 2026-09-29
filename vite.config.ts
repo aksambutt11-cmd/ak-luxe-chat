@@ -17,6 +17,16 @@ export default defineConfig({
       hmr: process.env.DISABLE_HMR !== "true",
       watch: process.env.DISABLE_HMR === "true" ? null : {},
     },
+    build: {
+      rollupOptions: {
+        onwarn(warning, warn) {
+          if (warning.message && (warning.message.includes("unwasm") || warning.message.includes("onig.wasm"))) {
+            return;
+          }
+          warn(warning);
+        },
+      },
+    },
   },
 });
 
