@@ -151,7 +151,7 @@ function AKChat() {
   // Typewriter welcome text
   const [typedWelcome, setTypedWelcome] = useState("");
   const fullWelcomeText =
-    "Hello! 👋 Welcome to AK Luxe Crypto Intelligence. How can I assist with your market telemetry, portfolio risk, or on-chain signals today?";
+    "AK Luxe Intelligence Engine • Synthesizing institutional on-chain telemetry, order book liquidation clusters, and protocol risk context in real time. How can I assist your crypto research today?";
 
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
   const userInputRef = useRef<HTMLInputElement | null>(null);
@@ -191,63 +191,113 @@ function AKChat() {
       } else {
         clearInterval(interval);
       }
-    }, 18);
+    }, 14);
     return () => clearInterval(interval);
   }, []);
 
-  // Draw Mini Charts in Sidebar
+  // 4. Live Telemetry Flowing Graph Animations
   useEffect(() => {
-    // BTC Mini Chart
-    if (miniChartBTCRef.current) {
-      const canvas = miniChartBTCRef.current;
+    let animId = 0;
+    let phase = 0;
+
+    const basePtsBTC = [22, 28, 25, 36, 32, 44, 40, 50, 47, 56];
+    const basePtsETH = [34, 30, 40, 37, 48, 44, 54, 47, 58, 56];
+
+    function drawFlowingSparkline(
+      canvas: HTMLCanvasElement | null,
+      basePts: number[],
+      strokeColor: string,
+      fillColor: string,
+      phaseOffset: number
+    ) {
+      if (!canvas) return;
       const ctx = canvas.getContext("2d");
-      if (ctx && canvas.parentElement) {
-        canvas.width = canvas.parentElement.clientWidth - 24;
+      if (!ctx || !canvas.parentElement) return;
+
+      const rect = canvas.parentElement.getBoundingClientRect();
+      if (canvas.width !== rect.width - 24 || canvas.height !== 64) {
+        canvas.width = Math.max(120, rect.width - 24);
         canvas.height = 64;
-        const w = canvas.width;
-        const h = canvas.height;
-        ctx.clearRect(0, 0, w, h);
-        const pts = [20, 28, 24, 38, 32, 45, 40, 52, 48, 58];
-        const max = Math.max(...pts);
-        const min = Math.min(...pts);
-        ctx.beginPath();
-        ctx.moveTo(0, h - ((pts[0]! - min) / (max - min || 1)) * (h - 15) - 5);
-        for (let i = 1; i < pts.length; i++) {
-          const x = (w / (pts.length - 1)) * i;
-          const y = h - ((pts[i]! - min) / (max - min || 1)) * (h - 15) - 5;
-          ctx.lineTo(x, y);
-        }
-        ctx.strokeStyle = "#f59e0b";
-        ctx.lineWidth = 2.5;
-        ctx.stroke();
       }
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      // Compute smoothly oscillating points
+      const pts = basePts.map(
+        (val, i) => val + Math.sin(phase + phaseOffset + i * 0.55) * 3.5
+      );
+
+      const max = Math.max(...pts) + 4;
+      const min = Math.min(...pts) - 4;
+
+      // Draw subtle gradient under sparkline
+      const grad = ctx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, fillColor);
+      grad.addColorStop(1, "rgba(255, 255, 255, 0)");
+
+      ctx.beginPath();
+      const firstY = h - ((pts[0]! - min) / (max - min || 1)) * (h - 18) - 6;
+      ctx.moveTo(0, firstY);
+
+      for (let i = 1; i < pts.length; i++) {
+        const x = (w / (pts.length - 1)) * i;
+        const y = h - ((pts[i]! - min) / (max - min || 1)) * (h - 18) - 6;
+        ctx.lineTo(x, y);
+      }
+      ctx.lineTo(w, h);
+      ctx.lineTo(0, h);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Draw glowing stroke line
+      ctx.beginPath();
+      ctx.moveTo(0, firstY);
+      for (let i = 1; i < pts.length; i++) {
+        const x = (w / (pts.length - 1)) * i;
+        const y = h - ((pts[i]! - min) / (max - min || 1)) * (h - 18) - 6;
+        ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = 2.2;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.stroke();
+
+      // Glowing head pulse dot on the latest live telemetry point
+      const lastX = w;
+      const lastY = h - ((pts[pts.length - 1]! - min) / (max - min || 1)) * (h - 18) - 6;
+      ctx.beginPath();
+      ctx.arc(lastX - 2, lastY, 3, 0, Math.PI * 2);
+      ctx.fillStyle = strokeColor;
+      ctx.fill();
     }
 
-    // ETH Mini Chart
-    if (miniChartETHRef.current) {
-      const canvas = miniChartETHRef.current;
-      const ctx = canvas.getContext("2d");
-      if (ctx && canvas.parentElement) {
-        canvas.width = canvas.parentElement.clientWidth - 24;
-        canvas.height = 64;
-        const w = canvas.width;
-        const h = canvas.height;
-        ctx.clearRect(0, 0, w, h);
-        const pts = [35, 30, 42, 38, 50, 45, 55, 48, 60, 58];
-        const max = Math.max(...pts);
-        const min = Math.min(...pts);
-        ctx.beginPath();
-        ctx.moveTo(0, h - ((pts[0]! - min) / (max - min || 1)) * (h - 15) - 5);
-        for (let i = 1; i < pts.length; i++) {
-          const x = (w / (pts.length - 1)) * i;
-          const y = h - ((pts[i]! - min) / (max - min || 1)) * (h - 15) - 5;
-          ctx.lineTo(x, y);
-        }
-        ctx.strokeStyle = "#6366f1";
-        ctx.lineWidth = 2.5;
-        ctx.stroke();
-      }
+    function renderGraphs() {
+      phase += 0.04;
+      drawFlowingSparkline(
+        miniChartBTCRef.current,
+        basePtsBTC,
+        "#f59e0b",
+        "rgba(245, 158, 11, 0.18)",
+        0
+      );
+      drawFlowingSparkline(
+        miniChartETHRef.current,
+        basePtsETH,
+        "#6366f1",
+        "rgba(99, 102, 241, 0.18)",
+        Math.PI / 2
+      );
+      animId = requestAnimationFrame(renderGraphs);
     }
+
+    renderGraphs();
+
+    return () => {
+      cancelAnimationFrame(animId);
+    };
   }, []);
 
   // Draw Interactive Chart in Modal
@@ -568,7 +618,7 @@ function AKChat() {
       <MarketTicker />
 
       {/* MAIN INTERFACE LAYOUT */}
-      <div className="relative z-10 flex-1 flex overflow-hidden p-3 gap-3 w-full h-[calc(100vh-37px)]">
+      <div className="relative z-10 flex-1 flex overflow-hidden p-2 sm:p-3 gap-2 sm:gap-3 w-full h-[calc(100dvh-37px)] max-w-full">
         {/* SIDEBAR NAVIGATION & PREMIUM APPLE GLASS CHARTS */}
         <aside className="w-72 apple-glass rounded-2xl flex flex-col justify-between p-4 shrink-0 hidden lg:flex overflow-y-auto">
           <div className="space-y-4">
@@ -686,8 +736,8 @@ function AKChat() {
                 <span className="text-[10px] uppercase font-extrabold text-slate-500 tracking-wider flex items-center gap-1.5">
                   <BarChart3 className="w-3.5 h-3.5 text-blue-600" /> Live Telemetry Charts
                 </span>
-                <span className="text-[9px] text-emerald-600 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded">
-                  Live
+                <span className="text-[9px] text-emerald-600 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
                 </span>
               </div>
 
@@ -766,61 +816,61 @@ function AKChat() {
         </aside>
 
         {/* CHAT MAIN WORKSPACE */}
-        <main className="flex-1 flex flex-col rounded-2xl relative apple-glass p-2">
-          <div className="w-full h-full flex flex-col rounded-[1rem] overflow-hidden relative bg-[#f0f3f8]/80 backdrop-blur-md p-3">
+        <main className="flex-1 flex flex-col rounded-2xl relative apple-glass p-1.5 sm:p-2 min-w-0 max-w-full">
+          <div className="w-full h-full flex flex-col rounded-[1rem] overflow-hidden relative bg-[#f0f3f8]/80 backdrop-blur-md p-2 sm:p-3 min-w-0">
             {/* Top Glass Header */}
-            <div className="apple-glass rounded-2xl p-3 mb-2 flex flex-wrap items-center justify-between gap-3 shadow-sm shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="w-9.5 h-9.5 ak-glass-badge shrink-0 p-1.5">
-                  <svg className="w-6 h-6 ak-svg-icon" viewBox="0 0 100 100" fill="none">
+            <div className="apple-glass rounded-2xl p-2.5 sm:p-3 mb-2 flex flex-wrap items-center justify-between gap-2 sm:gap-3 shadow-sm shrink-0">
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                <div className="w-8 h-8 sm:w-9.5 sm:h-9.5 ak-glass-badge shrink-0 p-1 sm:p-1.5">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 ak-svg-icon" viewBox="0 0 100 100" fill="none">
                     <path
                       d="M18 78 L42 22 L54 22 L36 60 L62 22 L78 22 L50 62 L80 78 L63 78 L42 66 L30 78 Z"
                       fill="url(#akGoldGradient)"
                     />
                   </svg>
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="font-bold text-slate-900 text-sm">AK Intelligence</h2>
-                    <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live Telemetry
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <h2 className="font-bold text-slate-900 text-xs sm:text-sm truncate">AK Intelligence</h2>
+                    <span className="text-[9px] sm:text-[10px] font-semibold text-emerald-600 bg-emerald-500/10 px-1.5 sm:px-2 py-0.5 rounded-full flex items-center gap-1 shrink-0">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
                     </span>
                   </div>
-                  <span className="text-[11px] text-slate-500 font-medium block">
+                  <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium block truncate">
                     Real-time crypto market telemetry & risk engine
                   </span>
                 </div>
               </div>
 
               {/* Action Controls Header Buttons */}
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                 {/* 1. Clean, Premium New Chat Button */}
                 <button
                   type="button"
                   onClick={clearChat}
-                  className="apple-glass-interactive px-3.5 py-2 rounded-xl text-slate-800 hover:text-blue-600 transition-all flex items-center gap-1.5 font-bold text-xs shadow-xs"
+                  className="apple-glass-interactive px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-slate-800 hover:text-blue-600 transition-all flex items-center gap-1 sm:gap-1.5 font-bold text-[11px] sm:text-xs shadow-xs"
                   title="Start a fresh conversation"
                 >
-                  <Plus className="w-4 h-4 text-blue-600" />
+                  <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600" />
                   <span>New Chat</span>
                 </button>
 
-                <div className="h-4 w-px bg-slate-300/60 mx-0.5 hidden sm:block" />
+                <div className="h-4 w-px bg-slate-300/60 mx-0.5 hidden md:block" />
 
                 <button
                   type="button"
                   onClick={() => setAuthModalOpen(true)}
-                  className="btn-glass-signin text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-md transition-all active:scale-95"
+                  className="btn-glass-signin text-white font-bold text-[11px] sm:text-xs px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl shadow-md transition-all active:scale-95"
                 >
                   Sign in
                 </button>
                 <button
                   type="button"
                   onClick={() => setGetStartedModalOpen(true)}
-                  className="btn-glass-getstarted text-white font-bold text-xs px-4 py-2 rounded-xl shadow-md transition-all flex items-center gap-1 active:scale-95"
+                  className="btn-glass-getstarted text-white font-bold text-[11px] sm:text-xs px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl shadow-md transition-all flex items-center gap-1 active:scale-95"
                 >
                   <span>Get started</span>
-                  <Sparkles className="w-3.5 h-3.5" />
+                  <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 </button>
 
                 <div className="h-4 w-px bg-slate-300/60 mx-0.5 hidden sm:block" />
@@ -828,30 +878,30 @@ function AKChat() {
                 <button
                   type="button"
                   onClick={() => setChartModalOpen(true)}
-                  className="apple-glass-interactive p-2 rounded-xl text-slate-700 hover:text-blue-600 transition-all flex items-center gap-1.5 font-bold text-xs"
+                  className="apple-glass-interactive p-1.5 sm:p-2 rounded-xl text-slate-700 hover:text-blue-600 transition-all flex items-center gap-1 font-bold text-[11px] sm:text-xs"
                   title="Live Price Charts"
                 >
-                  <LineChart className="w-4 h-4 text-blue-600" />
+                  <LineChart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600" />
                   <span className="hidden sm:inline">Charts</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setConverterModalOpen(true)}
-                  className="apple-glass-interactive p-2 rounded-xl text-slate-700 hover:text-blue-600 transition-all flex items-center gap-1.5 font-bold text-xs"
+                  className="apple-glass-interactive p-1.5 sm:p-2 rounded-xl text-slate-700 hover:text-blue-600 transition-all flex items-center gap-1 font-bold text-[11px] sm:text-xs"
                   title="Crypto Converter"
                 >
-                  <ArrowLeftRight className="w-4 h-4 text-indigo-600" />
+                  <ArrowLeftRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-600" />
                   <span className="hidden sm:inline">Swap</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setBookmarksDrawerOpen((prev) => !prev)}
-                  className="apple-glass-interactive p-2 rounded-xl text-slate-700 hover:text-blue-600 transition-all flex items-center gap-1.5 font-bold text-xs relative"
+                  className="apple-glass-interactive p-1.5 sm:p-2 rounded-xl text-slate-700 hover:text-blue-600 transition-all flex items-center gap-1 font-bold text-[11px] sm:text-xs relative"
                   title="Saved Insights"
                 >
-                  <Bookmark className="w-4 h-4 text-amber-500" />
+                  <Bookmark className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" />
                   {savedBookmarks.length > 0 && (
                     <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-[9px] font-extrabold px-1.5 py-0.2 rounded-full">
                       {savedBookmarks.length}
@@ -865,30 +915,30 @@ function AKChat() {
             <div
               id="chatContainer"
               ref={chatContainerRef}
-              className="flex-1 overflow-y-auto space-y-4 pr-2 pl-1 mb-2"
+              className="flex-1 overflow-y-auto space-y-3 sm:space-y-4 pr-1.5 sm:pr-2 pl-0.5 mb-2"
             >
-              {/* Welcome Assistant Message Card */}
+              {/* 2. Premium AI x Crypto Welcome Intro */}
               <div className="flex gap-3 max-w-3xl welcome-fade-in">
-                <div className="bot-glass-bubble rounded-2xl p-5 text-slate-800 text-sm leading-relaxed max-w-2xl w-full border border-white/90 shadow-md">
+                <div className="bot-glass-bubble rounded-2xl p-4 sm:p-5 text-slate-800 text-xs sm:text-sm leading-relaxed max-w-2xl w-full border border-white/90 shadow-md">
                   <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-slate-200/40">
                     <span className="font-bold text-slate-900 text-xs flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse" />
-                      AK Intelligence Engine v4
+                      AK Luxe Intelligence • v4
                     </span>
-                    <span className="text-[10px] text-slate-400 font-medium">
-                      Secure Telemetry Active
+                    <span className="text-[10px] text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+                      Neural Telemetry
                     </span>
                   </div>
                   <div className="text-slate-800 font-medium leading-relaxed">
                     {typedWelcome || fullWelcomeText}
                   </div>
-                  <div className="mt-4 pt-2.5 border-t border-slate-200/50 flex flex-wrap gap-2 items-center">
+                  <div className="mt-3.5 pt-2.5 border-t border-slate-200/50 flex flex-wrap gap-1.5 sm:gap-2 items-center">
                     <button
                       type="button"
                       onClick={() =>
                         void sendQuickPrompt("Analyze Bitcoin (BTC) liquidation clusters")
                       }
-                      className="apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-blue-700 bg-white/90 border border-blue-200 flex items-center gap-1.5 shadow-xs"
+                      className="apple-glass-interactive px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-bold text-blue-700 bg-white/90 border border-blue-200 flex items-center gap-1.5 shadow-xs"
                     >
                       <TrendingUp className="w-3.5 h-3.5 text-blue-600" /> BTC Liquidation Clusters
                     </button>
@@ -897,14 +947,14 @@ function AKChat() {
                       onClick={() =>
                         void sendQuickPrompt("Ethereum (ETH) staking yield telemetry")
                       }
-                      className="apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-white/90 border border-slate-200 flex items-center gap-1.5 shadow-xs"
+                      className="apple-glass-interactive px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-bold text-slate-700 bg-white/90 border border-slate-200 flex items-center gap-1.5 shadow-xs"
                     >
                       <Activity className="w-3.5 h-3.5 text-indigo-500" /> ETH Staking Yields
                     </button>
                     <button
                       type="button"
                       onClick={() => void sendQuickPrompt("DeFi Liquidity Heatmap Audit")}
-                      className="apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-white/90 border border-slate-200 flex items-center gap-1.5 shadow-xs"
+                      className="apple-glass-interactive px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-bold text-slate-700 bg-white/90 border border-slate-200 flex items-center gap-1.5 shadow-xs"
                     >
                       <Flame className="w-3.5 h-3.5 text-amber-500" /> DeFi Liquidity Heatmap
                     </button>
@@ -1200,15 +1250,15 @@ function AKChat() {
                     </div>
                   )}
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2 w-full min-w-0">
                     {/* Plus Menu Toggle Button */}
                     <button
                       type="button"
                       onClick={() => setShowPlusMenu((prev) => !prev)}
-                      className="apple-glass-interactive p-2.5 rounded-xl text-slate-600 hover:text-blue-600 transition-all flex items-center justify-center shrink-0"
+                      className="apple-glass-interactive p-2 sm:p-2.5 rounded-xl text-slate-600 hover:text-blue-600 transition-all flex items-center justify-center shrink-0"
                       title="Add Content"
                     >
-                      <Plus className="w-4 h-4" />
+                      <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </button>
 
                     {/* Web Search Toggle Button */}
@@ -1225,14 +1275,14 @@ function AKChat() {
                           return next;
                         });
                       }}
-                      className={`p-2.5 rounded-xl transition-all flex items-center justify-center shrink-0 ${
+                      className={`p-2 sm:p-2.5 rounded-xl transition-all flex items-center justify-center shrink-0 ${
                         isWebSearchActive
                           ? "apple-glass-interactive text-blue-600 bg-blue-100 border border-blue-300"
                           : "apple-glass-interactive text-slate-500 hover:text-blue-600"
                       }`}
                       title="Toggle Live Web Telemetry Search"
                     >
-                      <Globe className="w-4 h-4" />
+                      <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </button>
 
                     {/* 2. Compact Glassy Model Selector inside Input Bar */}
@@ -1240,10 +1290,10 @@ function AKChat() {
                       <button
                         type="button"
                         onClick={() => setModelDropdownOpen((prev) => !prev)}
-                        className="apple-glass-interactive text-[11px] font-bold text-blue-700 bg-blue-500/10 border border-blue-300/80 px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow-xs transition-all hover:bg-blue-500/20"
+                        className="apple-glass-interactive text-[10px] sm:text-[11px] font-bold text-blue-700 bg-blue-500/10 border border-blue-300/80 px-2 py-1.5 sm:px-2.5 sm:py-1.5 rounded-xl flex items-center gap-1 sm:gap-1.5 shadow-xs transition-all hover:bg-blue-500/20"
                         title="Select AI Model"
                       >
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 animate-pulse" />
                         <span className="font-semibold hidden xs:inline">{activeModel}</span>
                         <span className="font-semibold xs:hidden">{activeModel.split(" ")[0]}</span>
                         <ChevronDown className="w-3 h-3 text-blue-600" />
@@ -1371,18 +1421,18 @@ function AKChat() {
                         }
                       }}
                       placeholder="Ask AK Intelligence about markets, protocols, or risk..."
-                      className="flex-1 bg-transparent px-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none font-medium min-w-0"
+                      className="flex-1 bg-transparent px-1.5 sm:px-2 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none font-medium min-w-0"
                     />
 
                     {/* Voice Waveform Button */}
                     <button
                       type="button"
                       onClick={toggleVoiceInput}
-                      className="apple-glass-interactive px-3 py-2 rounded-xl text-slate-600 flex items-center gap-1.5 shrink-0"
+                      className="apple-glass-interactive px-2 py-1.5 sm:px-3 sm:py-2 rounded-xl text-slate-600 flex items-center gap-1.5 shrink-0"
                       title="Voice Search"
                     >
                       {isListening ? (
-                        <div className="flex items-center gap-0.5 h-5">
+                        <div className="flex items-center gap-0.5 h-4 sm:h-5">
                           <span
                             className="w-1 bg-blue-600 rounded-full siri-wave-bar"
                             style={{ animationDelay: "0.1s" }}
@@ -1397,7 +1447,7 @@ function AKChat() {
                           />
                         </div>
                       ) : (
-                        <Mic className="w-4 h-4 text-slate-600" />
+                        <Mic className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600" />
                       )}
                     </button>
 
@@ -1406,7 +1456,7 @@ function AKChat() {
                       type="button"
                       disabled={isSending || (!input.trim() && !attachedFile)}
                       onClick={() => void sendMessage()}
-                      className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 shrink-0 ${
+                      className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all duration-200 shrink-0 ${
                         input.trim() || attachedFile
                           ? "bg-gradient-to-tr from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md shadow-blue-500/30 hover:scale-105 active:scale-95 cursor-pointer ring-1 ring-white/60"
                           : "bg-slate-200/70 dark:bg-slate-800/60 text-slate-400 cursor-not-allowed opacity-60"
@@ -1414,9 +1464,9 @@ function AKChat() {
                       title="Send message"
                     >
                       {isSending ? (
-                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin text-white" />
                       ) : (
-                        <ArrowUp className="w-4 h-4 stroke-[2.5]" />
+                        <ArrowUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
                       )}
                     </button>
                   </div>
