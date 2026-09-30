@@ -91,6 +91,7 @@ function AKChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [speakingId, setSpeakingId] = useState<string | null>(null);
   const [savedBookmarks, setSavedBookmarks] = useState<string[]>([]);
