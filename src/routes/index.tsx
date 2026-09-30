@@ -21,6 +21,8 @@ import {
   LayoutDashboard,
   LineChart,
   Loader2,
+  Menu,
+  MenuIcon,
   Mic,
   Paperclip,
   Plus,
