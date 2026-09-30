@@ -884,8 +884,16 @@ function AKChat() {
             {/* Animated Crypto Coin Background specifically behind chat interface */}
             <BitcoinField className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-45" />
             {/* Top Glass Header */}
-            <div className="apple-glass rounded-xl sm:rounded-2xl p-2 sm:p-3 mb-1.5 sm:mb-2 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2 sm:gap-3 shadow-xs shrink-0">
-              <div className="flex items-center justify-between md:justify-start gap-2 sm:gap-3 min-w-0 w-full md:w-auto">
+            <div className="apple-glass rounded-xl sm:rounded-2xl p-2 sm:p-3 mb-1.5 sm:mb-2 flex flex-row items-center justify-between gap-2 sm:gap-3 shadow-xs shrink-0 min-w-0">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                <button
+                  type="button"
+                  onClick={() => setNavOpen(true)}
+                  className="lg:hidden size-9 rounded-xl text-slate-700 apple-glass-interactive shrink-0 flex items-center justify-center"
+                  aria-label="Open menu"
+                >
+                  <Menu className="w-4.5 h-4.5" />
+                </button>
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                   <div className="w-8 h-8 sm:w-9.5 sm:h-9.5 ak-glass-badge shrink-0 p-1 sm:p-1.5 shadow-xs">
                     <svg className="w-5 h-5 sm:w-6 sm:h-6 ak-svg-icon" viewBox="0 0 100 100" fill="none">
@@ -896,39 +904,28 @@ function AKChat() {
                     </svg>
                   </div>
                   <div className="min-w-0">
-                    <div className="flex items-center gap-1.5 sm:gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                       <h2 className="font-bold text-slate-900 text-xs sm:text-sm truncate">AK Intelligence</h2>
-                      <span className="text-[8.5px] sm:text-[10px] font-semibold text-emerald-600 bg-emerald-500/10 px-1.5 sm:px-2 py-0.5 rounded-full flex items-center gap-1 shrink-0">
+                      <span className="text-[8.5px] sm:text-[10px] font-semibold text-emerald-600 bg-emerald-500/10 px-1.5 sm:px-2 py-0.5 rounded-full hidden min-[360px]:flex items-center gap-1 shrink-0">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
                       </span>
                     </div>
-                    <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium block truncate">
+                    <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium hidden sm:block truncate">
                       Real-time crypto market intelligence & risk engine
                     </span>
                   </div>
                 </div>
-
-                {/* Mobile Settings Trigger on Header */}
-                <button
-                  type="button"
-                  onClick={() => setSettingsModalOpen(true)}
-                  className="lg:hidden p-1.5 rounded-xl text-slate-600 hover:text-blue-600 apple-glass-interactive shrink-0"
-                  title="Settings"
-                >
-                  <Settings className="w-4 h-4" />
-                </button>
               </div>
 
               {/* Action Controls Header Buttons */}
-              <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 flex-wrap justify-between md:justify-end w-full md:w-auto">
-                {/* 1. Clean, Premium New Chat Button */}
+              <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 flex-nowrap justify-end shrink-0">
                 <button
                   type="button"
                   onClick={clearChat}
-                  className="apple-glass-interactive px-2 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-slate-800 hover:text-blue-600 transition-all flex items-center gap-1 sm:gap-1.5 font-bold text-[10.5px] sm:text-xs shadow-xs shrink-0"
+                  className="hidden sm:flex apple-glass-interactive px-3.5 py-2 rounded-xl text-slate-800 hover:text-blue-600 transition-all items-center gap-1.5 font-bold text-xs shadow-xs shrink-0"
                   title="Start a fresh conversation"
                 >
-                  <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600" />
+                  <Plus className="w-4 h-4 text-blue-600" />
                   <span>New Chat</span>
                 </button>
 
@@ -937,17 +934,17 @@ function AKChat() {
                 <button
                   type="button"
                   onClick={() => setAuthModalOpen(true)}
-                  className="btn-glass-signin text-white font-bold text-[10.5px] sm:text-xs px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl shadow-md transition-all active:scale-95 shrink-0"
+                  className="hidden md:block btn-glass-signin text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-md transition-all active:scale-95 shrink-0"
                 >
                   Sign in
                 </button>
                 <button
                   type="button"
                   onClick={() => setGetStartedModalOpen(true)}
-                  className="btn-glass-getstarted text-white font-bold text-[10.5px] sm:text-xs px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl shadow-md transition-all flex items-center gap-1 active:scale-95 shrink-0"
+                  className="hidden md:flex btn-glass-getstarted text-white font-bold text-xs px-4 py-2 rounded-xl shadow-md transition-all items-center gap-1 active:scale-95 shrink-0"
                 >
                   <span>Pro</span>
-                  <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <Sparkles className="w-3.5 h-3.5" />
                 </button>
 
                 <div className="h-4 w-px bg-slate-300/60 mx-0.5 hidden sm:block" />
@@ -1007,8 +1004,8 @@ function AKChat() {
               {messages.map((msg) => (
                 <div key={msg.id}>
                   {msg.role === "user" ? (
-                    <div className="flex justify-end">
-                      <div className="user-glass-bubble rounded-2xl px-4 py-3 text-sm font-semibold max-w-lg shadow-md">
+                    <div className="flex justify-end msg-appear">
+                      <div className="user-glass-bubble rounded-2xl px-3.5 py-2.5 sm:px-4 sm:py-3 text-sm font-medium max-w-[85%] sm:max-w-lg break-words min-w-0">
                         <p className="whitespace-pre-wrap">{msg.content}</p>
                         {msg.attachedFile && (
                           <div className="mt-1 text-[10px] text-blue-600 flex items-center gap-1 font-bold">
@@ -1018,15 +1015,8 @@ function AKChat() {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex gap-3 max-w-3xl">
-                      <div className="bot-glass-bubble rounded-2xl p-4 text-slate-800 text-sm leading-relaxed max-w-2xl w-full">
-                        <div className="flex items-center justify-between mb-1.5 pb-1 border-b border-slate-200/30">
-                          <span className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
-                            AK Intelligence
-                          </span>
-                          <span className="text-[10px] text-slate-400">Just now</span>
-                        </div>
+                    <div className="flex max-w-3xl min-w-0 msg-appear">
+                      <div className="bot-glass-bubble rounded-2xl p-3.5 sm:p-4 text-slate-800 text-sm leading-relaxed max-w-2xl w-full min-w-0 break-words [&_pre]:max-w-full [&_pre]:overflow-x-auto">
                         <div className="bot-content space-y-2">
                           <MessageResponse>{msg.content}</MessageResponse>
                         </div>
@@ -1069,19 +1059,21 @@ function AKChat() {
                 </div>
               ))}
 
-              {/* Thinking Bubble */}
+              {/* Thinking state */}
               {isSending && (
-                <div className="flex gap-3 max-w-3xl thinking-msg">
-                  <div className="thinking-bubble rounded-2xl px-4 py-2.5 text-slate-700 text-xs font-bold flex items-center gap-2 shadow-sm">
-                    <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
-                    <span>Thinking</span>
+                <div className="flex max-w-3xl thinking-msg" role="status" aria-live="polite">
+                  <div className="thinking-bubble rounded-2xl px-4 py-2.5">
+                    <span className="thinking-shine">Thinking…</span>
                   </div>
                 </div>
               )}
             </div>
 
             {/* BOTTOM CONTROLS & CHAT INPUT */}
-            <div className="mt-1.5 sm:mt-2 space-y-1.5 sm:space-y-2 shrink-0 w-full max-w-full">
+            <div
+              className="mt-1.5 sm:mt-2 space-y-1.5 sm:space-y-2 shrink-0 w-full max-w-full"
+              style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+            >
               {/* Combined Quick Suggestion & Market Filter Pills Below Chat */}
               <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none touch-pan-x -mx-1 px-1">
                 <button
