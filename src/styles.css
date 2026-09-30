@@ -1742,35 +1742,74 @@ button.rail-layer {
 
 /* Premium User Message Bubble (Glass Apple Style) from Gemini Build */
 .user-glass-bubble {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(238, 242, 255, 0.85) 100%) !important;
-  backdrop-filter: blur(30px) saturate(210%) !important;
-  -webkit-backdrop-filter: blur(30px) saturate(210%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.95) !important;
-  box-shadow: 
-      0 10px 28px -5px rgba(0, 0, 0, 0.08),
-      inset 0 1.5px 0.5px rgba(255, 255, 255, 0.95) !important;
+  background: linear-gradient(135deg, rgba(226, 234, 255, 0.92) 0%, rgba(235, 230, 255, 0.85) 100%) !important;
+  backdrop-filter: blur(24px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+  border: 1px solid rgba(147, 170, 255, 0.35) !important;
+  box-shadow:
+    0 6px 18px -6px rgba(59, 90, 220, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
   color: #0f172a !important;
   border-radius: 18px 18px 4px 18px !important;
 }
 
-/* Bot Message Bubble from Gemini Build */
+/* AI response: open, readable glass surface */
 .bot-glass-bubble {
-  background: rgba(255, 255, 255, 0.85) !important;
-  backdrop-filter: blur(28px) saturate(200%) !important;
-  -webkit-backdrop-filter: blur(28px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.92) !important;
-  box-shadow: 
-      0 8px 24px -4px rgba(0, 0, 0, 0.04),
-      inset 0 1.5px 1px rgba(255, 255, 255, 0.95) !important;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.46)) !important;
+  backdrop-filter: blur(22px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.7) !important;
+  box-shadow:
+    0 10px 30px -12px rgba(15, 23, 42, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85) !important;
   color: #0f172a !important;
-  border-radius: 18px 18px 18px 4px !important;
+  line-height: 1.7;
+  border-radius: 18px !important;
 }
 
 .thinking-bubble {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(25px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.95);
-  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.15);
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 8px 22px -10px rgba(59, 130, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.thinking-shine {
+  display: inline-block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: transparent;
+  background: linear-gradient(
+    100deg,
+    #64748b 0%,
+    #64748b 40%,
+    #3b82f6 48%,
+    #a5b4fc 52%,
+    #64748b 60%,
+    #64748b 100%
+  );
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: thinking-sweep 1.8s linear infinite;
+}
+@keyframes thinking-sweep {
+  from { background-position: 100% 0; }
+  to { background-position: -150% 0; }
+}
+
+.msg-appear { animation: chatgptFadeUp 0.35s ease-out both; }
+.drawer-panel { animation: drawer-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.drawer-backdrop { animation: fadeInModal 0.2s ease-out both; }
+@keyframes drawer-in {
+  from { transform: translateX(-24px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .thinking-shine, .msg-appear, .drawer-panel { animation: none; }
+  .thinking-shine { color: #475569; }
 }
 
 .siri-wave-bar {
