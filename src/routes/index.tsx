@@ -651,15 +651,38 @@ function AKChat() {
 
       {/* MAIN INTERFACE LAYOUT */}
       <div className="relative z-10 flex-1 flex overflow-hidden p-1.5 sm:p-3 gap-1.5 sm:gap-3 w-full h-[calc(100dvh-37px)] max-w-full">
+        {/* Mobile drawer backdrop */}
+        {navOpen && (
+          <div
+            className="lg:hidden fixed inset-0 z-40 bg-slate-900/25 backdrop-blur-sm drawer-backdrop"
+            onClick={() => setNavOpen(false)}
+            aria-hidden="true"
+          />
+        )}
         {/* SIDEBAR NAVIGATION & PREMIUM APPLE GLASS CHARTS */}
-        <aside className="w-72 rounded-3xl flex flex-col justify-between p-4 shrink-0 hidden lg:flex overflow-y-auto backdrop-blur-3xl bg-white/45 border border-white/80 shadow-[0_20px_50px_rgba(8,_112,_184,_0.08)] ring-1 ring-white/70 relative overflow-hidden group select-none transition-all duration-300">
+        <aside
+          aria-label="Sidebar"
+          className={`w-72 rounded-3xl flex-col justify-between p-4 shrink-0 overflow-y-auto overscroll-contain backdrop-blur-3xl bg-white/45 border border-white/80 shadow-[0_20px_50px_rgba(8,_112,_184,_0.08)] ring-1 ring-white/70 relative group select-none transition-all duration-300 ${
+            navOpen
+              ? "flex fixed z-50 top-[max(0.5rem,env(safe-area-inset-top))] bottom-[max(0.5rem,env(safe-area-inset-bottom))] left-2 w-[min(19rem,calc(100vw-3rem))] bg-white/85 drawer-panel lg:static lg:w-72 lg:bg-white/45"
+              : "hidden lg:flex"
+          }`}
+          onClick={(e) => {
+            if ((e.target as HTMLElement).closest("button") && window.innerWidth < 1024) setNavOpen(false);
+          }}
+        >
           {/* Liquid Glass Ambient Reflections */}
           <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/20 to-white/40 pointer-events-none" />
-          <div className="absolute -top-16 -left-16 w-44 h-44 rounded-full bg-blue-400/15 blur-2xl pointer-events-none animate-pulse" />
-          <div className="absolute -bottom-16 -right-16 w-44 h-44 rounded-full bg-indigo-400/15 blur-2xl pointer-events-none" />
           <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-600 via-indigo-500 to-amber-500 opacity-90 shadow-sm" />
 
           <div className="space-y-4 relative z-10">
+            <button
+              type="button"
+              className="lg:hidden absolute -top-1 right-0 size-9 rounded-xl apple-glass-interactive flex items-center justify-center text-slate-700 z-20"
+              aria-label="Close menu"
+            >
+              <X className="w-4 h-4" />
+            </button>
             {/* AK Monogram Logo Badge */}
             <div
               className="flex items-center gap-3 cursor-pointer group/logo"
@@ -695,6 +718,33 @@ function AKChat() {
                 <span className="text-[11px] text-slate-500 font-bold tracking-wide flex items-center gap-1 mt-0.5">
                   Crypto Neural Core
                 </span>
+              </div>
+            </div>
+
+            {/* Primary actions */}
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={clearChat}
+                className="w-full apple-glass-interactive px-3 py-2.5 rounded-xl text-slate-800 hover:text-blue-600 flex items-center gap-2 font-bold text-xs"
+              >
+                <Plus className="w-4 h-4 text-blue-600" /> New Chat
+              </button>
+              <div className="grid grid-cols-2 gap-2 md:hidden">
+                <button
+                  type="button"
+                  onClick={() => setAuthModalOpen(true)}
+                  className="btn-glass-signin text-white font-bold text-xs px-3 py-2.5 rounded-xl shadow-md active:scale-95"
+                >
+                  Sign in
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGetStartedModalOpen(true)}
+                  className="btn-glass-getstarted text-white font-bold text-xs px-3 py-2.5 rounded-xl shadow-md flex items-center justify-center gap-1 active:scale-95"
+                >
+                  Pro <Sparkles className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
 
