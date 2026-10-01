@@ -403,7 +403,7 @@ export function MarketSnapshot({ onSelectAsset, className = "" }: MarketSnapshot
     <div
       className={`rounded-2xl p-3 bg-white/50 backdrop-blur-2xl border border-white/90 shadow-[0_4px_16px_rgba(255,255,255,0.4)] space-y-2.5 select-none ${className}`}
     >
-      {/* Header with Title and Live Telemetry Badge */}
+      {/* Header with Title and Live Crypto Pulse Badge */}
       <div className="flex items-center justify-between px-0.5">
         <span className="text-[10px] uppercase font-extrabold text-slate-600 tracking-wider flex items-center gap-1.5">
           <Activity className="w-3.5 h-3.5 text-blue-600" /> Market Snapshot

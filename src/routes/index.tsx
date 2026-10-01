@@ -7,6 +7,7 @@ import {
   ArrowRight,
   ArrowUp,
   BarChart3,
+  Bell,
   Bookmark,
   Bot,
   Check,
@@ -15,6 +16,7 @@ import {
   Copy,
   FileUp,
   Flame,
+  Gauge,
   Globe,
   Image as ImageIcon,
   Layers,
@@ -27,11 +29,13 @@ import {
   Paperclip,
   Plus,
   Radar,
+  RotateCcw,
   Send,
   Settings,
   Share2,
   ShieldAlert,
   ShieldCheck,
+  Sliders,
   Sparkles,
   Trash,
   Trash2,
@@ -41,6 +45,7 @@ import {
   VolumeX,
   Wallet,
   X,
+  Zap,
 } from "lucide-react";
 import { ParticleEngine } from "@/components/particle-engine";
 import { BitcoinField } from "@/components/bitcoin-field";
@@ -232,8 +237,17 @@ function AKChat() {
     },
   };
 
-  // Settings
-  const [telemetrySpeed, setTelemetrySpeed] = useState("Realtime");
+  // Settings & Crypto Preferences
+  const [tickerScrollSpeed, setTickerScrollSpeed] = useState<number>(70); // 70s slow & calm movement
+  const [pulseRefreshRate, setPulseRefreshRate] = useState("Realtime");
+  const [baseCurrency, setBaseCurrency] = useState("USD");
+  const [defaultChartType, setDefaultChartType] = useState<"candlestick" | "area">("candlestick");
+  const [gasTrackerEnabled, setGasTrackerEnabled] = useState(true);
+  const [preferredGasNetwork, setPreferredGasNetwork] = useState("Ethereum Mainnet");
+  const [priceAlertsEnabled, setPriceAlertsEnabled] = useState(true);
+  const [soundVolume, setSoundVolume] = useState(80);
+  const [compactDensity, setCompactDensity] = useState(false);
+  const [settingsActiveTab, setSettingsActiveTab] = useState<"crypto" | "charts" | "ai" | "alerts">("crypto");
   const [temperature, setTemperature] = useState(0.7);
   const [speechRate, setSpeechRate] = useState(1.0);
   const [soundEffects, setSoundEffects] = useState(true);
@@ -246,7 +260,7 @@ function AKChat() {
   // Typewriter welcome text
   const [typedWelcome, setTypedWelcome] = useState("");
   const fullWelcomeText =
-    "AK Luxe Intelligence Engine • Synthesizing institutional on-chain telemetry, order book liquidation clusters, and protocol risk context in real time. How can I assist your crypto research today?";
+    "AK Luxe Intelligence Engine • Synthesizing institutional on-chain analytics, order book liquidation clusters, and protocol risk context in real time. How can I assist your crypto research today?";
 
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
   const userInputRef = useRef<HTMLInputElement | null>(null);
@@ -516,12 +530,12 @@ function AKChat() {
       showToast("Smart Contract & Code Audit Mode Ready");
       setInput("Audit this smart contract for reentrancy & risk: ");
     } else if (actionType === "canvas") {
-      showToast("Canvas Telemetry Report Initialized");
-      void sendQuickPrompt("Generate a comprehensive market canvas telemetry report.");
+      showToast("Market Intelligence Canvas Initialized");
+      void sendQuickPrompt("Generate a comprehensive crypto market intelligence report.");
     } else if (actionType === "web") {
       setIsWebSearchActive((prev) => {
         const next = !prev;
-        showToast(next ? "Live Web Telemetry Search Enabled" : "Live Web Search Disabled");
+        showToast(next ? "Live Crypto Web Search Enabled" : "Live Web Search Disabled");
         return next;
       });
     }
@@ -573,6 +587,8 @@ function AKChat() {
           setConvertFrom(asset);
           setConverterModalOpen(true);
         }}
+        onOpenSettings={() => setSettingsModalOpen(true)}
+        scrollDuration={tickerScrollSpeed}
       />
 
       {/* MAIN INTERFACE LAYOUT */}
@@ -672,6 +688,22 @@ function AKChat() {
                   Pro <Sparkles className="w-3.5 h-3.5" />
                 </button>
               </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setNavOpen(false);
+                  setSettingsModalOpen(true);
+                }}
+                className="w-full apple-glass-interactive px-3 py-2 rounded-xl text-slate-800 hover:text-blue-600 flex items-center justify-between font-bold text-xs"
+              >
+                <span className="flex items-center gap-2">
+                  <Settings className="w-4 h-4 text-slate-600" /> Settings & Preferences
+                </span>
+                <span className="text-[10px] text-blue-600 font-extrabold bg-blue-500/10 px-2 py-0.5 rounded-md">
+                  Configure
+                </span>
+              </button>
             </div>
 
             {/* Intelligence Layers Section */}
@@ -761,12 +793,12 @@ function AKChat() {
               </nav>
             </div>
 
-            {/* Market Snapshot: Live Price Changes for Top 5 Cryptocurrencies using Simplified Sparklines */}
+            {/* Market Snapshot: Live Price Changes for Top Cryptocurrencies */}
             <MarketSnapshot
               onSelectAsset={(asset) => {
                 setChartAsset(asset);
                 setChartModalOpen(true);
-                showToast(`Opened ${asset} live financial telemetry`);
+                showToast(`Opened ${asset} live market analytics`);
               }}
             />
           </div>
@@ -894,6 +926,19 @@ function AKChat() {
                       {savedBookmarks.length}
                     </span>
                   )}
+                </button>
+
+                <div className="h-4 w-px bg-slate-300/60 mx-0.5" />
+
+                <button
+                  type="button"
+                  onClick={() => setSettingsModalOpen(true)}
+                  className="apple-glass-interactive p-1.5 sm:px-2.5 sm:py-2 rounded-xl text-slate-700 hover:text-blue-600 transition-all flex items-center gap-1.5 font-bold text-[10.5px] sm:text-xs shrink-0 shadow-2xs group cursor-pointer"
+                  title="Crypto Preferences & System Settings"
+                  aria-label="Settings"
+                >
+                  <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-700 group-hover:rotate-45 transition-transform duration-300" />
+                  <span className="hidden sm:inline">Settings</span>
                 </button>
               </div>
             </div>
@@ -1102,7 +1147,7 @@ function AKChat() {
                         <div className="min-w-0">
                           <span className="block leading-tight">Upload Documents</span>
                           <span className="text-[10px] font-normal text-slate-500 truncate block">
-                            PDF, CSV, TXT telemetry audit
+                            PDF, CSV, TXT crypto audit
                           </span>
                         </div>
                         <input
@@ -1155,7 +1200,7 @@ function AKChat() {
                         <div className="min-w-0">
                           <span className="block leading-tight">Create Canvas Report</span>
                           <span className="text-[10px] font-normal text-slate-500 truncate block">
-                            Structured telemetry report
+                            Structured crypto intelligence report
                           </span>
                         </div>
                       </button>
@@ -1191,7 +1236,7 @@ function AKChat() {
                           const next = !prev;
                           showToast(
                             next
-                              ? "Live Web Telemetry Search Enabled"
+                              ? "Live Crypto Web Search Enabled"
                               : "Live Web Search Disabled"
                           );
                           return next;
@@ -1202,7 +1247,7 @@ function AKChat() {
                           ? "apple-glass-interactive text-blue-600 bg-blue-100 border border-blue-300"
                           : "apple-glass-interactive text-slate-500 hover:text-blue-600"
                       }`}
-                      title="Toggle Live Web Telemetry Search"
+                      title="Toggle Live Crypto Web Search"
                     >
                       <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </button>
@@ -1255,7 +1300,7 @@ function AKChat() {
                             type="button"
                             onClick={() => {
                               setActiveModel("GPT-4o Crypto");
-                              setActiveModelDesc("OpenAI Telemetry");
+                              setActiveModelDesc("OpenAI Crypto Intelligence");
                               setModelDropdownOpen(false);
                               showToast("Switched active AI engine to GPT-4o Crypto");
                             }}
@@ -1435,7 +1480,7 @@ function AKChat() {
             </div>
 
             <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
-              Institutional-grade digital asset research, real-time market telemetry, on-chain signal
+              Institutional-grade digital asset research, real-time market signals, on-chain signal
               analysis, and portfolio risk intelligence powered by CME Community AI Agents & Pinecone.
             </p>
 
@@ -1447,7 +1492,7 @@ function AKChat() {
                   <span>Market Depth</span>
                 </div>
                 <p className="text-[10px] text-slate-500 leading-tight">
-                  Liquidation clusters & order book telemetry
+                  Liquidation clusters & order book depth
                 </p>
               </div>
 
@@ -1606,7 +1651,7 @@ function AKChat() {
             </div>
 
             <p className="text-xs text-slate-600 font-medium">
-              Unlock sub-second AI telemetry signals, automated arbitrage detection, and unlimited
+              Unlock sub-second AI crypto signals, automated arbitrage detection, and unlimited
               deep portfolio audits.
             </p>
 
@@ -1615,7 +1660,7 @@ function AKChat() {
                 <div>
                   <h4 className="font-extrabold text-slate-900 text-xs">AK Intelligence Pro</h4>
                   <span className="text-[10px] text-slate-500">
-                    Full telemetry & unlimited voice streaming
+                    Full market analytics & unlimited voice streaming
                   </span>
                 </div>
                 <span className="text-sm font-extrabold text-blue-600">$29/mo</span>
@@ -1648,7 +1693,7 @@ function AKChat() {
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
-                    <span>{chartAsset}/USD Live Telemetry Chart</span>
+                    <span>{chartAsset}/USD Live Pro Chart</span>
                     <span className="text-xs text-emerald-600 font-extrabold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                       {timeframeStats[chartAsset][chartTimeframe].change}
                     </span>
@@ -1738,7 +1783,7 @@ function AKChat() {
                   <ArrowLeftRight className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-sm">Crypto Telemetry Converter</h3>
+                  <h3 className="font-bold text-slate-900 text-sm">Instant Crypto Converter</h3>
                   <p className="text-[11px] text-slate-500 font-medium">
                     Real-time token swap calculations & gas costs
                   </p>
@@ -1827,14 +1872,25 @@ function AKChat() {
 
       {/* PREFERENCES & SETTINGS MODAL */}
       {settingsModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 transition-all">
-          <div className="apple-glass w-full max-w-md rounded-3xl p-6 shadow-2xl relative border border-white/80 space-y-4 animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between border-b border-slate-200/50 pb-3">
-              <div className="flex items-center gap-2">
-                <Settings className="w-5 h-5 text-slate-700" />
-                <h3 className="font-extrabold text-slate-900 text-base">
-                  Crypto Preferences & Settings
-                </h3>
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 transition-all">
+          <div className="apple-glass w-full max-w-lg rounded-3xl p-5 sm:p-6 shadow-2xl relative border border-white/90 space-y-4 animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-200/50 pb-3 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-blue-600 text-white shadow-md">
+                  <Settings className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-slate-900 text-base flex items-center gap-2">
+                    <span>Crypto Preferences & Settings</span>
+                    <span className="text-[10px] text-blue-600 font-extrabold bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-300/40">
+                      System v4
+                    </span>
+                  </h3>
+                  <p className="text-[11px] text-slate-500 font-medium">
+                    Tune crypto ticker speed, default pairs, charts & neural engine
+                  </p>
+                </div>
               </div>
               <button
                 type="button"
@@ -1845,150 +1901,588 @@ function AKChat() {
               </button>
             </div>
 
-            <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
-              {/* Floating Physics Option */}
-              <div className="flex items-center justify-between p-3 bg-white/70 rounded-2xl border border-slate-200/60">
-                <div>
-                  <h4 className="font-bold text-slate-900 text-xs">
-                    Anti-Gravity Particle Bubbles
-                  </h4>
-                  <p className="text-[10px] text-slate-500">
-                    Floating 3D crypto coins & glass bubbles background
-                  </p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={physicsEnabled}
-                  onChange={(e) => {
-                    setPhysicsEnabled(e.target.checked);
-                    showToast(
-                      `Background floating bubbles ${e.target.checked ? "enabled" : "paused"}`
-                    );
-                  }}
-                  className="w-4 h-4 accent-blue-600 cursor-pointer"
-                />
-              </div>
-
-              {/* Telemetry Feeds Refresh Rate */}
-              <div className="p-3 bg-white/70 rounded-2xl border border-slate-200/60 space-y-1.5">
-                <div className="flex justify-between items-center">
-                  <h4 className="font-bold text-slate-900 text-xs">
-                    Telemetry Refresh Frequency
-                  </h4>
-                  <span className="text-[10px] font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-md">
-                    {telemetrySpeed}
-                  </span>
-                </div>
-                <select
-                  value={telemetrySpeed}
-                  onChange={(e) => {
-                    setTelemetrySpeed(e.target.value);
-                    showToast(`Telemetry refresh rate set to ${e.target.value}`);
-                  }}
-                  className="w-full apple-glass-interactive px-2.5 py-1.5 rounded-xl text-xs font-semibold text-slate-800"
-                >
-                  <option value="Realtime">Real-time Stream (Sub-second)</option>
-                  <option value="5s">Every 5 Seconds</option>
-                  <option value="15s">Every 15 Seconds</option>
-                </select>
-              </div>
-
-              {/* AI Temperature Slider */}
-              <div className="p-3 bg-white/70 rounded-2xl border border-slate-200/60 space-y-1.5">
-                <div className="flex justify-between items-center">
-                  <h4 className="font-bold text-slate-900 text-xs">
-                    AI Model Creativity (Temperature)
-                  </h4>
-                  <span className="text-[10px] font-bold text-blue-600">
-                    {temperature}{" "}
-                    {temperature < 0.4
-                      ? "(Precise)"
-                      : temperature > 0.8
-                      ? "(Creative)"
-                      : "(Balanced)"}
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min="0.1"
-                  max="1.0"
-                  step="0.1"
-                  value={temperature}
-                  onChange={(e) => setTemperature(parseFloat(e.target.value))}
-                  className="w-full accent-blue-600 cursor-pointer"
-                />
-              </div>
-
-              {/* Speech Synthesis Speed */}
-              <div className="p-3 bg-white/70 rounded-2xl border border-slate-200/60 space-y-1.5">
-                <div className="flex justify-between items-center">
-                  <h4 className="font-bold text-slate-900 text-xs">
-                    Speech Synthesis Voice Speed
-                  </h4>
-                  <span className="text-[10px] font-bold text-slate-600">{speechRate}x</span>
-                </div>
-                <select
-                  value={speechRate}
-                  onChange={(e) => setSpeechRate(parseFloat(e.target.value))}
-                  className="w-full apple-glass-interactive px-2.5 py-1.5 rounded-xl text-xs font-semibold text-slate-800"
-                >
-                  <option value={0.8}>0.8x Smooth Pace</option>
-                  <option value={1.0}>1.0x Standard</option>
-                  <option value={1.25}>1.25x Fast Telemetry</option>
-                </select>
-              </div>
-
-              {/* Sound Effects Toggle */}
-              <div className="flex items-center justify-between p-3 bg-white/70 rounded-2xl border border-slate-200/60">
-                <div>
-                  <h4 className="font-bold text-slate-900 text-xs">Audio Feedback & Tone FX</h4>
-                  <p className="text-[10px] text-slate-500">
-                    Chime sounds on message receipt and alerts
-                  </p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={soundEffects}
-                  onChange={(e) => {
-                    setSoundEffects(e.target.checked);
-                    showToast("Audio feedback toggled");
-                  }}
-                  className="w-4 h-4 accent-blue-600 cursor-pointer"
-                />
-              </div>
-
-              {/* Auto-Scroll Chat */}
-              <div className="flex items-center justify-between p-3 bg-white/70 rounded-2xl border border-slate-200/60">
-                <div>
-                  <h4 className="font-bold text-slate-900 text-xs">
-                    Auto-Scroll to New Messages
-                  </h4>
-                  <p className="text-[10px] text-slate-500">
-                    Automatically stick scrollbar to latest response
-                  </p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={autoScroll}
-                  onChange={(e) => {
-                    setAutoScroll(e.target.checked);
-                    showToast("Auto-scroll setting saved");
-                  }}
-                  className="w-4 h-4 accent-blue-600 cursor-pointer"
-                />
-              </div>
+            {/* Settings Tab Navigation */}
+            <div className="flex items-center gap-1 bg-slate-200/50 p-1 rounded-2xl border border-white/70 overflow-x-auto scrollbar-none shrink-0 text-xs">
+              <button
+                type="button"
+                onClick={() => setSettingsActiveTab("crypto")}
+                className={`flex-1 py-1.5 px-2.5 rounded-xl font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+                  settingsActiveTab === "crypto"
+                    ? "bg-white text-blue-700 shadow-sm"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-white/40"
+                }`}
+              >
+                <Activity className="w-3.5 h-3.5 text-blue-600" />
+                <span>Market & Pulse</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSettingsActiveTab("charts")}
+                className={`flex-1 py-1.5 px-2.5 rounded-xl font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+                  settingsActiveTab === "charts"
+                    ? "bg-white text-blue-700 shadow-sm"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-white/40"
+                }`}
+              >
+                <LineChart className="w-3.5 h-3.5 text-indigo-600" />
+                <span>Charts & Display</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSettingsActiveTab("ai")}
+                className={`flex-1 py-1.5 px-2.5 rounded-xl font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+                  settingsActiveTab === "ai"
+                    ? "bg-white text-blue-700 shadow-sm"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-white/40"
+                }`}
+              >
+                <Bot className="w-3.5 h-3.5 text-cyan-600" />
+                <span>AI & Audio</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSettingsActiveTab("alerts")}
+                className={`flex-1 py-1.5 px-2.5 rounded-xl font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+                  settingsActiveTab === "alerts"
+                    ? "bg-white text-blue-700 shadow-sm"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-white/40"
+                }`}
+              >
+                <Bell className="w-3.5 h-3.5 text-amber-500" />
+                <span>Presets & Alerts</span>
+              </button>
             </div>
 
-            <button
-              type="button"
-              onClick={() => {
-                setSettingsModalOpen(false);
-                showToast("Preferences saved successfully!");
-              }}
-              className="w-full btn-glass-getstarted py-2.5 rounded-xl font-bold text-xs text-white shadow-md"
-            >
-              Save Preferences
-            </button>
+            {/* Tab Contents Container */}
+            <div className="space-y-3 overflow-y-auto pr-1 flex-1">
+              {/* TAB 1: MARKET & CRYPTO PULSE */}
+              {settingsActiveTab === "crypto" && (
+                <div className="space-y-3">
+                  {/* Ticker Scroll Speed Control */}
+                  <div className="p-3 bg-white/70 rounded-2xl border border-slate-200/60 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+                          <span>Crypto Ticker Marquee Speed</span>
+                          <span className="text-[9px] font-extrabold text-blue-700 bg-blue-100 px-1.5 py-0.2 rounded-md">
+                            Movement
+                          </span>
+                        </h4>
+                        <p className="text-[10px] text-slate-500">
+                          Controls the movement speed of the top crypto asset bar
+                        </p>
+                      </div>
+                      <span className="text-[10.5px] font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
+                        {tickerScrollSpeed >= 999
+                          ? "Paused"
+                          : tickerScrollSpeed >= 70
+                          ? `${tickerScrollSpeed}s (Slow & Calm)`
+                          : tickerScrollSpeed >= 50
+                          ? `${tickerScrollSpeed}s (Smooth)`
+                          : `${tickerScrollSpeed}s (Standard)`}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-1.5 pt-1">
+                      {[
+                        { speed: 75, label: "Slow & Calm", desc: "75s" },
+                        { speed: 55, label: "Smooth Glide", desc: "55s" },
+                        { speed: 35, label: "Standard", desc: "35s" },
+                        { speed: 9999, label: "Pause Scroll", desc: "Stop" },
+                      ].map((option) => (
+                        <button
+                          key={option.speed}
+                          type="button"
+                          onClick={() => {
+                            setTickerScrollSpeed(option.speed);
+                            showToast(`Ticker scroll speed set to ${option.label}`);
+                          }}
+                          className={`p-2 rounded-xl text-center border transition-all cursor-pointer ${
+                            (option.speed >= 999 && tickerScrollSpeed >= 999) ||
+                            (option.speed < 999 && Math.abs(tickerScrollSpeed - option.speed) <= 5)
+                              ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                              : "bg-white/80 text-slate-700 border-slate-200 hover:bg-white"
+                          }`}
+                        >
+                          <span className="block text-[11px] font-extrabold leading-tight">
+                            {option.label}
+                          </span>
+                          <span className="block text-[9.5px] opacity-80 mt-0.5 font-mono">
+                            {option.desc}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Crypto Pulse Refresh Frequency */}
+                  <div className="p-3 bg-white/70 rounded-2xl border border-slate-200/60 space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <h4 className="font-bold text-slate-900 text-xs">
+                        Crypto Pulse Refresh Frequency
+                      </h4>
+                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">
+                        {pulseRefreshRate}
+                      </span>
+                    </div>
+                    <select
+                      value={pulseRefreshRate}
+                      onChange={(e) => {
+                        setPulseRefreshRate(e.target.value);
+                        showToast(`Crypto pulse refresh frequency set to ${e.target.value}`);
+                      }}
+                      className="w-full apple-glass-interactive px-2.5 py-1.5 rounded-xl text-xs font-semibold text-slate-800"
+                    >
+                      <option value="Realtime">Sub-Second Ultra Pulse (Live Stream)</option>
+                      <option value="5s">Every 5 Seconds (Standard Stream)</option>
+                      <option value="15s">Every 15 Seconds (Data Saver)</option>
+                      <option value="30s">Every 30 Seconds (Low Power)</option>
+                    </select>
+                  </div>
+
+                  {/* Base Display Currency */}
+                  <div className="p-3 bg-white/70 rounded-2xl border border-slate-200/60 space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-xs">Default Base Currency</h4>
+                        <p className="text-[10px] text-slate-500">
+                          Primary quote pair for prices & converter
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-bold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded-md">
+                        {baseCurrency}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-6 gap-1 pt-1">
+                      {["USD", "EUR", "GBP", "JPY", "USDT", "BTC"].map((cur) => (
+                        <button
+                          key={cur}
+                          type="button"
+                          onClick={() => {
+                            setBaseCurrency(cur);
+                            setConvertTo(cur);
+                            showToast(`Base currency set to ${cur}`);
+                          }}
+                          className={`py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                            baseCurrency === cur
+                              ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                              : "bg-white/80 text-slate-700 border-slate-200 hover:bg-white"
+                          }`}
+                        >
+                          {cur}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Gas Fee & Network Tracker */}
+                  <div className="p-3 bg-white/70 rounded-2xl border border-slate-200/60 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-xs">
+                          Preferred On-Chain Gas Network
+                        </h4>
+                        <p className="text-[10px] text-slate-500">
+                          Priority fee & congestion on-chain monitor
+                        </p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={gasTrackerEnabled}
+                        onChange={(e) => {
+                          setGasTrackerEnabled(e.target.checked);
+                          showToast(`Gas tracker ${e.target.checked ? "enabled" : "hidden"}`);
+                        }}
+                        className="w-4 h-4 accent-blue-600 cursor-pointer"
+                      />
+                    </div>
+                    <select
+                      value={preferredGasNetwork}
+                      onChange={(e) => {
+                        setPreferredGasNetwork(e.target.value);
+                        showToast(`Gas network set to ${e.target.value}`);
+                      }}
+                      className="w-full apple-glass-interactive px-2.5 py-1.5 rounded-xl text-xs font-semibold text-slate-800"
+                    >
+                      <option value="Ethereum Mainnet">Ethereum Mainnet (Base 14 Gwei)</option>
+                      <option value="Solana">Solana (Fast 0.000005 SOL)</option>
+                      <option value="BNB Smart Chain">BNB Smart Chain (3.0 Gwei)</option>
+                      <option value="Arbitrum One">Arbitrum One (0.1 Gwei)</option>
+                      <option value="Polygon PoS">Polygon PoS (30 Gwei)</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 2: CHARTS & DISPLAY */}
+              {settingsActiveTab === "charts" && (
+                <div className="space-y-3">
+                  {/* Default Chart Visual Style */}
+                  <div className="p-3 bg-white/70 rounded-2xl border border-slate-200/60 space-y-2">
+                    <div>
+                      <h4 className="font-bold text-slate-900 text-xs">Default Chart Engine Style</h4>
+                      <p className="text-[10px] text-slate-500">
+                        Choose your primary financial rendering style
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDefaultChartType("candlestick");
+                          showToast("Default chart style set to Pro Candlestick");
+                        }}
+                        className={`p-2.5 rounded-xl border text-left transition-all ${
+                          defaultChartType === "candlestick"
+                            ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                            : "bg-white/80 text-slate-700 border-slate-200 hover:bg-white"
+                        }`}
+                      >
+                        <span className="block text-xs font-extrabold">Pro Candlestick</span>
+                        <span className="block text-[10px] opacity-80 mt-0.5">
+                          High/Low wicks, open/close body & volume
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDefaultChartType("area");
+                          showToast("Default chart style set to Smooth Area Gradient");
+                        }}
+                        className={`p-2.5 rounded-xl border text-left transition-all ${
+                          defaultChartType === "area"
+                            ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                            : "bg-white/80 text-slate-700 border-slate-200 hover:bg-white"
+                        }`}
+                      >
+                        <span className="block text-xs font-extrabold">Smooth Area</span>
+                        <span className="block text-[10px] opacity-80 mt-0.5">
+                          Fluid gradient curve with neon glows
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Default Chart Timeframe */}
+                  <div className="p-3 bg-white/70 rounded-2xl border border-slate-200/60 space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <h4 className="font-bold text-slate-900 text-xs">Default Chart Timeframe</h4>
+                      <span className="text-[10px] font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-md">
+                        {chartTimeframe}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {(["1D", "1W", "1M"] as const).map((tf) => (
+                        <button
+                          key={tf}
+                          type="button"
+                          onClick={() => {
+                            setChartTimeframe(tf);
+                            showToast(`Default chart timeframe set to ${tf}`);
+                          }}
+                          className={`py-1.5 rounded-xl text-xs font-bold border transition-all ${
+                            chartTimeframe === tf
+                              ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                              : "bg-white/80 text-slate-700 border-slate-200 hover:bg-white"
+                          }`}
+                        >
+                          {tf === "1D" ? "1D (Daily)" : tf === "1W" ? "1W (Weekly)" : "1M (Monthly)"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Anti-Gravity Floating Crypto Coins */}
+                  <div className="flex items-center justify-between p-3 bg-white/70 rounded-2xl border border-slate-200/60">
+                    <div>
+                      <h4 className="font-bold text-slate-900 text-xs">
+                        Anti-Gravity Flowing Coins
+                      </h4>
+                      <p className="text-[10px] text-slate-500">
+                        3D rendered metallic crypto coins (BTC, ETH, SOL, BNB, etc.)
+                      </p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={physicsEnabled}
+                      onChange={(e) => {
+                        setPhysicsEnabled(e.target.checked);
+                        showToast(
+                          `Background floating coins ${e.target.checked ? "enabled" : "paused"}`
+                        );
+                      }}
+                      className="w-4 h-4 accent-blue-600 cursor-pointer"
+                    />
+                  </div>
+
+                  {/* Compact Layout Density */}
+                  <div className="flex items-center justify-between p-3 bg-white/70 rounded-2xl border border-slate-200/60">
+                    <div>
+                      <h4 className="font-bold text-slate-900 text-xs">Compact Display Density</h4>
+                      <p className="text-[10px] text-slate-500">
+                        Dense layout optimized for multi-screen trading
+                      </p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={compactDensity}
+                      onChange={(e) => {
+                        setCompactDensity(e.target.checked);
+                        showToast(`Compact density mode ${e.target.checked ? "enabled" : "disabled"}`);
+                      }}
+                      className="w-4 h-4 accent-blue-600 cursor-pointer"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 3: AI & AUDIO */}
+              {settingsActiveTab === "ai" && (
+                <div className="space-y-3">
+                  {/* AI Model Creativity (Temperature) */}
+                  <div className="p-3 bg-white/70 rounded-2xl border border-slate-200/60 space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <h4 className="font-bold text-slate-900 text-xs">
+                        AI Model Creativity (Temperature)
+                      </h4>
+                      <span className="text-[10px] font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-md">
+                        {temperature}{" "}
+                        {temperature < 0.4
+                          ? "(Institutional Precise)"
+                          : temperature > 0.8
+                          ? "(Creative Macro)"
+                          : "(Balanced)"}
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0.1"
+                      max="1.0"
+                      step="0.1"
+                      value={temperature}
+                      onChange={(e) => setTemperature(parseFloat(e.target.value))}
+                      className="w-full accent-blue-600 cursor-pointer"
+                    />
+                    <div className="flex justify-between text-[9px] text-slate-400 font-bold px-0.5">
+                      <span>0.1 (Strict Analysis)</span>
+                      <span>0.7 (Standard)</span>
+                      <span>1.0 (Exploratory)</span>
+                    </div>
+                  </div>
+
+                  {/* Speech Synthesis Voice Speed */}
+                  <div className="p-3 bg-white/70 rounded-2xl border border-slate-200/60 space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <h4 className="font-bold text-slate-900 text-xs">
+                        Speech Synthesis Voice Speed
+                      </h4>
+                      <span className="text-[10px] font-bold text-slate-600">{speechRate}x</span>
+                    </div>
+                    <select
+                      value={speechRate}
+                      onChange={(e) => setSpeechRate(parseFloat(e.target.value))}
+                      className="w-full apple-glass-interactive px-2.5 py-1.5 rounded-xl text-xs font-semibold text-slate-800"
+                    >
+                      <option value={0.8}>0.8x Smooth Pace (Audio Briefing)</option>
+                      <option value={1.0}>1.0x Standard Pace</option>
+                      <option value={1.25}>1.25x Rapid Crypto Feed</option>
+                    </select>
+                  </div>
+
+                  {/* Audio Feedback & Tone FX */}
+                  <div className="p-3 bg-white/70 rounded-2xl border border-slate-200/60 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-xs">Audio Feedback & Tone FX</h4>
+                        <p className="text-[10px] text-slate-500">
+                          Chime sounds on message receipt and alerts
+                        </p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={soundEffects}
+                        onChange={(e) => {
+                          setSoundEffects(e.target.checked);
+                          showToast("Audio feedback toggled");
+                        }}
+                        className="w-4 h-4 accent-blue-600 cursor-pointer"
+                      />
+                    </div>
+                    {soundEffects && (
+                      <div className="pt-1 space-y-1">
+                        <div className="flex justify-between text-[10px] text-slate-500 font-bold">
+                          <span>Volume Level</span>
+                          <span>{soundVolume}%</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="10"
+                          max="100"
+                          step="5"
+                          value={soundVolume}
+                          onChange={(e) => setSoundVolume(parseInt(e.target.value, 10))}
+                          className="w-full accent-blue-600 cursor-pointer"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Auto-Scroll Chat */}
+                  <div className="flex items-center justify-between p-3 bg-white/70 rounded-2xl border border-slate-200/60">
+                    <div>
+                      <h4 className="font-bold text-slate-900 text-xs">
+                        Auto-Scroll to New Messages
+                      </h4>
+                      <p className="text-[10px] text-slate-500">
+                        Automatically stick scrollbar to latest AI response
+                      </p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={autoScroll}
+                      onChange={(e) => {
+                        setAutoScroll(e.target.checked);
+                        showToast("Auto-scroll setting saved");
+                      }}
+                      className="w-4 h-4 accent-blue-600 cursor-pointer"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 4: PRESETS & ALERTS */}
+              {settingsActiveTab === "alerts" && (
+                <div className="space-y-3">
+                  {/* High-Volatility Price Alerts */}
+                  <div className="flex items-center justify-between p-3 bg-white/70 rounded-2xl border border-slate-200/60">
+                    <div>
+                      <h4 className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+                        <Zap className="w-3.5 h-3.5 text-amber-500" />
+                        <span>High-Volatility Price Alerts</span>
+                      </h4>
+                      <p className="text-[10px] text-slate-500">
+                        Pop-up notification on sudden ±3% token breakout
+                      </p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={priceAlertsEnabled}
+                      onChange={(e) => {
+                        setPriceAlertsEnabled(e.target.checked);
+                        showToast(`Price breakout alerts ${e.target.checked ? "enabled" : "muted"}`);
+                      }}
+                      className="w-4 h-4 accent-amber-500 cursor-pointer"
+                    />
+                  </div>
+
+                  {/* Quick System Presets */}
+                  <div className="p-3 bg-white/70 rounded-2xl border border-slate-200/60 space-y-2">
+                    <h4 className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+                      <Sliders className="w-3.5 h-3.5 text-blue-600" />
+                      <span>One-Click System Presets</span>
+                    </h4>
+                    <div className="space-y-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setTickerScrollSpeed(75);
+                          setPulseRefreshRate("Realtime");
+                          setDefaultChartType("candlestick");
+                          setChartTimeframe("1D");
+                          setPreferredGasNetwork("Ethereum Mainnet");
+                          setPhysicsEnabled(true);
+                          setSoundEffects(true);
+                          showToast("Institutional Pro Trader preset applied!");
+                        }}
+                        className="w-full text-left p-2.5 rounded-xl bg-white hover:bg-blue-50 border border-slate-200/80 transition-all flex items-center justify-between group cursor-pointer"
+                      >
+                        <div>
+                          <span className="block text-xs font-bold text-slate-900 group-hover:text-blue-600">
+                            Institutional Pro Trader
+                          </span>
+                          <span className="block text-[10px] text-slate-500">
+                            Slow calm ticker (75s), Candlestick charts, Real-time feed & ETH Gas
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-lg">
+                          Apply
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setTickerScrollSpeed(60);
+                          setPulseRefreshRate("5s");
+                          setDefaultChartType("area");
+                          setChartTimeframe("1W");
+                          setPhysicsEnabled(true);
+                          setSoundEffects(false);
+                          showToast("Calm Explorer preset applied!");
+                        }}
+                        className="w-full text-left p-2.5 rounded-xl bg-white hover:bg-blue-50 border border-slate-200/80 transition-all flex items-center justify-between group cursor-pointer"
+                      >
+                        <div>
+                          <span className="block text-xs font-bold text-slate-900 group-hover:text-blue-600">
+                            Calm Explorer
+                          </span>
+                          <span className="block text-[10px] text-slate-500">
+                            Smooth Area charts, 1W timeframe, muted sound & flowing coins
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-bold text-indigo-600 bg-indigo-100 px-2 py-1 rounded-lg">
+                          Apply
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setTickerScrollSpeed(70);
+                          setPulseRefreshRate("Realtime");
+                          setBaseCurrency("USD");
+                          setDefaultChartType("candlestick");
+                          setChartTimeframe("1D");
+                          setTemperature(0.7);
+                          setSpeechRate(1.0);
+                          setSoundEffects(true);
+                          setSoundVolume(80);
+                          setPhysicsEnabled(true);
+                          setAutoScroll(true);
+                          setCompactDensity(false);
+                          showToast("All preferences restored to default!");
+                        }}
+                        className="w-full text-left p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all flex items-center justify-center gap-1.5 text-xs font-semibold mt-1"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>Restore Factory Defaults</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="pt-2 border-t border-slate-200/60 flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => setSettingsModalOpen(false)}
+                className="flex-1 apple-glass-interactive py-2.5 rounded-xl font-bold text-xs text-slate-700"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSettingsModalOpen(false);
+                  showToast("Preferences saved successfully!");
+                }}
+                className="flex-1 btn-glass-getstarted py-2.5 rounded-xl font-bold text-xs text-white shadow-md"
+              >
+                Save Preferences
+              </button>
+            </div>
           </div>
         </div>
       )}

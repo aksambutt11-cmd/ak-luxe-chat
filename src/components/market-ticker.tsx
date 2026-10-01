@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Settings } from "lucide-react";
 import { TickerFlyoutChart, tickerAssetMetadata } from "./ticker-flyout-chart";
 import type { AssetSymbol } from "./live-crypto-chart";
 
@@ -32,9 +33,16 @@ const tickerData: TickerItem[] = [
 export interface MarketTickerProps {
   onOpenProChart?: (symbol: AssetSymbol) => void;
   onQuickSwap?: (symbol: AssetSymbol) => void;
+  onOpenSettings?: () => void;
+  scrollDuration?: number;
 }
 
-export function MarketTicker({ onOpenProChart, onQuickSwap }: MarketTickerProps) {
+export function MarketTicker({
+  onOpenProChart,
+  onQuickSwap,
+  onOpenSettings,
+  scrollDuration = 70,
+}: MarketTickerProps) {
   const [selectedAsset, setSelectedAsset] = useState<AssetSymbol | null>(null);
   const flyoutRef = useRef<HTMLDivElement | null>(null);
 
@@ -112,15 +120,16 @@ export function MarketTicker({ onOpenProChart, onQuickSwap }: MarketTickerProps)
 
   return (
     <header className="relative z-30 w-full apple-glass border-b border-white/60 py-1.5 px-3 sm:px-4 flex items-center shrink-0">
-      {/* Telemetry Indicator Label */}
-      <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 pr-3 sm:pr-4 border-r border-slate-300/40 shrink-0 z-10 bg-white/40 backdrop-blur-md">
+      {/* Crypto Pulse Indicator Label */}
+      <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-600 pr-3 sm:pr-4 border-r border-slate-300/40 shrink-0 z-10 bg-white/40 backdrop-blur-md">
         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-        <span className="hidden sm:inline">Telemetry</span>
+        <span className="hidden sm:inline">Crypto Pulse</span>
       </div>
 
       {/* Marquee Ticker Track */}
       <div className="overflow-hidden w-full relative">
         <div
+          style={{ animationDuration: `${scrollDuration}s` }}
           className={`ticker-marquee-track flex gap-6 sm:gap-8 text-xs font-medium text-slate-700 items-center ${
             selectedAsset ? "[animation-play-state:paused]" : "hover:[animation-play-state:paused]"
           }`}
@@ -129,6 +138,20 @@ export function MarketTicker({ onOpenProChart, onQuickSwap }: MarketTickerProps)
           {tickerData.map((item, index) => renderTickerItem(item, "t2", index))}
         </div>
       </div>
+
+      {/* Quick Settings Action on Ticker Header (Top & Visible) */}
+      {onOpenSettings && (
+        <button
+          type="button"
+          onClick={onOpenSettings}
+          className="ml-2 sm:ml-3 p-1 sm:px-2.5 sm:py-1 rounded-xl text-slate-700 hover:text-blue-600 bg-white/60 hover:bg-white/95 border border-white/90 shadow-2xs shrink-0 flex items-center gap-1.5 text-[11px] font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer"
+          title="Open Crypto Settings & Preferences"
+          aria-label="Settings"
+        >
+          <Settings className="w-3.5 h-3.5 text-slate-700 hover:rotate-45 transition-transform" />
+          <span className="hidden md:inline">Settings</span>
+        </button>
+      )}
 
       {/* Real-Time Mini-Chart Recharts Flyout Detail Modal / Popover */}
       {selectedAsset && (

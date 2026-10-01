@@ -310,7 +310,7 @@ export function AntigravityHero({
             </span>
           </h1>
           <p className="text-[10.5px] sm:text-xs text-slate-600 font-medium">
-            Real-time on-chain telemetry, order book liquidation clusters, and risk audits.
+            Real-time on-chain analytics, order book liquidation clusters, and risk audits.
           </p>
         </div>
 
@@ -325,7 +325,7 @@ export function AntigravityHero({
           </button>
           <button
             type="button"
-            onClick={() => void onQuickPrompt("Ethereum (ETH) staking yield telemetry")}
+            onClick={() => void onQuickPrompt("Ethereum (ETH) staking yield dynamics")}
             className="px-2.5 sm:px-3 py-1.5 rounded-xl text-[10px] sm:text-xs font-bold text-indigo-700 bg-white/55 hover:bg-white/80 border border-white/90 backdrop-blur-xl flex items-center gap-1 sm:gap-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.02)] transition-transform hover:scale-[1.02] active:scale-[0.98]"
           >
             <Activity className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-indigo-500 shrink-0" /> ETH Staking Yields

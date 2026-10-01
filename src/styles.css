@@ -2044,7 +2044,7 @@ button.rail-layer {
 .ticker-marquee, .ticker-marquee-track, .animate-marquee {
   display: inline-flex;
   width: max-content;
-  animation: ticker-scroll 32s linear infinite;
+  animation: ticker-scroll var(--ticker-scroll-duration, 70s) linear infinite;
 }
 .ticker-marquee:hover, .ticker-marquee-track:hover, .animate-marquee:hover {
   animation-play-state: paused;
