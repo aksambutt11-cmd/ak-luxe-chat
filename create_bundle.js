@@ -2,6 +2,8 @@ import fs from 'fs';
 import path from 'path';
 
 const files = [
+  'src/components/ticker-flyout-chart.tsx',
+  'src/components/market-ticker.tsx',
   'src/components/market-snapshot.tsx',
   'src/components/bitcoin-field.tsx',
   'src/components/live-crypto-chart.tsx',

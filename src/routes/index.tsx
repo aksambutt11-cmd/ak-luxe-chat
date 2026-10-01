@@ -563,8 +563,17 @@ function AKChat() {
         ))}
       </div>
 
-      {/* TOP CRYPTO TICKER MARQUEE */}
-      <MarketTicker />
+      {/* TOP CRYPTO TICKER MARQUEE WITH RECHARTS FLYOUT MINI-CHART */}
+      <MarketTicker
+        onOpenProChart={(asset) => {
+          setChartAsset(asset);
+          setChartModalOpen(true);
+        }}
+        onQuickSwap={(asset) => {
+          setConvertFrom(asset);
+          setConverterModalOpen(true);
+        }}
+      />
 
       {/* MAIN INTERFACE LAYOUT */}
       <div className="relative z-10 flex-1 flex overflow-hidden p-1.5 sm:p-3 gap-1.5 sm:gap-3 w-full h-[calc(100dvh-37px)] max-w-full">
