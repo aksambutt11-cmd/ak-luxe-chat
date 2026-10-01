@@ -1,10 +1,23 @@
-import React, { useEffect, useState, useId } from "react";
-import { TrendingUp, ArrowUpRight, ArrowDownRight, Activity } from "lucide-react";
+import React, { useEffect, useState, useId, useMemo } from "react";
+import {
+  Activity,
+  ArrowUpRight,
+  ArrowDownRight,
+  Search,
+  Layers,
+  Sparkles,
+  Filter,
+} from "lucide-react";
+import type { AssetSymbol } from "./live-crypto-chart";
+
+export type MarketCategory = "all" | "l1" | "defi" | "payments";
 
 export interface CryptoMarketItem {
-  id: "BTC" | "ETH" | "SOL" | "BNB" | "XRP";
+  id: AssetSymbol;
   symbol: string;
   name: string;
+  category: MarketCategory[];
+  sector: string;
   badge: string;
   badgeBg: string;
   badgeText: string;
@@ -20,6 +33,8 @@ const initialMarketData: CryptoMarketItem[] = [
     id: "BTC",
     symbol: "BTC",
     name: "Bitcoin",
+    category: ["all", "payments"],
+    sector: "Digital Gold / PoW",
     badge: "₿",
     badgeBg: "bg-amber-500/15",
     badgeText: "text-amber-600",
@@ -33,6 +48,8 @@ const initialMarketData: CryptoMarketItem[] = [
     id: "ETH",
     symbol: "ETH",
     name: "Ethereum",
+    category: ["all", "l1", "defi"],
+    sector: "Smart Contracts L1",
     badge: "Ξ",
     badgeBg: "bg-indigo-500/15",
     badgeText: "text-indigo-600",
@@ -46,6 +63,8 @@ const initialMarketData: CryptoMarketItem[] = [
     id: "SOL",
     symbol: "SOL",
     name: "Solana",
+    category: ["all", "l1"],
+    sector: "High-TPS Monolithic",
     badge: "◎",
     badgeBg: "bg-emerald-500/15",
     badgeText: "text-emerald-600",
@@ -58,11 +77,13 @@ const initialMarketData: CryptoMarketItem[] = [
   {
     id: "BNB",
     symbol: "BNB",
-    name: "BNB",
+    name: "BNB Chain",
+    category: ["all", "payments"],
+    sector: "Binance Ecosystem",
     badge: "Ⓑ",
-    badgeBg: "bg-amber-400/15",
-    badgeText: "text-amber-500",
-    badgeBorder: "border-amber-300/70",
+    badgeBg: "bg-yellow-400/15",
+    badgeText: "text-yellow-600",
+    badgeBorder: "border-yellow-300/70",
     basePrice: 642.5,
     decimals: 2,
     change24h: 1.85,
@@ -72,6 +93,8 @@ const initialMarketData: CryptoMarketItem[] = [
     id: "XRP",
     symbol: "XRP",
     name: "Ripple",
+    category: ["all", "payments"],
+    sector: "Liquidity & Payments",
     badge: "✕",
     badgeBg: "bg-sky-500/15",
     badgeText: "text-sky-600",
@@ -80,6 +103,111 @@ const initialMarketData: CryptoMarketItem[] = [
     decimals: 4,
     change24h: -1.15,
     points: [2.49, 2.48, 2.47, 2.46, 2.47, 2.45, 2.44, 2.43, 2.44, 2.42],
+  },
+  {
+    id: "ADA",
+    symbol: "ADA",
+    name: "Cardano",
+    category: ["all", "l1"],
+    sector: "Peer-Reviewed PoS",
+    badge: "₳",
+    badgeBg: "bg-blue-500/15",
+    badgeText: "text-blue-600",
+    badgeBorder: "border-blue-300/80",
+    basePrice: 0.842,
+    decimals: 4,
+    change24h: 5.24,
+    points: [0.79, 0.8, 0.81, 0.8, 0.82, 0.81, 0.83, 0.82, 0.84, 0.842],
+  },
+  {
+    id: "DOGE",
+    symbol: "DOGE",
+    name: "Dogecoin",
+    category: ["all", "payments"],
+    sector: "P2P Meme Currency",
+    badge: "Ð",
+    badgeBg: "bg-amber-400/20",
+    badgeText: "text-amber-700",
+    badgeBorder: "border-amber-300/90",
+    basePrice: 0.284,
+    decimals: 4,
+    change24h: 6.91,
+    points: [0.26, 0.265, 0.262, 0.27, 0.268, 0.275, 0.272, 0.28, 0.278, 0.284],
+  },
+  {
+    id: "AVAX",
+    symbol: "AVAX",
+    name: "Avalanche",
+    category: ["all", "l1", "defi"],
+    sector: "Subnets / Fast Finality",
+    badge: "🔺",
+    badgeBg: "bg-rose-500/15",
+    badgeText: "text-rose-600",
+    badgeBorder: "border-rose-300/80",
+    basePrice: 38.6,
+    decimals: 2,
+    change24h: 7.32,
+    points: [35.2, 35.8, 35.5, 36.4, 36.1, 37.0, 36.8, 37.9, 37.5, 38.6],
+  },
+  {
+    id: "LINK",
+    symbol: "LINK",
+    name: "Chainlink",
+    category: ["all", "defi"],
+    sector: "Oracles & CCIP RWA",
+    badge: "⬡",
+    badgeBg: "bg-blue-600/15",
+    badgeText: "text-blue-700",
+    badgeBorder: "border-blue-400/80",
+    basePrice: 18.25,
+    decimals: 2,
+    change24h: 3.12,
+    points: [17.4, 17.6, 17.5, 17.8, 17.7, 18.0, 17.9, 18.15, 18.1, 18.25],
+  },
+  {
+    id: "SUI",
+    symbol: "SUI",
+    name: "Sui",
+    category: ["all", "l1"],
+    sector: "Move Object Execution",
+    badge: "💧",
+    badgeBg: "bg-cyan-500/15",
+    badgeText: "text-cyan-600",
+    badgeBorder: "border-cyan-300/80",
+    basePrice: 3.45,
+    decimals: 4,
+    change24h: 12.8,
+    points: [3.02, 3.1, 3.08, 3.18, 3.15, 3.28, 3.25, 3.38, 3.35, 3.45],
+  },
+  {
+    id: "NEAR",
+    symbol: "NEAR",
+    name: "NEAR Protocol",
+    category: ["all", "l1"],
+    sector: "User-Owned AI / Sharded",
+    badge: "Ⓝ",
+    badgeBg: "bg-emerald-600/15",
+    badgeText: "text-emerald-700",
+    badgeBorder: "border-emerald-300/80",
+    basePrice: 5.8,
+    decimals: 2,
+    change24h: 4.88,
+    points: [5.45, 5.52, 5.48, 5.6, 5.58, 5.68, 5.65, 5.75, 5.72, 5.8],
+  },
+  {
+    id: "DOT",
+    symbol: "DOT",
+    name: "Polkadot",
+    category: ["all", "l1", "defi"],
+    sector: "Cross-Chain Parachains",
+    badge: "●",
+    badgeBg: "bg-pink-500/15",
+    badgeText: "text-pink-600",
+    badgeBorder: "border-pink-300/80",
+    basePrice: 8.2,
+    decimals: 2,
+    change24h: -0.85,
+    points: [8.35, 8.32, 8.3, 8.28, 8.29, 8.25, 8.24, 8.22, 8.23, 8.2],
   },
 ];
 
@@ -123,7 +251,7 @@ function createSparklinePaths(
   const first = coords[0]!;
 
   // Area path closes at bottom
-  const areaPath = `${linePath} L ${last.x.toFixed(1)} ${(height).toFixed(1)} L ${first.x.toFixed(1)} ${(height).toFixed(1)} Z`;
+  const areaPath = `${linePath} L ${last.x.toFixed(1)} ${height.toFixed(1)} L ${first.x.toFixed(1)} ${height.toFixed(1)} Z`;
 
   return { linePath, areaPath, lastX: last.x, lastY: last.y };
 }
@@ -138,15 +266,15 @@ interface SparklineProps {
 function MiniSparkline({
   points,
   isPositive,
-  width = 62,
-  height = 24,
+  width = 56,
+  height = 22,
 }: SparklineProps) {
   const rawId = useId();
   const gradId = `spark-grad-${rawId.replace(/:/g, "")}`;
   const strokeColor = isPositive ? "#10b981" : "#f43f5e";
   const fillColorTop = isPositive ? "rgba(16, 185, 129, 0.3)" : "rgba(244, 63, 94, 0.3)";
 
-  const { linePath, areaPath, lastX, lastY } = createSparklinePaths(points, width, height, 3);
+  const { linePath, areaPath, lastX, lastY } = createSparklinePaths(points, width, height, 2.5);
 
   return (
     <svg
@@ -171,7 +299,7 @@ function MiniSparkline({
         d={linePath}
         fill="none"
         stroke={strokeColor}
-        strokeWidth="1.6"
+        strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -180,14 +308,14 @@ function MiniSparkline({
       <circle
         cx={lastX}
         cy={lastY}
-        r="2.2"
+        r="2"
         fill={strokeColor}
         className="animate-pulse"
       />
       <circle
         cx={lastX}
         cy={lastY}
-        r="4.5"
+        r="4"
         fill="none"
         stroke={strokeColor}
         strokeWidth="0.8"
@@ -198,32 +326,38 @@ function MiniSparkline({
 }
 
 export interface MarketSnapshotProps {
-  onSelectAsset?: (asset: "BTC" | "ETH" | "SOL" | "BNB" | "XRP") => void;
+  onSelectAsset?: (asset: AssetSymbol) => void;
   className?: string;
 }
 
 export function MarketSnapshot({ onSelectAsset, className = "" }: MarketSnapshotProps) {
   const [marketItems, setMarketItems] = useState<CryptoMarketItem[]>(initialMarketData);
+  const [selectedCategory, setSelectedCategory] = useState<MarketCategory>("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [tickFlash, setTickFlash] = useState<Record<string, "up" | "down" | null>>({});
 
-  // Real-time subtle live price simulation for the top 5 cryptocurrencies
+  // Real-time subtle live price simulation across all monitored crypto assets
   useEffect(() => {
     const interval = setInterval(() => {
-      // Randomly pick one or two assets to tick
-      const targetIndices = [
-        Math.floor(Math.random() * marketItems.length),
-        Math.floor(Math.random() * marketItems.length),
-      ];
+      // Pick 2-3 random assets to tick
+      const count = Math.floor(Math.random() * 2) + 2;
+      const targetIndices: number[] = [];
+      for (let i = 0; i < count; i++) {
+        const randIdx = Math.floor(Math.random() * marketItems.length);
+        if (!targetIndices.includes(randIdx)) {
+          targetIndices.push(randIdx);
+        }
+      }
 
       setMarketItems((prev) =>
         prev.map((item, idx) => {
           if (!targetIndices.includes(idx)) return item;
 
-          // Micro volatility swing (±0.08% to ±0.2%)
-          const pctDelta = (Math.random() - 0.48) * 0.003;
+          // Micro volatility swing
+          const pctDelta = (Math.random() - 0.48) * 0.0035;
           const deltaPrice = item.basePrice * pctDelta;
-          const nextPrice = Math.max(item.basePrice * 0.5, item.basePrice + deltaPrice);
-          const nextChange = item.change24h + (pctDelta > 0 ? 0.02 : -0.02);
+          const nextPrice = Math.max(item.basePrice * 0.4, item.basePrice + deltaPrice);
+          const nextChange = item.change24h + (pctDelta > 0 ? 0.03 : -0.03);
 
           // Update sparkline points array (keep last 10 points)
           const nextPoints = [...item.points.slice(1), nextPrice];
@@ -246,109 +380,179 @@ export function MarketSnapshot({ onSelectAsset, className = "" }: MarketSnapshot
           };
         })
       );
-    }, 2800);
+    }, 2400);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [marketItems.length]);
+
+  // Filtered items based on Category tab and Search query
+  const filteredItems = useMemo(() => {
+    return marketItems.filter((item) => {
+      const matchesCategory =
+        selectedCategory === "all" ? true : item.category.includes(selectedCategory);
+      const matchesSearch =
+        !searchQuery.trim() ||
+        item.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.sector.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+  }, [marketItems, selectedCategory, searchQuery]);
 
   return (
     <div
       className={`rounded-2xl p-3 bg-white/50 backdrop-blur-2xl border border-white/90 shadow-[0_4px_16px_rgba(255,255,255,0.4)] space-y-2.5 select-none ${className}`}
     >
-      {/* Header with Title and Live Badge */}
+      {/* Header with Title and Live Telemetry Badge */}
       <div className="flex items-center justify-between px-0.5">
-        <span className="text-[10px] uppercase font-extrabold text-slate-500 tracking-wider flex items-center gap-1.5">
+        <span className="text-[10px] uppercase font-extrabold text-slate-600 tracking-wider flex items-center gap-1.5">
           <Activity className="w-3.5 h-3.5 text-blue-600" /> Market Snapshot
         </span>
         <span className="text-[9px] text-emerald-700 font-extrabold bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-300/60 shadow-2xs flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live 24h
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
         </span>
       </div>
 
-      {/* Top 5 Cryptocurrencies with Simplified Sparklines */}
-      <div className="space-y-1.5">
-        {marketItems.map((item) => {
-          const isPositive = item.change24h >= 0;
-          const flash = tickFlash[item.id];
-          const formattedPrice = item.basePrice >= 100
-            ? `$${item.basePrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-            : `$${item.basePrice.toFixed(item.decimals)}`;
+      {/* Category Filter Tabs */}
+      <div className="flex items-center gap-1 bg-slate-200/50 p-0.5 rounded-xl border border-white/70 overflow-x-auto scrollbar-none text-[10px]">
+        {(
+          [
+            { id: "all", label: "All (12)" },
+            { id: "l1", label: "Layer 1" },
+            { id: "defi", label: "DeFi / Infra" },
+            { id: "payments", label: "Payments" },
+          ] as const
+        ).map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setSelectedCategory(tab.id)}
+            className={`px-2 py-1 rounded-lg font-bold transition-all whitespace-nowrap cursor-pointer ${
+              selectedCategory === tab.id
+                ? "bg-white text-blue-700 shadow-2xs"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
-          return (
-            <div
-              key={item.id}
-              onClick={() => onSelectAsset?.(item.id)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  onSelectAsset?.(item.id);
-                }
-              }}
-              title={`View ${item.name} (${item.symbol}) live chart telemetry`}
-              className="group/row flex items-center justify-between gap-1.5 p-2 rounded-xl bg-white/45 hover:bg-white/90 border border-white/70 hover:border-white shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-xs transition-all duration-200 cursor-pointer hover:scale-[1.015] active:scale-[0.98]"
-            >
-              {/* Asset Identity */}
-              <div className="flex items-center gap-2 min-w-0">
-                <span
-                  className={`w-6 h-6 rounded-lg ${item.badgeBg} border ${item.badgeBorder} flex items-center justify-center font-extrabold ${item.badgeText} text-xs shadow-2xs shrink-0 group-hover/row:scale-105 transition-transform`}
-                >
-                  {item.badge}
-                </span>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1">
-                    <span className="font-extrabold text-slate-900 text-xs leading-none">
-                      {item.symbol}
+      {/* Compact Search Bar for Quick Asset Lookups */}
+      <div className="relative">
+        <Search className="w-3 h-3 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Filter crypto assets..."
+          className="w-full bg-white/70 border border-slate-200/70 rounded-xl pl-7 pr-2.5 py-1 text-[11px] font-medium text-slate-800 placeholder:text-slate-400 outline-none focus:border-blue-400 focus:bg-white transition-all"
+        />
+        {searchQuery && (
+          <button
+            type="button"
+            onClick={() => setSearchQuery("")}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 hover:text-slate-600 font-bold"
+          >
+            ✕
+          </button>
+        )}
+      </div>
+
+      {/* Scrollable Cryptocurrencies list */}
+      <div className="space-y-1.5 max-h-[340px] overflow-y-auto pr-0.5 scrollbar-thin">
+        {filteredItems.length === 0 ? (
+          <div className="text-center py-5 text-[11px] text-slate-400 font-medium">
+            No assets match &quot;{searchQuery}&quot;
+          </div>
+        ) : (
+          filteredItems.map((item) => {
+            const isPositive = item.change24h >= 0;
+            const flash = tickFlash[item.id];
+            const formattedPrice =
+              item.basePrice >= 100
+                ? `$${item.basePrice.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}`
+                : `$${item.basePrice.toFixed(item.decimals)}`;
+
+            return (
+              <div
+                key={item.id}
+                onClick={() => onSelectAsset?.(item.id)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    onSelectAsset?.(item.id);
+                  }
+                }}
+                title={`Open ${item.name} (${item.symbol}) Pro Live Chart • ${item.sector}`}
+                className="group/row flex items-center justify-between gap-1.5 p-2 rounded-xl bg-white/45 hover:bg-white/90 border border-white/70 hover:border-white shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-xs transition-all duration-200 cursor-pointer hover:scale-[1.015] active:scale-[0.98]"
+              >
+                {/* Asset Identity */}
+                <div className="flex items-center gap-2 min-w-0">
+                  <span
+                    className={`w-6 h-6 rounded-lg ${item.badgeBg} border ${item.badgeBorder} flex items-center justify-center font-extrabold ${item.badgeText} text-xs shadow-2xs shrink-0 group-hover/row:scale-105 transition-transform`}
+                  >
+                    {item.badge}
+                  </span>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1">
+                      <span className="font-extrabold text-slate-900 text-xs leading-none">
+                        {item.symbol}
+                      </span>
+                    </div>
+                    <span className="text-[9.5px] text-slate-500 font-medium truncate block leading-tight mt-0.5">
+                      {item.name}
                     </span>
                   </div>
-                  <span className="text-[10px] text-slate-500 font-medium truncate block leading-tight mt-0.5">
-                    {item.name}
-                  </span>
                 </div>
-              </div>
 
-              {/* Simplified Sparkline Chart */}
-              <div className="px-1 flex items-center justify-center">
-                <MiniSparkline
-                  points={item.points}
-                  isPositive={isPositive}
-                  width={56}
-                  height={22}
-                />
-              </div>
+                {/* Simplified Sparkline Chart */}
+                <div className="px-1 flex items-center justify-center">
+                  <MiniSparkline
+                    points={item.points}
+                    isPositive={isPositive}
+                    width={52}
+                    height={20}
+                  />
+                </div>
 
-              {/* Price & 24h Change */}
-              <div className="text-right shrink-0">
-                <div
-                  className={`font-mono font-bold text-xs leading-none transition-colors duration-300 ${
-                    flash === "up"
-                      ? "text-emerald-600"
-                      : flash === "down"
-                      ? "text-rose-600"
-                      : "text-slate-900"
-                  }`}
-                >
-                  {formattedPrice}
-                </div>
-                <div
-                  className={`text-[9.5px] font-mono font-extrabold flex items-center justify-end gap-0.5 mt-0.5 ${
-                    isPositive ? "text-emerald-600" : "text-rose-600"
-                  }`}
-                >
-                  {isPositive ? (
-                    <ArrowUpRight className="w-2.5 h-2.5" />
-                  ) : (
-                    <ArrowDownRight className="w-2.5 h-2.5" />
-                  )}
-                  <span>
-                    {isPositive ? "+" : ""}
-                    {item.change24h.toFixed(2)}%
-                  </span>
+                {/* Price & 24h Change */}
+                <div className="text-right shrink-0">
+                  <div
+                    className={`font-mono font-bold text-xs leading-none transition-colors duration-300 ${
+                      flash === "up"
+                        ? "text-emerald-600 font-extrabold"
+                        : flash === "down"
+                        ? "text-rose-600 font-extrabold"
+                        : "text-slate-900"
+                    }`}
+                  >
+                    {formattedPrice}
+                  </div>
+                  <div
+                    className={`text-[9.5px] font-mono font-extrabold flex items-center justify-end gap-0.5 mt-0.5 ${
+                      isPositive ? "text-emerald-600" : "text-rose-600"
+                    }`}
+                  >
+                    {isPositive ? (
+                      <ArrowUpRight className="w-2.5 h-2.5" />
+                    ) : (
+                      <ArrowDownRight className="w-2.5 h-2.5" />
+                    )}
+                    <span>
+                      {isPositive ? "+" : ""}
+                      {item.change24h.toFixed(2)}%
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
     </div>
   );

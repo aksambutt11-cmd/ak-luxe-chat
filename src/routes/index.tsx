@@ -47,7 +47,7 @@ import { BitcoinField } from "@/components/bitcoin-field";
 import { MarketTicker } from "@/components/market-ticker";
 import { MessageResponse } from "@/components/ai-elements/message";
 import { AntigravityHero } from "@/components/antigravity-hero";
-import { LiveCryptoChart } from "@/components/live-crypto-chart";
+import { LiveCryptoChart, type AssetSymbol } from "@/components/live-crypto-chart";
 import { MarketSnapshot } from "@/components/market-snapshot";
 
 type ChatMessage = {
@@ -85,9 +85,18 @@ export const Route = createFileRoute("/")({
 });
 
 const conversionRates: Record<string, Record<string, number>> = {
-  BTC: { USD: 98420.5, ETH: 28.52, SOL: 462.5, USDT: 98420.5 },
-  ETH: { USD: 3450.2, ETH: 1, SOL: 16.2, USDT: 3450.2 },
-  SOL: { USD: 212.8, ETH: 0.061, SOL: 1, USDT: 212.8 },
+  BTC: { USD: 93840.0, ETH: 27.72, SOL: 498.0, BNB: 146.0, XRP: 38776.0, ADA: 111448.0, DOGE: 330422.0, AVAX: 2431.0, LINK: 5141.0, SUI: 27200.0, NEAR: 16179.0, DOT: 11443.0, USDT: 93840.0 },
+  ETH: { USD: 3385.2, ETH: 1, SOL: 17.96, BNB: 5.27, XRP: 1398.8, ADA: 4020.4, DOGE: 11919.7, AVAX: 87.7, LINK: 185.5, SUI: 981.2, NEAR: 583.6, DOT: 412.8, USDT: 3385.2, BTC: 0.036 },
+  SOL: { USD: 188.4, ETH: 0.0556, SOL: 1, BNB: 0.293, XRP: 77.85, ADA: 223.7, DOGE: 663.3, AVAX: 4.88, LINK: 10.32, SUI: 54.6, NEAR: 32.48, DOT: 22.97, USDT: 188.4, BTC: 0.002 },
+  BNB: { USD: 642.5, ETH: 0.189, SOL: 3.41, BNB: 1, XRP: 265.5, ADA: 763.0, DOGE: 2262.3, AVAX: 16.64, LINK: 35.2, SUI: 186.2, NEAR: 110.7, DOT: 78.35, USDT: 642.5, BTC: 0.0068 },
+  XRP: { USD: 2.42, ETH: 0.00071, SOL: 0.0128, BNB: 0.0037, XRP: 1, ADA: 2.87, DOGE: 8.52, AVAX: 0.062, LINK: 0.132, SUI: 0.701, NEAR: 0.417, DOT: 0.295, USDT: 2.42, BTC: 0.000025 },
+  ADA: { USD: 0.842, ETH: 0.000248, SOL: 0.00446, BNB: 0.00131, XRP: 0.348, ADA: 1, DOGE: 2.96, AVAX: 0.0218, LINK: 0.0461, SUI: 0.244, NEAR: 0.145, DOT: 0.102, USDT: 0.842, BTC: 0.0000089 },
+  DOGE: { USD: 0.284, ETH: 0.000083, SOL: 0.0015, BNB: 0.00044, XRP: 0.117, ADA: 0.337, DOGE: 1, AVAX: 0.00735, LINK: 0.0155, SUI: 0.0823, NEAR: 0.0489, DOT: 0.0346, USDT: 0.284, BTC: 0.000003 },
+  AVAX: { USD: 38.6, ETH: 0.0114, SOL: 0.204, BNB: 0.06, XRP: 15.95, ADA: 45.84, DOGE: 135.9, AVAX: 1, LINK: 2.11, SUI: 11.18, NEAR: 6.65, DOT: 4.7, USDT: 38.6, BTC: 0.00041 },
+  LINK: { USD: 18.25, ETH: 0.00539, SOL: 0.0968, BNB: 0.0284, XRP: 7.54, ADA: 21.67, DOGE: 64.26, AVAX: 0.472, LINK: 1, SUI: 5.29, NEAR: 3.14, DOT: 2.22, USDT: 18.25, BTC: 0.00019 },
+  SUI: { USD: 3.45, ETH: 0.00101, SOL: 0.0183, BNB: 0.00536, XRP: 1.42, ADA: 4.09, DOGE: 12.14, AVAX: 0.089, LINK: 0.189, SUI: 1, NEAR: 0.594, DOT: 0.42, USDT: 3.45, BTC: 0.000036 },
+  NEAR: { USD: 5.8, ETH: 0.00171, SOL: 0.0307, BNB: 0.00902, XRP: 2.39, ADA: 6.88, DOGE: 20.42, AVAX: 0.15, LINK: 0.317, SUI: 1.68, NEAR: 1, DOT: 0.707, USDT: 5.8, BTC: 0.000061 },
+  DOT: { USD: 8.2, ETH: 0.00242, SOL: 0.0435, BNB: 0.0127, XRP: 3.38, ADA: 9.73, DOGE: 28.87, AVAX: 0.212, LINK: 0.449, SUI: 2.37, NEAR: 1.41, DOT: 1, USDT: 8.2, BTC: 0.000087 },
 };
 
 function AKChat() {
@@ -143,7 +152,7 @@ function AKChat() {
   const [convertAmount, setConvertAmount] = useState(1);
   const [convertFrom, setConvertFrom] = useState("BTC");
   const [convertTo, setConvertTo] = useState("USD");
-  const [chartAsset, setChartAsset] = useState<"BTC" | "ETH" | "SOL" | "BNB" | "XRP">("BTC");
+  const [chartAsset, setChartAsset] = useState<AssetSymbol>("BTC");
   const [chartTimeframe, setChartTimeframe] = useState<"1D" | "1W" | "1M">("1D");
   const [chartPrices, setChartPrices] = useState<Record<string, string>>({
     BTC: "$93,840.00",
@@ -151,9 +160,16 @@ function AKChat() {
     SOL: "$188.40",
     BNB: "$642.50",
     XRP: "$2.42",
+    ADA: "$0.84",
+    DOGE: "$0.284",
+    AVAX: "$38.60",
+    LINK: "$18.25",
+    SUI: "$3.45",
+    NEAR: "$5.80",
+    DOT: "$8.20",
   });
 
-  const timeframeStats: Record<"BTC" | "ETH" | "SOL" | "BNB" | "XRP", Record<"1D" | "1W" | "1M", { change: string; isPositive: boolean; high: string; low: string }>> = {
+  const timeframeStats: Record<AssetSymbol, Record<"1D" | "1W" | "1M", { change: string; isPositive: boolean; high: string; low: string }>> = {
     BTC: {
       "1D": { change: "+3.42%", isPositive: true, high: "$94,820", low: "$91,450" },
       "1W": { change: "+11.85%", isPositive: true, high: "$95,100", low: "$84,200" },
@@ -178,6 +194,41 @@ function AKChat() {
       "1D": { change: "-1.15%", isPositive: false, high: "$2.51", low: "$2.38" },
       "1W": { change: "+14.20%", isPositive: true, high: "$2.65", low: "$2.10" },
       "1M": { change: "+84.50%", isPositive: true, high: "$2.82", low: "$1.28" },
+    },
+    ADA: {
+      "1D": { change: "+5.24%", isPositive: true, high: "$0.87", low: "$0.79" },
+      "1W": { change: "+16.80%", isPositive: true, high: "$0.92", low: "$0.71" },
+      "1M": { change: "+62.40%", isPositive: true, high: "$0.95", low: "$0.52" },
+    },
+    DOGE: {
+      "1D": { change: "+6.91%", isPositive: true, high: "$0.298", low: "$0.262" },
+      "1W": { change: "+24.50%", isPositive: true, high: "$0.315", low: "$0.220" },
+      "1M": { change: "+78.20%", isPositive: true, high: "$0.340", low: "$0.145" },
+    },
+    AVAX: {
+      "1D": { change: "+7.32%", isPositive: true, high: "$39.80", low: "$35.40" },
+      "1W": { change: "+19.10%", isPositive: true, high: "$42.00", low: "$31.80" },
+      "1M": { change: "+54.60%", isPositive: true, high: "$44.50", low: "$24.20" },
+    },
+    LINK: {
+      "1D": { change: "+3.12%", isPositive: true, high: "$18.90", low: "$17.40" },
+      "1W": { change: "+12.40%", isPositive: true, high: "$19.80", low: "$15.90" },
+      "1M": { change: "+38.70%", isPositive: true, high: "$21.00", low: "$12.80" },
+    },
+    SUI: {
+      "1D": { change: "+12.80%", isPositive: true, high: "$3.62", low: "$3.05" },
+      "1W": { change: "+35.60%", isPositive: true, high: "$3.85", low: "$2.48" },
+      "1M": { change: "+114.20%", isPositive: true, high: "$3.92", low: "$1.55" },
+    },
+    NEAR: {
+      "1D": { change: "+4.88%", isPositive: true, high: "$5.95", low: "$5.45" },
+      "1W": { change: "+15.30%", isPositive: true, high: "$6.20", low: "$4.90" },
+      "1M": { change: "+48.90%", isPositive: true, high: "$6.50", low: "$3.80" },
+    },
+    DOT: {
+      "1D": { change: "-0.85%", isPositive: false, high: "$8.45", low: "$8.12" },
+      "1W": { change: "+8.60%", isPositive: true, high: "$8.90", low: "$7.55" },
+      "1M": { change: "+31.40%", isPositive: true, high: "$9.20", low: "$5.90" },
     },
   };
 
@@ -1607,65 +1658,38 @@ function AKChat() {
               </button>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => setChartAsset("BTC")}
-                  className={`apple-glass-interactive px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                    chartAsset === "BTC"
-                      ? "text-amber-800 bg-amber-500/15 border border-amber-300"
-                      : "text-slate-700 hover:text-slate-900"
-                  }`}
-                >
-                  BTC
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setChartAsset("ETH")}
-                  className={`apple-glass-interactive px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                    chartAsset === "ETH"
-                      ? "text-indigo-800 bg-indigo-500/15 border border-indigo-300"
-                      : "text-slate-700 hover:text-slate-900"
-                  }`}
-                >
-                  ETH
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setChartAsset("SOL")}
-                  className={`apple-glass-interactive px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                    chartAsset === "SOL"
-                      ? "text-emerald-800 bg-emerald-500/15 border border-emerald-300"
-                      : "text-slate-700 hover:text-slate-900"
-                  }`}
-                >
-                  SOL
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setChartAsset("BNB")}
-                  className={`apple-glass-interactive px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                    chartAsset === "BNB"
-                      ? "text-yellow-800 bg-yellow-500/15 border border-yellow-300"
-                      : "text-slate-700 hover:text-slate-900"
-                  }`}
-                >
-                  BNB
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setChartAsset("XRP")}
-                  className={`apple-glass-interactive px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                    chartAsset === "XRP"
-                      ? "text-sky-800 bg-sky-500/15 border border-sky-300"
-                      : "text-slate-700 hover:text-slate-900"
-                  }`}
-                >
-                  XRP
-                </button>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 scrollbar-none py-0.5">
+                {[
+                  { id: "BTC", label: "BTC", badge: "₿" },
+                  { id: "ETH", label: "ETH", badge: "Ξ" },
+                  { id: "SOL", label: "SOL", badge: "◎" },
+                  { id: "BNB", label: "BNB", badge: "Ⓑ" },
+                  { id: "XRP", label: "XRP", badge: "✕" },
+                  { id: "ADA", label: "ADA", badge: "₳" },
+                  { id: "DOGE", label: "DOGE", badge: "Ð" },
+                  { id: "AVAX", label: "AVAX", badge: "🔺" },
+                  { id: "LINK", label: "LINK", badge: "⬡" },
+                  { id: "SUI", label: "SUI", badge: "💧" },
+                  { id: "NEAR", label: "NEAR", badge: "Ⓝ" },
+                  { id: "DOT", label: "DOT", badge: "●" },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setChartAsset(item.id as AssetSymbol)}
+                    className={`apple-glass-interactive px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shrink-0 cursor-pointer ${
+                      chartAsset === item.id
+                        ? "text-blue-700 bg-blue-500/20 border border-blue-400/80 shadow-xs"
+                        : "text-slate-700 hover:text-slate-900 bg-white/50"
+                    }`}
+                  >
+                    <span className="text-[11px] opacity-80">{item.badge}</span>
+                    <span>{item.label}</span>
+                  </button>
+                ))}
               </div>
-              <div className="flex gap-1 bg-slate-200/60 p-1 rounded-xl border border-slate-300/40">
+              <div className="flex gap-1 bg-slate-200/60 p-1 rounded-xl border border-slate-300/40 shrink-0 self-start sm:self-auto">
                 {(["1D", "1W", "1M"] as const).map((tf) => (
                   <button
                     key={tf}
@@ -1738,6 +1762,15 @@ function AKChat() {
                     <option value="BTC">BTC</option>
                     <option value="ETH">ETH</option>
                     <option value="SOL">SOL</option>
+                    <option value="BNB">BNB</option>
+                    <option value="XRP">XRP</option>
+                    <option value="ADA">ADA</option>
+                    <option value="DOGE">DOGE</option>
+                    <option value="AVAX">AVAX</option>
+                    <option value="LINK">LINK</option>
+                    <option value="SUI">SUI</option>
+                    <option value="NEAR">NEAR</option>
+                    <option value="DOT">DOT</option>
                   </select>
                 </div>
               </div>
@@ -1762,9 +1795,19 @@ function AKChat() {
                     className="apple-glass-interactive px-2.5 py-1 rounded-xl text-xs font-bold text-slate-800"
                   >
                     <option value="USD">USD ($)</option>
+                    <option value="USDT">USDT</option>
+                    <option value="BTC">BTC</option>
                     <option value="ETH">ETH</option>
                     <option value="SOL">SOL</option>
-                    <option value="USDT">USDT</option>
+                    <option value="BNB">BNB</option>
+                    <option value="XRP">XRP</option>
+                    <option value="ADA">ADA</option>
+                    <option value="DOGE">DOGE</option>
+                    <option value="AVAX">AVAX</option>
+                    <option value="LINK">LINK</option>
+                    <option value="SUI">SUI</option>
+                    <option value="NEAR">NEAR</option>
+                    <option value="DOT">DOT</option>
                   </select>
                 </div>
               </div>

@@ -1,7 +1,19 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { BarChart3, TrendingUp, Activity, Layers, Crosshair, Zap } from "lucide-react";
 
-export type AssetSymbol = "BTC" | "ETH" | "SOL" | "BNB" | "XRP";
+export type AssetSymbol =
+  | "BTC"
+  | "ETH"
+  | "SOL"
+  | "BNB"
+  | "XRP"
+  | "ADA"
+  | "DOGE"
+  | "AVAX"
+  | "LINK"
+  | "SUI"
+  | "NEAR"
+  | "DOT";
 export type Timeframe = "1D" | "1W" | "1M";
 export type ChartType = "candlestick" | "area";
 
@@ -81,6 +93,69 @@ export function LiveCryptoChart({ asset, timeframe, onPriceUpdate }: LiveCryptoC
           color: "#0284c7",
           fillGrad: "rgba(2, 132, 199, 0.25)",
           name: "Ripple",
+        };
+      case "ADA":
+        return {
+          basePrice: 0.84,
+          volatility: 0.012,
+          decimals: 4,
+          color: "#2563eb",
+          fillGrad: "rgba(37, 99, 235, 0.25)",
+          name: "Cardano",
+        };
+      case "DOGE":
+        return {
+          basePrice: 0.284,
+          volatility: 0.005,
+          decimals: 4,
+          color: "#d97706",
+          fillGrad: "rgba(217, 119, 6, 0.25)",
+          name: "Dogecoin",
+        };
+      case "AVAX":
+        return {
+          basePrice: 38.6,
+          volatility: 0.45,
+          decimals: 2,
+          color: "#ef4444",
+          fillGrad: "rgba(239, 68, 68, 0.25)",
+          name: "Avalanche",
+        };
+      case "LINK":
+        return {
+          basePrice: 18.25,
+          volatility: 0.22,
+          decimals: 2,
+          color: "#3b82f6",
+          fillGrad: "rgba(59, 130, 246, 0.25)",
+          name: "Chainlink",
+        };
+      case "SUI":
+        return {
+          basePrice: 3.45,
+          volatility: 0.06,
+          decimals: 4,
+          color: "#06b6d4",
+          fillGrad: "rgba(6, 182, 212, 0.25)",
+          name: "Sui",
+        };
+      case "NEAR":
+        return {
+          basePrice: 5.8,
+          volatility: 0.09,
+          decimals: 2,
+          color: "#10b981",
+          fillGrad: "rgba(16, 185, 129, 0.25)",
+          name: "NEAR Protocol",
+        };
+      case "DOT":
+        return {
+          basePrice: 8.2,
+          volatility: 0.12,
+          decimals: 2,
+          color: "#ec4899",
+          fillGrad: "rgba(236, 72, 153, 0.25)",
+          name: "Polkadot",
         };
     }
   }, [asset]);
@@ -497,7 +572,10 @@ export function LiveCryptoChart({ asset, timeframe, onPriceUpdate }: LiveCryptoC
                 : "text-white"
             }`}
           >
-            ${currentLivePrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            $
+            {currentLivePrice >= 100
+              ? currentLivePrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+              : currentLivePrice.toFixed(assetConfig.decimals)}
           </div>
 
           <span className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 sm:px-2 py-0.5 rounded-full border border-emerald-500/20 shrink-0">
@@ -557,16 +635,16 @@ export function LiveCryptoChart({ asset, timeframe, onPriceUpdate }: LiveCryptoC
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-3 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-900/95 border border-slate-700 text-[10px] sm:text-[11px] font-mono text-slate-300 shadow-lg">
           <span className="text-slate-400">{hoverData.candle.timeLabel}</span>
           <span>
-            O: <strong className="text-white">${hoverData.candle.open.toFixed(2)}</strong>
+            O: <strong className="text-white">${hoverData.candle.open >= 100 ? hoverData.candle.open.toFixed(2) : hoverData.candle.open.toFixed(assetConfig.decimals)}</strong>
           </span>
           <span>
-            H: <strong className="text-emerald-400">${hoverData.candle.high.toFixed(2)}</strong>
+            H: <strong className="text-emerald-400">${hoverData.candle.high >= 100 ? hoverData.candle.high.toFixed(2) : hoverData.candle.high.toFixed(assetConfig.decimals)}</strong>
           </span>
           <span>
-            L: <strong className="text-rose-400">${hoverData.candle.low.toFixed(2)}</strong>
+            L: <strong className="text-rose-400">${hoverData.candle.low >= 100 ? hoverData.candle.low.toFixed(2) : hoverData.candle.low.toFixed(assetConfig.decimals)}</strong>
           </span>
           <span>
-            C: <strong className="text-white">${hoverData.candle.close.toFixed(2)}</strong>
+            C: <strong className="text-white">${hoverData.candle.close >= 100 ? hoverData.candle.close.toFixed(2) : hoverData.candle.close.toFixed(assetConfig.decimals)}</strong>
           </span>
           <span className="text-slate-400">
             Vol: <strong>{hoverData.candle.volume}</strong>

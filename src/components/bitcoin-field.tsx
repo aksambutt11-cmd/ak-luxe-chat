@@ -15,6 +15,9 @@ const coinTypes = [
   { symbol: "🔺", name: "Avalanche", face: "#FEE2E2", mid: "#EF4444", dark: "#991B1B", rim: "#FECACA", glow: "rgba(239, 68, 68, 0.45)" },
   { symbol: "⬡", name: "Chainlink", face: "#DBEAFE", mid: "#2563EB", dark: "#1E40AF", rim: "#BFDBFE", glow: "rgba(37, 99, 235, 0.45)" },
   { symbol: "✕", name: "XRP", face: "#F1F5F9", mid: "#475569", dark: "#0F172A", rim: "#E2E8F0", glow: "rgba(71, 85, 105, 0.45)" },
+  { symbol: "💧", name: "Sui", face: "#CFFAFE", mid: "#06B6D4", dark: "#0E7490", rim: "#A5F3FC", glow: "rgba(6, 182, 212, 0.45)" },
+  { symbol: "Ⓝ", name: "NEAR", face: "#D1FAE5", mid: "#10B981", dark: "#047857", rim: "#6EE7B7", glow: "rgba(16, 185, 129, 0.45)" },
+  { symbol: "●", name: "Polkadot", face: "#FCE7F3", mid: "#EC4899", dark: "#9D174D", rim: "#FBCFE8", glow: "rgba(236, 72, 153, 0.45)" },
 ] as const;
 
 const coins = [
