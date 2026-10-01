@@ -48,6 +48,7 @@ import { MarketTicker } from "@/components/market-ticker";
 import { MessageResponse } from "@/components/ai-elements/message";
 import { AntigravityHero } from "@/components/antigravity-hero";
 import { LiveCryptoChart } from "@/components/live-crypto-chart";
+import { MarketSnapshot } from "@/components/market-snapshot";
 
 type ChatMessage = {
   id: string;
@@ -142,15 +143,17 @@ function AKChat() {
   const [convertAmount, setConvertAmount] = useState(1);
   const [convertFrom, setConvertFrom] = useState("BTC");
   const [convertTo, setConvertTo] = useState("USD");
-  const [chartAsset, setChartAsset] = useState<"BTC" | "ETH" | "SOL">("BTC");
+  const [chartAsset, setChartAsset] = useState<"BTC" | "ETH" | "SOL" | "BNB" | "XRP">("BTC");
   const [chartTimeframe, setChartTimeframe] = useState<"1D" | "1W" | "1M">("1D");
   const [chartPrices, setChartPrices] = useState<Record<string, string>>({
     BTC: "$93,840.00",
     ETH: "$3,385.00",
     SOL: "$188.40",
+    BNB: "$642.50",
+    XRP: "$2.42",
   });
 
-  const timeframeStats: Record<"BTC" | "ETH" | "SOL", Record<"1D" | "1W" | "1M", { change: string; isPositive: boolean; high: string; low: string }>> = {
+  const timeframeStats: Record<"BTC" | "ETH" | "SOL" | "BNB" | "XRP", Record<"1D" | "1W" | "1M", { change: string; isPositive: boolean; high: string; low: string }>> = {
     BTC: {
       "1D": { change: "+3.42%", isPositive: true, high: "$94,820", low: "$91,450" },
       "1W": { change: "+11.85%", isPositive: true, high: "$95,100", low: "$84,200" },
@@ -165,6 +168,16 @@ function AKChat() {
       "1D": { change: "+8.65%", isPositive: true, high: "$198.50", low: "$179.20" },
       "1W": { change: "+21.30%", isPositive: true, high: "$202.00", low: "$158.40" },
       "1M": { change: "+46.80%", isPositive: true, high: "$205.00", low: "$129.00" },
+    },
+    BNB: {
+      "1D": { change: "+1.85%", isPositive: true, high: "$648.00", low: "$631.20" },
+      "1W": { change: "+6.40%", isPositive: true, high: "$655.00", low: "$612.00" },
+      "1M": { change: "+18.90%", isPositive: true, high: "$660.00", low: "$540.00" },
+    },
+    XRP: {
+      "1D": { change: "-1.15%", isPositive: false, high: "$2.51", low: "$2.38" },
+      "1W": { change: "+14.20%", isPositive: true, high: "$2.65", low: "$2.10" },
+      "1M": { change: "+84.50%", isPositive: true, high: "$2.82", low: "$1.28" },
     },
   };
 
@@ -186,8 +199,6 @@ function AKChat() {
 
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
   const userInputRef = useRef<HTMLInputElement | null>(null);
-  const miniChartBTCRef = useRef<HTMLCanvasElement | null>(null);
-  const miniChartETHRef = useRef<HTMLCanvasElement | null>(null);
   const cursorGlowRef = useRef<HTMLDivElement | null>(null);
   const recognitionRef = useRef<any>(null);
 
@@ -223,157 +234,6 @@ function AKChat() {
       }
     }, 14);
     return () => clearInterval(interval);
-  }, []);
-
-  // 4. Live Real-Time Flowing Crypto Graphs Animation (Minimal & Premium)
-  useEffect(() => {
-    let animId = 0;
-    let phase = 0;
-
-    const basePtsBTC = [22, 28, 25, 36, 32, 44, 40, 50, 47, 56];
-    const basePtsETH = [34, 30, 40, 37, 48, 44, 54, 47, 58, 56];
-
-    function drawFlowingSparkline(
-      canvas: HTMLCanvasElement | null,
-      basePts: number[],
-      strokeColor: string,
-      fillColor: string,
-      phaseOffset: number
-    ) {
-      if (!canvas) return;
-      const ctx = canvas.getContext("2d");
-      if (!ctx || !canvas.parentElement) return;
-
-      const rect = canvas.parentElement.getBoundingClientRect();
-      if (canvas.width !== rect.width - 24 || canvas.height !== 64) {
-        canvas.width = Math.max(120, rect.width - 24);
-        canvas.height = 64;
-      }
-      const w = canvas.width;
-      const h = canvas.height;
-      ctx.clearRect(0, 0, w, h);
-
-      // 1. Subtle Institutional Micro-Grid Lines
-      ctx.strokeStyle = "rgba(0, 0, 0, 0.04)";
-      ctx.lineWidth = 1;
-      ctx.setLineDash([3, 3]);
-      ctx.beginPath();
-      ctx.moveTo(0, h * 0.35);
-      ctx.lineTo(w, h * 0.35);
-      ctx.moveTo(0, h * 0.7);
-      ctx.lineTo(w, h * 0.7);
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      // 2. Compute smooth oscillating real-time data points
-      const pts = basePts.map(
-        (val, i) =>
-          val +
-          Math.sin(phase + phaseOffset + i * 0.6) * 3.8 +
-          Math.cos(phase * 1.3 + i * 0.4) * 1.5
-      );
-
-      const max = Math.max(...pts) + 4;
-      const min = Math.min(...pts) - 4;
-
-      const coords: Array<{ x: number; y: number }> = [];
-      for (let i = 0; i < pts.length; i++) {
-        const x = (w / (pts.length - 1)) * i;
-        const y = h - ((pts[i]! - min) / (max - min || 1)) * (h - 20) - 6;
-        coords.push({ x, y });
-      }
-
-      // 3. Faint Baseline Volume Bars
-      ctx.fillStyle = fillColor;
-      for (let i = 0; i < coords.length; i++) {
-        const barH = 4 + Math.abs(Math.sin(phase + i)) * 8;
-        ctx.fillRect(coords[i]!.x - 2, h - barH, 4, barH);
-      }
-
-      // 4. Smooth Bézier Curve Path
-      ctx.beginPath();
-      ctx.moveTo(coords[0]!.x, coords[0]!.y);
-      for (let i = 0; i < coords.length - 1; i++) {
-        const cpX = (coords[i]!.x + coords[i + 1]!.x) / 2;
-        const cpY = (coords[i]!.y + coords[i + 1]!.y) / 2;
-        ctx.quadraticCurveTo(coords[i]!.x, coords[i]!.y, cpX, cpY);
-      }
-      const lastCoord = coords[coords.length - 1]!;
-      ctx.lineTo(lastCoord.x, lastCoord.y);
-
-      // Area Fill
-      ctx.save();
-      const fillPath = new Path2D();
-      fillPath.moveTo(coords[0]!.x, coords[0]!.y);
-      for (let i = 0; i < coords.length - 1; i++) {
-        const cpX = (coords[i]!.x + coords[i + 1]!.x) / 2;
-        const cpY = (coords[i]!.y + coords[i + 1]!.y) / 2;
-        fillPath.quadraticCurveTo(coords[i]!.x, coords[i]!.y, cpX, cpY);
-      }
-      fillPath.lineTo(lastCoord.x, lastCoord.y);
-      fillPath.lineTo(w, h);
-      fillPath.lineTo(0, h);
-      fillPath.closePath();
-
-      const grad = ctx.createLinearGradient(0, 0, 0, h);
-      grad.addColorStop(0, fillColor);
-      grad.addColorStop(1, "rgba(255, 255, 255, 0)");
-      ctx.fillStyle = grad;
-      ctx.fill(fillPath);
-      ctx.restore();
-
-      // Glowing Stroke Line
-      ctx.strokeStyle = strokeColor;
-      ctx.lineWidth = 2.4;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-      ctx.stroke();
-
-      // 5. Leading Edge Pulse Beacon & Expanding Radar Wave
-      const pulsePhase = (phase * 2) % (Math.PI * 2);
-      const ringRadius = 4 + Math.sin(pulsePhase) * 5;
-      const ringAlpha = Math.max(0, 0.4 - (ringRadius / 9) * 0.4);
-
-      // Radar ring
-      ctx.beginPath();
-      ctx.arc(lastCoord.x - 2, lastCoord.y, ringRadius + 2, 0, Math.PI * 2);
-      ctx.strokeStyle = strokeColor;
-      ctx.lineWidth = 1;
-      ctx.fillStyle = `rgba(255, 255, 255, ${ringAlpha})`;
-      ctx.fill();
-      ctx.stroke();
-
-      // Center solid beacon
-      ctx.beginPath();
-      ctx.arc(lastCoord.x - 2, lastCoord.y, 3, 0, Math.PI * 2);
-      ctx.fillStyle = strokeColor;
-      ctx.fill();
-    }
-
-    function renderGraphs() {
-      phase += 0.038;
-      drawFlowingSparkline(
-        miniChartBTCRef.current,
-        basePtsBTC,
-        "#f59e0b",
-        "rgba(245, 158, 11, 0.2)",
-        0
-      );
-      drawFlowingSparkline(
-        miniChartETHRef.current,
-        basePtsETH,
-        "#6366f1",
-        "rgba(99, 102, 241, 0.2)",
-        Math.PI / 2
-      );
-      animId = requestAnimationFrame(renderGraphs);
-    }
-
-    renderGraphs();
-
-    return () => {
-      cancelAnimationFrame(animId);
-    };
   }, []);
 
   // Auto-scroll chat
@@ -636,6 +496,9 @@ function AKChat() {
       {/* Floating Anti-Gravity Background Canvas */}
       <ParticleEngine physicsEnabled={physicsEnabled} />
 
+      {/* Floating Bitcoins and Crypto Coins in UI Background */}
+      <BitcoinField className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-55" />
+
       {/* Toast Notification Container */}
       <div id="toastContainer">
         {toasts.map((t) => (
@@ -838,77 +701,14 @@ function AKChat() {
               </nav>
             </div>
 
-            {/* LIVE CRYPTO CHARTS BELOW INTELLIGENCE LAYERS */}
-            <div className="space-y-3 pt-1">
-              <div className="flex items-center justify-between px-1">
-                <span className="text-[10px] uppercase font-extrabold text-slate-500 tracking-wider flex items-center gap-1.5">
-                  <BarChart3 className="w-3.5 h-3.5 text-blue-600" /> Live Crypto Markets
-                </span>
-                <span className="text-[9px] text-emerald-700 font-extrabold bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-300/60 shadow-2xs flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Real-time
-                </span>
-              </div>
-
-              {/* Mini Chart Card 1: BTC Depth */}
-              <div
-                onClick={() => {
-                  setChartAsset("BTC");
-                  setChartModalOpen(true);
-                }}
-                className="p-3 rounded-2xl bg-white/55 hover:bg-white/80 backdrop-blur-2xl border border-white/90 shadow-[0_4px_16px_rgba(255,255,255,0.4)] space-y-2 relative overflow-hidden group/btc cursor-pointer transition-all duration-200 hover:scale-[1.015] hover:shadow-md"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-7 h-7 rounded-xl bg-amber-500/15 border border-amber-300/80 flex items-center justify-center font-extrabold text-amber-600 text-xs shadow-2xs group-hover/btc:scale-105 transition-transform">
-                      ₿
-                    </span>
-                    <div>
-                      <h4 className="font-bold text-slate-900 text-xs">Bitcoin Depth</h4>
-                      <span className="text-[10px] text-emerald-600 font-mono font-extrabold">$93,840.00</span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-500/15 border border-emerald-300/60 px-2 py-0.5 rounded-full">
-                    +3.42%
-                  </span>
-                </div>
-                <div className="relative h-16 w-full">
-                  <canvas
-                    ref={miniChartBTCRef}
-                    className="w-full h-full"
-                  />
-                </div>
-              </div>
-
-              {/* Mini Chart Card 2: ETH Staking */}
-              <div
-                onClick={() => {
-                  setChartAsset("ETH");
-                  setChartModalOpen(true);
-                }}
-                className="p-3 rounded-2xl bg-white/55 hover:bg-white/80 backdrop-blur-2xl border border-white/90 shadow-[0_4px_16px_rgba(255,255,255,0.4)] space-y-2 relative overflow-hidden group/eth cursor-pointer transition-all duration-200 hover:scale-[1.015] hover:shadow-md"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-7 h-7 rounded-xl bg-indigo-500/15 border border-indigo-300/80 flex items-center justify-center font-extrabold text-indigo-600 text-xs shadow-2xs group-hover/eth:scale-105 transition-transform">
-                      Ξ
-                    </span>
-                    <div>
-                      <h4 className="font-bold text-slate-900 text-xs">Ethereum Staking</h4>
-                      <span className="text-[10px] text-indigo-600 font-mono font-extrabold">3.4% APY</span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-500/15 border border-emerald-300/60 px-2 py-0.5 rounded-full">
-                    12 Gwei
-                  </span>
-                </div>
-                <div className="relative h-16 w-full">
-                  <canvas
-                    ref={miniChartETHRef}
-                    className="w-full h-full"
-                  />
-                </div>
-              </div>
-            </div>
+            {/* Market Snapshot: Live Price Changes for Top 5 Cryptocurrencies using Simplified Sparklines */}
+            <MarketSnapshot
+              onSelectAsset={(asset) => {
+                setChartAsset(asset);
+                setChartModalOpen(true);
+                showToast(`Opened ${asset} live financial telemetry`);
+              }}
+            />
           </div>
 
           {/* Sidebar Footer */}
@@ -1812,35 +1612,57 @@ function AKChat() {
                 <button
                   type="button"
                   onClick={() => setChartAsset("BTC")}
-                  className={`apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  className={`apple-glass-interactive px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                     chartAsset === "BTC"
                       ? "text-amber-800 bg-amber-500/15 border border-amber-300"
                       : "text-slate-700 hover:text-slate-900"
                   }`}
                 >
-                  Bitcoin (BTC)
+                  BTC
                 </button>
                 <button
                   type="button"
                   onClick={() => setChartAsset("ETH")}
-                  className={`apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  className={`apple-glass-interactive px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                     chartAsset === "ETH"
                       ? "text-indigo-800 bg-indigo-500/15 border border-indigo-300"
                       : "text-slate-700 hover:text-slate-900"
                   }`}
                 >
-                  Ethereum (ETH)
+                  ETH
                 </button>
                 <button
                   type="button"
                   onClick={() => setChartAsset("SOL")}
-                  className={`apple-glass-interactive px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  className={`apple-glass-interactive px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                     chartAsset === "SOL"
                       ? "text-emerald-800 bg-emerald-500/15 border border-emerald-300"
                       : "text-slate-700 hover:text-slate-900"
                   }`}
                 >
-                  Solana (SOL)
+                  SOL
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setChartAsset("BNB")}
+                  className={`apple-glass-interactive px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    chartAsset === "BNB"
+                      ? "text-yellow-800 bg-yellow-500/15 border border-yellow-300"
+                      : "text-slate-700 hover:text-slate-900"
+                  }`}
+                >
+                  BNB
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setChartAsset("XRP")}
+                  className={`apple-glass-interactive px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    chartAsset === "XRP"
+                      ? "text-sky-800 bg-sky-500/15 border border-sky-300"
+                      : "text-slate-700 hover:text-slate-900"
+                  }`}
+                >
+                  XRP
                 </button>
               </div>
               <div className="flex gap-1 bg-slate-200/60 p-1 rounded-xl border border-slate-300/40">

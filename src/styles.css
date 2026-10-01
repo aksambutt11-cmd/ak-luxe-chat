@@ -1305,37 +1305,50 @@ button.rail-layer {
 /* ---- Antigravity Bitcoin field, logo, send, model control ---- */
 .bitcoin-field {
   pointer-events: none;
-  position: fixed;
+  position: absolute;
   inset: 0;
-  z-index: -2;
+  z-index: 0;
   overflow: hidden;
 }
 .btc-coin {
   position: absolute;
-  top: -12vh;
+  will-change: transform;
+}
+.btc-dir-fall {
+  top: -15vh;
   animation-name: btc-fall;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
-  will-change: transform;
+}
+.btc-dir-rise {
+  bottom: -15vh;
+  animation-name: btc-rise;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
 }
 .btc-spin {
   display: block;
-  animation: btc-rotate ease-in-out infinite alternate;
+  animation: btc-rotate 6s ease-in-out infinite alternate;
 }
-.btc-far { opacity: 0.32; filter: blur(1.8px) saturate(0.95); }
-.btc-mid { opacity: 0.55; filter: blur(0.5px) drop-shadow(0 4px 10px oklch(0.5 0.1 50 / 0.18)); }
+.btc-far { opacity: 0.38; filter: blur(1.2px) saturate(0.95); }
+.btc-mid { opacity: 0.65; filter: blur(0.3px) drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15)); }
 .btc-near {
-  opacity: 0.78;
-  filter: drop-shadow(0 0 18px oklch(0.78 0.16 75 / 0.45)) drop-shadow(0 8px 18px oklch(0.3 0.05 260 / 0.18));
+  opacity: 0.88;
+  filter: drop-shadow(0 0 16px rgba(245, 158, 11, 0.35)) drop-shadow(0 8px 18px rgba(0, 0, 0, 0.2));
 }
 @keyframes btc-fall {
   0% { transform: translate3d(0, 0, 0); }
-  50% { transform: translate3d(28px, 60vh, 0); }
-  100% { transform: translate3d(-12px, 125vh, 0); }
+  50% { transform: translate3d(32px, 65vh, 0); }
+  100% { transform: translate3d(-16px, 130vh, 0); }
+}
+@keyframes btc-rise {
+  0% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(-32px, -65vh, 0); }
+  100% { transform: translate3d(16px, -130vh, 0); }
 }
 @keyframes btc-rotate {
-  from { transform: rotateY(-35deg) rotateZ(-14deg); }
-  to { transform: rotateY(35deg) rotateZ(14deg); }
+  from { transform: rotateY(-38deg) rotateZ(-16deg); }
+  to { transform: rotateY(38deg) rotateZ(16deg); }
 }
 .ak-mark {
   position: relative;

@@ -2,9 +2,12 @@ import fs from 'fs';
 import path from 'path';
 
 const files = [
-  'vite.config.ts',
+  'src/components/market-snapshot.tsx',
   'src/components/bitcoin-field.tsx',
-  'src/routes/index.tsx'
+  'src/components/live-crypto-chart.tsx',
+  'src/routes/index.tsx',
+  'src/styles.css',
+  'vite.config.ts'
 ];
 
 const bundle = {};

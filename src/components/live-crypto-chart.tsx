@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { BarChart3, TrendingUp, Activity, Layers, Crosshair, Zap } from "lucide-react";
 
-export type AssetSymbol = "BTC" | "ETH" | "SOL";
+export type AssetSymbol = "BTC" | "ETH" | "SOL" | "BNB" | "XRP";
 export type Timeframe = "1D" | "1W" | "1M";
 export type ChartType = "candlestick" | "area";
 
@@ -63,6 +63,24 @@ export function LiveCryptoChart({ asset, timeframe, onPriceUpdate }: LiveCryptoC
           color: "#10b981",
           fillGrad: "rgba(16, 185, 129, 0.25)",
           name: "Solana",
+        };
+      case "BNB":
+        return {
+          basePrice: 642.5,
+          volatility: 1.8,
+          decimals: 2,
+          color: "#eab308",
+          fillGrad: "rgba(234, 179, 8, 0.25)",
+          name: "BNB Chain",
+        };
+      case "XRP":
+        return {
+          basePrice: 2.42,
+          volatility: 0.03,
+          decimals: 4,
+          color: "#0284c7",
+          fillGrad: "rgba(2, 132, 199, 0.25)",
+          name: "Ripple",
         };
     }
   }, [asset]);
