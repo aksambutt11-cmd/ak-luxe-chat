@@ -1040,125 +1040,128 @@ function AKChat() {
           <div className="w-full h-full flex flex-col rounded-[0.85rem] sm:rounded-[1rem] overflow-hidden relative bg-[#f0f3f8]/80 backdrop-blur-md p-1.5 sm:p-3 min-w-0">
             {/* Animated Crypto Coin Background specifically behind chat interface */}
             <BitcoinField className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-45" />
-            {/* Top Glass Header */}
-            <div className="apple-glass rounded-xl sm:rounded-2xl p-2 sm:p-3 mb-1.5 sm:mb-2 flex flex-row items-center justify-between gap-2 sm:gap-3 shadow-xs shrink-0 min-w-0">
-              <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                {/* Mobile Drawer Button */}
-                <button
-                  type="button"
-                  onClick={() => setNavOpen(true)}
-                  className="lg:hidden size-8.5 sm:size-9 rounded-xl text-slate-700 apple-glass-interactive shrink-0 flex items-center justify-center"
-                  aria-label="Open menu"
-                >
-                  <Menu className="w-4.5 h-4.5" />
-                </button>
+            {/* Top Glass Header Container with Rotating Colorful Border Glow */}
+            <div className="relative rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 shadow-xs shrink-0 min-w-0 border border-white/80">
+              {/* Subtle rotating colorful animated glow continuously traveling around the entire outer border */}
+              <div className="rotating-conic-border-wrapper">
+                <div className="rotating-conic-light opacity-80" />
+              </div>
+              {/* Inner glass background shield */}
+              <div className="absolute inset-[1.5px] rounded-[10px] sm:rounded-[14px] bg-white/85 backdrop-blur-xl pointer-events-none" />
 
-                {/* Mobile Quick Market Button */}
-                <button
-                  type="button"
-                  onClick={() => setNavOpen(true)}
-                  className="lg:hidden flex items-center gap-1 px-2.5 py-1.5 rounded-xl apple-glass-interactive text-blue-700 font-extrabold text-[11px] shrink-0 shadow-2xs"
-                  title="Open Crypto Intelligence Panel"
-                >
-                  <Activity className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Market Panel</span>
-                </button>
+              <div className="relative z-10 p-2 sm:p-3 flex flex-row items-center justify-between gap-2 sm:gap-3 min-w-0">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                  {/* Mobile Drawer Button */}
+                  <button
+                    type="button"
+                    onClick={() => setNavOpen(true)}
+                    className="lg:hidden size-8.5 sm:size-9 rounded-xl text-slate-700 apple-glass-interactive shrink-0 flex items-center justify-center"
+                    aria-label="Open menu"
+                  >
+                    <Menu className="w-4.5 h-4.5" />
+                  </button>
 
-                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                  <div className="w-8 h-8 sm:w-9.5 sm:h-9.5 ak-glass-badge shrink-0 p-1 sm:p-1.5 shadow-xs">
-                    <svg className="w-5 h-5 sm:w-6 sm:h-6 ak-svg-icon" viewBox="0 0 100 100" fill="none">
-                      <path
-                        d="M18 78 L42 22 L54 22 L36 60 L62 22 L78 22 L50 62 L80 78 L63 78 L42 66 L30 78 Z"
-                        fill="url(#akGoldGradient)"
-                      />
-                    </svg>
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                      <h2 className="font-bold text-slate-900 text-xs sm:text-sm truncate">AK Intelligence</h2>
-                      <span className="text-[8.5px] sm:text-[10px] font-semibold text-emerald-600 bg-emerald-500/10 px-1.5 sm:px-2 py-0.5 rounded-full hidden min-[360px]:flex items-center gap-1 shrink-0">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
+                  {/* Mobile Quick Market Button */}
+                  <button
+                    type="button"
+                    onClick={() => setNavOpen(true)}
+                    className="lg:hidden flex items-center gap-1 px-2.5 py-1.5 rounded-xl apple-glass-interactive text-blue-700 font-extrabold text-[11px] shrink-0 shadow-2xs"
+                    title="Open Crypto Intelligence Panel"
+                  >
+                    <Activity className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Market Panel</span>
+                  </button>
+
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                    <div className="w-8 h-8 sm:w-9.5 sm:h-9.5 ak-glass-badge shrink-0 p-1 sm:p-1.5 shadow-xs">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6 ak-svg-icon" viewBox="0 0 100 100" fill="none">
+                        <path
+                          d="M18 78 L42 22 L54 22 L36 60 L62 22 L78 22 L50 62 L80 78 L63 78 L42 66 L30 78 Z"
+                          fill="url(#akGoldGradient)"
+                        />
+                      </svg>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                        <h2 className="font-bold text-slate-900 text-xs sm:text-sm truncate">AK Intelligence</h2>
+                        <span className="text-[8.5px] sm:text-[10px] font-semibold text-emerald-600 bg-emerald-500/10 px-1.5 sm:px-2 py-0.5 rounded-full hidden min-[360px]:flex items-center gap-1 shrink-0">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
+                        </span>
+                      </div>
+                      <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium hidden sm:block truncate">
+                        Real-time crypto market intelligence & risk engine
                       </span>
                     </div>
-                    <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium hidden sm:block truncate">
-                      Real-time crypto market intelligence & risk engine
-                    </span>
                   </div>
                 </div>
-              </div>
 
-              {/* Action Controls Header Buttons */}
-              <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 flex-nowrap justify-end shrink-0">
-                <button
-                  type="button"
-                  onClick={clearChat}
-                  className="apple-glass-interactive p-1.5 sm:px-3 sm:py-1.5 md:px-3.5 md:py-2 rounded-xl text-slate-800 hover:text-blue-600 transition-all flex items-center gap-1.5 font-bold text-[11px] sm:text-xs shadow-xs shrink-0"
-                  title="Start a fresh conversation"
-                >
-                  <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600" />
-                  <span className="hidden sm:inline">New Chat</span>
-                </button>
+                {/* Action Controls Header Buttons */}
+                <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 flex-nowrap justify-end shrink-0">
+                  <button
+                    type="button"
+                    onClick={clearChat}
+                    className="apple-glass-interactive p-1.5 sm:px-3 sm:py-1.5 md:px-3.5 md:py-2 rounded-xl text-slate-800 hover:text-blue-600 transition-all flex items-center gap-1.5 font-bold text-[11px] sm:text-xs shadow-xs shrink-0"
+                    title="Start a fresh conversation"
+                  >
+                    <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600" />
+                    <span className="hidden sm:inline">New Chat</span>
+                  </button>
 
-                {/* Rotating Colorful Border Glowing Sign In Box */}
-                <button
-                  type="button"
-                  onClick={() => setAuthModalOpen(true)}
-                  className="relative group p-[1.5px] rounded-xl shadow-xs transition-all active:scale-95 shrink-0 flex items-center justify-center cursor-pointer overflow-hidden"
-                  title="Sign in to terminal"
-                >
-                  <div className="rotating-conic-border-wrapper">
-                    <div className="rotating-conic-light opacity-90" />
-                  </div>
-                  <div className="relative z-10 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-[10px] bg-slate-900 hover:bg-slate-800 text-white font-bold text-[11px] sm:text-xs flex items-center gap-1 sm:gap-1.5 transition-colors">
+                  <button
+                    type="button"
+                    onClick={() => setAuthModalOpen(true)}
+                    className="btn-glass-signin text-white font-bold text-[11px] sm:text-xs px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl shadow-xs transition-all active:scale-95 shrink-0 flex items-center gap-1 sm:gap-1.5"
+                    title="Sign in to terminal"
+                  >
                     <User className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-400" />
                     <span>Sign in</span>
-                  </div>
-                </button>
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={() => setGetStartedModalOpen(true)}
-                  className="hidden md:flex btn-glass-getstarted text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-xs transition-all items-center gap-1 active:scale-95 shrink-0"
-                >
-                  <span>Pro</span>
-                  <Sparkles className="w-3.5 h-3.5" />
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => setGetStartedModalOpen(true)}
+                    className="hidden md:flex btn-glass-getstarted text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-xs transition-all items-center gap-1 active:scale-95 shrink-0"
+                  >
+                    <span>Pro</span>
+                    <Sparkles className="w-3.5 h-3.5" />
+                  </button>
 
-                <div className="h-4 w-px bg-slate-300/60 mx-0.5 hidden sm:block" />
+                  <div className="h-4 w-px bg-slate-300/60 mx-0.5 hidden sm:block" />
 
-                <button
-                  type="button"
-                  onClick={() => setChartModalOpen(true)}
-                  className="apple-glass-interactive p-1.5 sm:p-2 rounded-xl text-slate-700 hover:text-blue-600 transition-all flex items-center gap-1 font-bold text-[10.5px] sm:text-xs shrink-0"
-                  title="Live Price Charts"
-                >
-                  <LineChart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600" />
-                  <span className="hidden sm:inline">Charts</span>
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => setChartModalOpen(true)}
+                    className="apple-glass-interactive p-1.5 sm:p-2 rounded-xl text-slate-700 hover:text-blue-600 transition-all flex items-center gap-1 font-bold text-[10.5px] sm:text-xs shrink-0"
+                    title="Live Price Charts"
+                  >
+                    <LineChart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600" />
+                    <span className="hidden sm:inline">Charts</span>
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={() => setConverterModalOpen(true)}
-                  className="apple-glass-interactive p-1.5 sm:p-2 rounded-xl text-slate-700 hover:text-blue-600 transition-all flex items-center gap-1 font-bold text-[10.5px] sm:text-xs shrink-0"
-                  title="Crypto Converter"
-                >
-                  <ArrowLeftRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-600" />
-                  <span className="hidden sm:inline">Swap</span>
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => setConverterModalOpen(true)}
+                    className="apple-glass-interactive p-1.5 sm:p-2 rounded-xl text-slate-700 hover:text-blue-600 transition-all flex items-center gap-1 font-bold text-[10.5px] sm:text-xs shrink-0"
+                    title="Crypto Converter"
+                  >
+                    <ArrowLeftRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-600" />
+                    <span className="hidden sm:inline">Swap</span>
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={() => setBookmarksDrawerOpen((prev) => !prev)}
-                  className="apple-glass-interactive p-1.5 sm:p-2 rounded-xl text-slate-700 hover:text-blue-600 transition-all flex items-center gap-1 font-bold text-[10.5px] sm:text-xs relative shrink-0"
-                  title="Saved Insights"
-                >
-                  <Bookmark className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" />
-                  {savedBookmarks.length > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-[9px] font-extrabold px-1.5 py-0.2 rounded-full">
-                      {savedBookmarks.length}
-                    </span>
-                  )}
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => setBookmarksDrawerOpen((prev) => !prev)}
+                    className="apple-glass-interactive p-1.5 sm:p-2 rounded-xl text-slate-700 hover:text-blue-600 transition-all flex items-center gap-1 font-bold text-[10.5px] sm:text-xs relative shrink-0"
+                    title="Saved Insights"
+                  >
+                    <Bookmark className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" />
+                    {savedBookmarks.length > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-[9px] font-extrabold px-1.5 py-0.2 rounded-full">
+                        {savedBookmarks.length}
+                      </span>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
 
