@@ -270,7 +270,7 @@ export function AntigravityHero({
   return (
     <div
       ref={containerRef}
-      className="rounded-2xl sm:rounded-3xl p-3 sm:p-6 text-slate-800 text-xs sm:text-sm leading-relaxed max-w-2xl w-full relative overflow-hidden select-none transition-all duration-300 backdrop-blur-3xl bg-white/45 border border-white/80 shadow-[0_20px_50px_rgba(8,_112,_184,_0.08)] ring-1 ring-white/70 group"
+      className="rounded-2xl sm:rounded-3xl p-3 sm:p-6 text-slate-800 text-xs sm:text-sm leading-relaxed max-w-2xl w-full relative overflow-hidden select-none transition-all duration-300 backdrop-blur-3xl bg-white/60 border border-white/80 shadow-[0_20px_50px_rgba(8,_112,_184,_0.08)] ring-1 ring-white/70 hero-box-soft-glow group"
     >
       {/* Liquid Glass Internal Refraction Overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-white/20 to-white/40 pointer-events-none" />
@@ -288,7 +288,7 @@ export function AntigravityHero({
 
       <div className="relative z-10 flex flex-col items-center text-center space-y-2 sm:space-y-3 pt-0.5">
         {/* Top Glass Brand Badge with EXACT NEURAL SYNC ACTIVE Style */}
-        <div className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-1 sm:gap-2 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/60 backdrop-blur-2xl border border-white/90 shadow-[0_4px_16px_rgba(255,255,255,0.6)] ring-1 ring-white/60 max-w-full">
+        <div className="anim-stagger-1 flex flex-wrap sm:flex-nowrap items-center justify-center gap-1 sm:gap-2 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/60 backdrop-blur-2xl border border-white/90 shadow-[0_4px_16px_rgba(255,255,255,0.6)] ring-1 ring-white/60 max-w-full">
           <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-xs shrink-0">
             <Cpu className="w-2.5 h-2.5" />
           </div>
@@ -301,21 +301,21 @@ export function AntigravityHero({
           </span>
         </div>
 
-        {/* Large Executive Crypto Headline */}
+        {/* Large Executive Crypto Headline with Cool Text Animations */}
         <div className="space-y-1 sm:space-y-1.5 max-w-xl px-1">
-          <h1 className="text-base sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight leading-[1.25] sm:leading-[1.2] drop-shadow-2xs">
-            Experience institutional intelligence with the{" "}
-            <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-amber-600 bg-clip-text text-transparent">
-              crypto agent platform
+          <h1 className="anim-stagger-2 text-base sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight leading-[1.25] sm:leading-[1.2] drop-shadow-2xs">
+            Experience next-generation alpha with{" "}
+            <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-amber-600 bg-clip-text text-transparent animate-text-gradient font-black inline-block">
+              crypto agent intelligence
             </span>
           </h1>
-          <p className="text-[10.5px] sm:text-xs text-slate-600 font-medium">
+          <p className="anim-stagger-3 text-[10.5px] sm:text-xs text-slate-600 font-medium">
             Real-time on-chain analytics, order book liquidation clusters, and risk audits.
           </p>
         </div>
 
         {/* Clean, Refined Liquid Glass Starter Chips */}
-        <div className="w-full pt-2 sm:pt-3 mt-0.5 sm:mt-1 border-t border-white/50 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
+        <div className="anim-stagger-4 w-full pt-2 sm:pt-3 mt-0.5 sm:mt-1 border-t border-white/50 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
           <button
             type="button"
             onClick={() => void onQuickPrompt("Analyze Bitcoin (BTC) liquidation clusters")}

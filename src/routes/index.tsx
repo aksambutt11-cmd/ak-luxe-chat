@@ -26,6 +26,8 @@ import {
   Menu,
   MenuIcon,
   Mic,
+  PanelLeftClose,
+  PanelLeftOpen,
   Paperclip,
   Plus,
   Radar,
@@ -120,6 +122,10 @@ function AKChat() {
   const [activeModel, setActiveModel] = useState("AK-Crypto v4");
   const [activeModelDesc, setActiveModelDesc] = useState("Pro Crypto Model");
   const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
+
+  // Left panel & Drawer states
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileCryptoPanelOpen, setMobileCryptoPanelOpen] = useState(false);
 
   // Modals
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -587,7 +593,6 @@ function AKChat() {
           setConvertFrom(asset);
           setConverterModalOpen(true);
         }}
-        onOpenSettings={() => setSettingsModalOpen(true)}
         scrollDuration={tickerScrollSpeed}
       />
 
@@ -604,10 +609,12 @@ function AKChat() {
         {/* SIDEBAR NAVIGATION & PREMIUM APPLE GLASS CHARTS */}
         <aside
           aria-label="Sidebar"
-          className={`w-72 rounded-3xl flex-col justify-between p-4 shrink-0 overflow-y-auto overscroll-contain backdrop-blur-3xl bg-white/45 border border-white/80 shadow-[0_20px_50px_rgba(8,_112,_184,_0.08)] ring-1 ring-white/70 relative group select-none transition-all duration-300 ${
+          className={`rounded-3xl flex-col justify-between shrink-0 overflow-y-auto overscroll-contain backdrop-blur-3xl bg-white/45 border border-white/80 shadow-[0_20px_50px_rgba(8,_112,_184,_0.08)] ring-1 ring-white/70 relative group select-none transition-all duration-300 ease-in-out ${
             navOpen
-              ? "flex fixed z-50 top-[max(0.5rem,env(safe-area-inset-top))] bottom-[max(0.5rem,env(safe-area-inset-bottom))] left-2 w-[min(19rem,calc(100vw-3rem))] bg-white/85 drawer-panel lg:static lg:w-72 lg:bg-white/45"
-              : "hidden lg:flex"
+              ? "flex fixed z-50 top-[max(0.5rem,env(safe-area-inset-top))] bottom-[max(0.5rem,env(safe-area-inset-bottom))] left-2 w-[min(20rem,calc(100vw-2.5rem))] bg-white/95 p-3.5 drawer-panel lg:static"
+              : sidebarCollapsed
+              ? "hidden lg:flex lg:w-[72px] lg:p-2.5"
+              : "hidden lg:flex lg:w-80 lg:p-4"
           }`}
           onClick={(e) => {
             if ((e.target as HTMLElement).closest("button") && window.innerWidth < 1024) setNavOpen(false);
@@ -617,210 +624,415 @@ function AKChat() {
           <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/20 to-white/40 pointer-events-none" />
           <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-600 via-indigo-500 to-amber-500 opacity-90 shadow-sm" />
 
-          <div className="space-y-4 relative z-10">
-            <button
-              type="button"
-              className="lg:hidden absolute -top-1 right-0 size-9 rounded-xl apple-glass-interactive flex items-center justify-center text-slate-700 z-20"
-              aria-label="Close menu"
-            >
-              <X className="w-4 h-4" />
-            </button>
-            {/* AK Monogram Logo Badge */}
-            <div
-              className="flex items-center gap-3 cursor-pointer group/logo"
-              onClick={() => showToast("AK Luxe Crypto Intelligence Active")}
-            >
-              <div className="w-11 h-11 ak-glass-badge shrink-0 shadow-md group-hover/logo:scale-105 group-hover/logo:shadow-blue-500/20 transition-all duration-300 border border-white/90">
-                <svg
-                  className="w-7 h-7 ak-svg-icon"
-                  viewBox="0 0 100 100"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
+          {/* ========================================================
+              COLLAPSED RAIL MODE (Desktop only, when sidebarCollapsed)
+              Shows icons only, hides full text
+             ======================================================== */}
+          {sidebarCollapsed && !navOpen ? (
+            <div className="flex flex-col justify-between h-full w-full items-center relative z-10 py-1 space-y-3">
+              <div className="flex flex-col items-center w-full space-y-2.5">
+                {/* Logo Icon */}
+                <div
+                  className="w-10 h-10 ak-glass-badge shrink-0 shadow-md flex items-center justify-center cursor-pointer border border-white/90 transition-transform hover:scale-105"
+                  onClick={() => setSidebarCollapsed(false)}
+                  title="Expand Left Panel"
                 >
-                  <defs>
-                    <linearGradient id="akGoldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#1e40af" />
-                      <stop offset="50%" stopColor="#3b82f6" />
-                      <stop offset="100%" stopColor="#f59e0b" />
-                    </linearGradient>
-                  </defs>
-                  <path
-                    d="M18 78 L42 22 L54 22 L36 60 L62 22 L78 22 L50 62 L80 78 L63 78 L42 66 L30 78 Z"
-                    fill="url(#akGoldGradient)"
-                  />
-                </svg>
-              </div>
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <h1 className="font-extrabold text-slate-900 text-base leading-none tracking-tight">
-                    AK Luxe
-                  </h1>
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <svg className="w-5.5 h-5.5 ak-svg-icon" viewBox="0 0 100 100" fill="none">
+                    <path
+                      d="M18 78 L42 22 L54 22 L36 60 L62 22 L78 22 L50 62 L80 78 L63 78 L42 66 L30 78 Z"
+                      fill="url(#akGoldGradient)"
+                    />
+                  </svg>
                 </div>
-                <span className="text-[11px] text-slate-500 font-bold tracking-wide flex items-center gap-1 mt-0.5">
-                  Crypto Neural Core
+
+                {/* Expand Button */}
+                <button
+                  type="button"
+                  onClick={() => setSidebarCollapsed(false)}
+                  className="w-9 h-9 rounded-xl apple-glass-interactive flex items-center justify-center text-slate-700 hover:text-blue-600 transition-all shadow-2xs"
+                  title="Expand Left Panel"
+                  aria-label="Expand Left Panel"
+                >
+                  <PanelLeftOpen className="w-4.5 h-4.5 text-blue-600" />
+                </button>
+
+                <div className="w-6 h-px bg-slate-200/80 my-0.5" />
+
+                {/* Intelligence Layers on TOP - Icons only */}
+                <div className="space-y-1.5 w-full flex flex-col items-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveLayer("Market structure");
+                      showToast("Active layer: Market structure");
+                      void sendQuickPrompt("Give me an overview of the current crypto market structure.");
+                    }}
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all relative ${
+                      activeLayer === "Market structure"
+                        ? "bg-blue-600 text-white shadow-sm ring-1 ring-blue-400/50"
+                        : "apple-glass-interactive text-slate-700 hover:text-blue-600"
+                    }`}
+                    title="Market Structure"
+                  >
+                    <LineChart className="w-4 h-4" />
+                    {activeLayer === "Market structure" && (
+                      <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-white" />
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveLayer("On-chain signals");
+                      showToast("Active layer: On-chain signals");
+                      void sendQuickPrompt("What are the most important on-chain signals right now?");
+                    }}
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all relative ${
+                      activeLayer === "On-chain signals"
+                        ? "bg-indigo-600 text-white shadow-sm ring-1 ring-indigo-400/50"
+                        : "apple-glass-interactive text-slate-700 hover:text-indigo-600"
+                    }`}
+                    title="On-Chain Signals"
+                  >
+                    <Activity className="w-4 h-4" />
+                    {activeLayer === "On-chain signals" && (
+                      <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-white" />
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveLayer("Risk context");
+                      showToast("Active layer: Risk context");
+                      void sendQuickPrompt("Summarize the current risk context for crypto investors.");
+                    }}
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all relative ${
+                      activeLayer === "Risk context"
+                        ? "bg-amber-600 text-white shadow-sm ring-1 ring-amber-400/50"
+                        : "apple-glass-interactive text-slate-700 hover:text-amber-600"
+                    }`}
+                    title="Risk Context"
+                  >
+                    <ShieldAlert className="w-4 h-4" />
+                    {activeLayer === "Risk context" && (
+                      <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-white" />
+                    )}
+                  </button>
+                </div>
+
+                <div className="w-6 h-px bg-slate-200/80 my-0.5" />
+
+                {/* Quick Crypto Asset Icons Stack (One-Click Pro Chart) */}
+                <div className="space-y-1 w-full flex flex-col items-center">
+                  {[
+                    { id: "BTC", badge: "₿", label: "BTC ($93.8k)" },
+                    { id: "ETH", badge: "Ξ", label: "ETH ($3.3k)" },
+                    { id: "SOL", badge: "◎", label: "SOL ($188)" },
+                    { id: "BNB", badge: "Ⓑ", label: "BNB ($642)" },
+                    { id: "XRP", badge: "✕", label: "XRP ($2.42)" },
+                    { id: "SUI", badge: "💧", label: "SUI ($3.45)" },
+                    { id: "AVAX", badge: "🔺", label: "AVAX ($38.6)" },
+                    { id: "DOGE", badge: "Ð", label: "DOGE ($0.28)" },
+                    { id: "LINK", badge: "⬡", label: "LINK ($18.2)" },
+                    { id: "NEAR", badge: "Ⓝ", label: "NEAR ($5.8)" },
+                    { id: "DOT", badge: "●", label: "DOT ($8.2)" },
+                    { id: "ADA", badge: "₳", label: "ADA ($0.84)" },
+                  ].map((coin) => (
+                    <button
+                      key={coin.id}
+                      type="button"
+                      onClick={() => {
+                        setChartAsset(coin.id as AssetSymbol);
+                        setChartModalOpen(true);
+                      }}
+                      className={`w-8 h-8 rounded-xl font-mono text-xs font-black transition-all flex items-center justify-center ${
+                        chartAsset === coin.id
+                          ? "bg-blue-600 text-white shadow-xs"
+                          : "apple-glass-interactive text-slate-700 hover:text-blue-600"
+                      }`}
+                      title={`Inspect ${coin.label}`}
+                    >
+                      <span>{coin.badge}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Bottom Rail Controls - Engine Status + Single Settings Icon */}
+              <div className="pt-2 border-t border-white/60 flex flex-col items-center gap-2 w-full">
+                <span className="relative flex h-2.5 w-2.5" title="Crypto Engine Online">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
                 </span>
+                <button
+                  type="button"
+                  onClick={() => setSettingsModalOpen(true)}
+                  className="w-9 h-9 rounded-xl apple-glass-interactive flex items-center justify-center text-slate-700 hover:text-blue-600 transition-all shadow-2xs group cursor-pointer"
+                  title="Crypto Preferences & System Settings"
+                  aria-label="Settings"
+                >
+                  <Settings className="w-4.5 h-4.5 text-slate-700 group-hover:rotate-45 transition-transform duration-300" />
+                </button>
               </div>
             </div>
+          ) : (
+            /* ========================================================
+               EXPANDED SIDEBAR PANEL (Intelligence Layers on Top)
+               ======================================================== */
+            <div className="space-y-3.5 relative z-10 flex flex-col justify-between h-full">
+              <div className="space-y-3">
+                {/* Header Row: Branding + Collapse Button */}
+                <div className="flex items-center justify-between">
+                  <div
+                    className="flex items-center gap-2.5 cursor-pointer group/logo"
+                    onClick={() => showToast("AK Luxe Crypto Intelligence Active")}
+                  >
+                    <div className="w-10 h-10 ak-glass-badge shrink-0 shadow-md group-hover/logo:scale-105 group-hover/logo:shadow-blue-500/20 transition-all duration-300 border border-white/90">
+                      <svg
+                        className="w-6 h-6 ak-svg-icon"
+                        viewBox="0 0 100 100"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <defs>
+                          <linearGradient id="akGoldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#1e40af" />
+                            <stop offset="50%" stopColor="#3b82f6" />
+                            <stop offset="100%" stopColor="#f59e0b" />
+                          </linearGradient>
+                        </defs>
+                        <path
+                          d="M18 78 L42 22 L54 22 L36 60 L62 22 L78 22 L50 62 L80 78 L63 78 L42 66 L30 78 Z"
+                          fill="url(#akGoldGradient)"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <h1 className="font-extrabold text-slate-900 text-sm leading-none tracking-tight">
+                          AK Luxe
+                        </h1>
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      </div>
+                      <span className="text-[10px] text-slate-500 font-bold tracking-wide flex items-center gap-1 mt-0.5">
+                        Crypto Neural Core
+                      </span>
+                    </div>
+                  </div>
 
-            {/* Primary actions */}
-            <div className="space-y-2">
-              <button
-                type="button"
-                onClick={clearChat}
-                className="w-full apple-glass-interactive px-3 py-2.5 rounded-xl text-slate-800 hover:text-blue-600 flex items-center gap-2 font-bold text-xs"
-              >
-                <Plus className="w-4 h-4 text-blue-600" /> New Chat
-              </button>
-              <div className="grid grid-cols-2 gap-2 md:hidden">
-                <button
-                  type="button"
-                  onClick={() => setAuthModalOpen(true)}
-                  className="btn-glass-signin text-white font-bold text-xs px-3 py-2.5 rounded-xl shadow-md active:scale-95"
-                >
-                  Sign in
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setGetStartedModalOpen(true)}
-                  className="btn-glass-getstarted text-white font-bold text-xs px-3 py-2.5 rounded-xl shadow-md flex items-center justify-center gap-1 active:scale-95"
-                >
-                  Pro <Sparkles className="w-3.5 h-3.5" />
-                </button>
+                  {/* Desktop Collapse Button */}
+                  <button
+                    type="button"
+                    onClick={() => setSidebarCollapsed(true)}
+                    className="hidden lg:flex p-1.5 rounded-xl apple-glass-interactive text-slate-500 hover:text-slate-900 shadow-2xs transition-all hover:scale-105"
+                    title="Hide Left Panel (Show Icons)"
+                    aria-label="Hide Left Panel"
+                  >
+                    <PanelLeftClose className="w-4 h-4 text-slate-600" />
+                  </button>
+
+                  {/* Mobile Close Button */}
+                  <button
+                    type="button"
+                    onClick={() => setNavOpen(false)}
+                    className="lg:hidden p-1.5 rounded-xl apple-glass-interactive text-slate-700"
+                    aria-label="Close menu"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* 1. INTELLIGENCE LAYERS ON TOP (As requested: on top like previous) */}
+                <div className="p-2.5 rounded-2xl bg-white/55 backdrop-blur-2xl border border-white/95 shadow-2xs space-y-1.5">
+                  <span className="text-[10px] uppercase font-extrabold text-slate-500 tracking-wider block px-1 flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <Layers className="w-3.5 h-3.5 text-blue-600" /> Intelligence Layers
+                    </span>
+                    <span className="text-[9px] font-bold text-blue-600 bg-blue-500/10 px-1.5 py-0.5 rounded-full border border-blue-300/40">
+                      Active
+                    </span>
+                  </span>
+                  <nav className="space-y-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveLayer("Market structure");
+                        showToast("Switched active layer to Market structure");
+                        void sendQuickPrompt("Give me an overview of the current crypto market structure.");
+                      }}
+                      className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center justify-between transition-all duration-200 cursor-pointer ${
+                        activeLayer === "Market structure"
+                          ? "text-blue-700 bg-white/95 border border-blue-300 shadow-sm translate-x-0.5 ring-1 ring-blue-400/30"
+                          : "text-slate-700 bg-white/40 hover:bg-white/80 hover:translate-x-0.5 border border-transparent hover:border-white/80"
+                      }`}
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <LineChart className="w-3.5 h-3.5 text-blue-600" /> Market structure
+                      </span>
+                      {activeLayer === "Market structure" && (
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600" />
+                        </span>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveLayer("On-chain signals");
+                        showToast("Switched active layer to On-chain signals");
+                        void sendQuickPrompt("What are the most important on-chain signals to watch right now?");
+                      }}
+                      className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center justify-between transition-all duration-200 cursor-pointer ${
+                        activeLayer === "On-chain signals"
+                          ? "text-indigo-700 bg-white/95 border border-indigo-300 shadow-sm translate-x-0.5 ring-1 ring-indigo-400/30"
+                          : "text-slate-700 bg-white/40 hover:bg-white/80 hover:translate-x-0.5 border border-transparent hover:border-white/80"
+                      }`}
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <Activity className="w-3.5 h-3.5 text-indigo-500" /> On-chain signals
+                      </span>
+                      {activeLayer === "On-chain signals" && (
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-600" />
+                        </span>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveLayer("Risk context");
+                        showToast("Switched active layer to Risk context");
+                        void sendQuickPrompt("Summarize the current risk context for crypto investors.");
+                      }}
+                      className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center justify-between transition-all duration-200 cursor-pointer ${
+                        activeLayer === "Risk context"
+                          ? "text-amber-700 bg-white/95 border border-amber-300 shadow-sm translate-x-0.5 ring-1 ring-amber-400/30"
+                          : "text-slate-700 bg-white/40 hover:bg-white/80 hover:translate-x-0.5 border border-transparent hover:border-white/80"
+                      }`}
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <ShieldAlert className="w-3.5 h-3.5 text-amber-500" /> Risk context
+                      </span>
+                      {activeLayer === "Risk context" && (
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-600" />
+                        </span>
+                      )}
+                    </button>
+                  </nav>
+                </div>
+
+                {/* 2. ON-CHAIN MACRO RADAR STRIP */}
+                <div className="p-2.5 rounded-2xl bg-white/60 border border-white/90 shadow-2xs space-y-1.5">
+                  <div className="flex items-center justify-between text-[10px] font-extrabold uppercase text-slate-500 tracking-wider px-1">
+                    <span className="flex items-center gap-1">
+                      <Flame className="w-3.5 h-3.5 text-amber-500" /> Market Radar
+                    </span>
+                    <span className="text-emerald-700 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded-md border border-emerald-300/40 text-[9px]">
+                      Live Mainnet
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-1 text-center">
+                    <div className="p-1 rounded-xl bg-white/70 border border-slate-200/50">
+                      <span className="block text-[8.5px] text-slate-400 font-semibold truncate">Greed</span>
+                      <span className="block text-[10.5px] font-extrabold text-emerald-600">79 🔥</span>
+                    </div>
+                    <div className="p-1 rounded-xl bg-white/70 border border-slate-200/50">
+                      <span className="block text-[8.5px] text-slate-400 font-semibold truncate">Gas</span>
+                      <span className="block text-[10.5px] font-extrabold text-blue-600">14 Gwei</span>
+                    </div>
+                    <div className="p-1 rounded-xl bg-white/70 border border-slate-200/50">
+                      <span className="block text-[8.5px] text-slate-400 font-semibold truncate">BTC Dom</span>
+                      <span className="block text-[10.5px] font-extrabold text-indigo-600">58.4%</span>
+                    </div>
+                    <div className="p-1 rounded-xl bg-white/70 border border-slate-200/50">
+                      <span className="block text-[8.5px] text-slate-400 font-semibold truncate">24h Vol</span>
+                      <span className="block text-[10.5px] font-extrabold text-amber-600">$142B</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. HOT MOVERS QUICK STRIP */}
+                <div className="p-2.5 rounded-2xl bg-gradient-to-br from-white/75 to-blue-50/50 border border-white/90 shadow-2xs space-y-1.5">
+                  <div className="flex items-center justify-between text-[10px] font-extrabold text-slate-600 px-0.5">
+                    <span className="flex items-center gap-1">
+                      <TrendingUp className="w-3.5 h-3.5 text-blue-600" /> Hot Movers 24h
+                    </span>
+                    <span className="text-[9px] text-blue-600 font-bold">1-Click Chart</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {[
+                      { sym: "SUI", badge: "💧", change: "+12.8%", price: "$3.45" },
+                      { sym: "SOL", badge: "◎", change: "+8.65%", price: "$188.4" },
+                      { sym: "AVAX", badge: "🔺", change: "+7.32%", price: "$38.6" },
+                      { sym: "DOGE", badge: "Ð", change: "+6.91%", price: "$0.28" },
+                      { sym: "LINK", badge: "⬡", change: "+3.12%", price: "$18.2" },
+                      { sym: "NEAR", badge: "Ⓝ", change: "+4.88%", price: "$5.80" },
+                    ].map((item) => (
+                      <button
+                        key={item.sym}
+                        type="button"
+                        onClick={() => {
+                          setChartAsset(item.sym as AssetSymbol);
+                          setChartModalOpen(true);
+                        }}
+                        className="p-1.5 rounded-xl bg-white/80 hover:bg-white border border-slate-200/60 shadow-2xs text-left transition-all hover:scale-[1.02] cursor-pointer"
+                      >
+                        <div className="flex items-center justify-between text-[10.5px] font-bold">
+                          <span className="flex items-center gap-1 text-slate-800">
+                            <span>{item.badge}</span>
+                            <span>{item.sym}</span>
+                          </span>
+                          <span className="text-emerald-600 font-mono text-[9.5px]">
+                            {item.change}
+                          </span>
+                        </div>
+                        <span className="text-[9.5px] text-slate-500 font-mono block mt-0.5">
+                          {item.price}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 4. MARKET SNAPSHOT (Live Price Changes for All 12 Cryptocurrencies) */}
+                <MarketSnapshot
+                  onSelectAsset={(asset) => {
+                    setChartAsset(asset);
+                    setChartModalOpen(true);
+                    showToast(`Opened ${asset} live market analytics`);
+                  }}
+                />
               </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setNavOpen(false);
-                  setSettingsModalOpen(true);
-                }}
-                className="w-full apple-glass-interactive px-3 py-2 rounded-xl text-slate-800 hover:text-blue-600 flex items-center justify-between font-bold text-xs"
-              >
-                <span className="flex items-center gap-2">
-                  <Settings className="w-4 h-4 text-slate-600" /> Settings & Preferences
+              {/* Sidebar Footer - Clean status with single settings button */}
+              <div className="pt-2.5 mt-2 border-t border-white/60 flex items-center justify-between text-xs text-slate-500 font-medium shrink-0 relative z-10">
+                <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-300/60 text-emerald-700 text-[10px] font-extrabold shadow-2xs">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                  </span>
+                  Engine Online
                 </span>
-                <span className="text-[10px] text-blue-600 font-extrabold bg-blue-500/10 px-2 py-0.5 rounded-md">
-                  Configure
-                </span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => setSettingsModalOpen(true)}
+                  className="p-1.5 px-2 rounded-xl apple-glass-interactive text-slate-600 hover:text-blue-600 transition-all flex items-center gap-1.5 text-[11px] font-bold shadow-2xs group cursor-pointer"
+                  title="Crypto Preferences & System Settings"
+                  aria-label="Settings"
+                >
+                  <Settings className="w-3.5 h-3.5 text-slate-700 group-hover:rotate-45 transition-transform duration-300" />
+                  <span className="text-[10px] text-slate-700 font-bold">Settings</span>
+                </button>
+              </div>
             </div>
-
-            {/* Intelligence Layers Section */}
-            <div className="p-3 rounded-2xl bg-white/50 backdrop-blur-2xl border border-white/90 shadow-[0_4px_16px_rgba(255,255,255,0.4)] space-y-2">
-              <span className="text-[10px] uppercase font-extrabold text-slate-500 tracking-wider block px-1 flex items-center justify-between">
-                <span className="flex items-center gap-1.5">
-                  <Layers className="w-3.5 h-3.5 text-blue-600" /> Intelligence Layers
-                </span>
-                <span className="text-[9px] font-bold text-blue-600 bg-blue-500/10 px-1.5 py-0.5 rounded-full border border-blue-300/40">
-                  Active
-                </span>
-              </span>
-              <nav className="space-y-1.5">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveLayer("Market structure");
-                    showToast("Switched active layer to Market structure");
-                    void sendQuickPrompt("Give me an overview of the current crypto market structure.");
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all duration-200 cursor-pointer ${
-                    activeLayer === "Market structure"
-                      ? "text-blue-700 bg-white/95 border border-blue-300 shadow-sm translate-x-0.5 ring-1 ring-blue-400/30"
-                      : "text-slate-700 bg-white/40 hover:bg-white/80 hover:translate-x-0.5 border border-transparent hover:border-white/80"
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    <LineChart className="w-3.5 h-3.5 text-blue-600" /> Market structure
-                  </span>
-                  {activeLayer === "Market structure" && (
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600" />
-                    </span>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveLayer("On-chain signals");
-                    showToast("Switched active layer to On-chain signals");
-                    void sendQuickPrompt(
-                      "What are the most important on-chain signals to watch right now?"
-                    );
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all duration-200 cursor-pointer ${
-                    activeLayer === "On-chain signals"
-                      ? "text-indigo-700 bg-white/95 border border-indigo-300 shadow-sm translate-x-0.5 ring-1 ring-indigo-400/30"
-                      : "text-slate-700 bg-white/40 hover:bg-white/80 hover:translate-x-0.5 border border-transparent hover:border-white/80"
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    <Activity className="w-3.5 h-3.5 text-indigo-500" /> On-chain signals
-                  </span>
-                  {activeLayer === "On-chain signals" && (
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-600" />
-                    </span>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveLayer("Risk context");
-                    showToast("Switched active layer to Risk context");
-                    void sendQuickPrompt("Summarize the current risk context for crypto investors.");
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all duration-200 cursor-pointer ${
-                    activeLayer === "Risk context"
-                      ? "text-amber-700 bg-white/95 border border-amber-300 shadow-sm translate-x-0.5 ring-1 ring-amber-400/30"
-                      : "text-slate-700 bg-white/40 hover:bg-white/80 hover:translate-x-0.5 border border-transparent hover:border-white/80"
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    <ShieldAlert className="w-3.5 h-3.5 text-amber-500" /> Risk context
-                  </span>
-                  {activeLayer === "Risk context" && (
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-600" />
-                    </span>
-                  )}
-                </button>
-              </nav>
-            </div>
-
-            {/* Market Snapshot: Live Price Changes for Top Cryptocurrencies */}
-            <MarketSnapshot
-              onSelectAsset={(asset) => {
-                setChartAsset(asset);
-                setChartModalOpen(true);
-                showToast(`Opened ${asset} live market analytics`);
-              }}
-            />
-          </div>
-
-          {/* Sidebar Footer */}
-          <div className="pt-3 mt-3 border-t border-white/60 flex items-center justify-between text-xs text-slate-500 font-medium shrink-0 relative z-10">
-            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-300/60 text-emerald-700 text-[10px] font-extrabold shadow-2xs">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-              </span>
-              Engine Active
-            </span>
-            <button
-              type="button"
-              onClick={() => setSettingsModalOpen(true)}
-              className="p-2 rounded-xl text-slate-700 hover:text-blue-600 bg-white/50 hover:bg-white/80 border border-white/80 shadow-2xs flex items-center gap-1 font-semibold transition-all hover:rotate-45 duration-300"
-              title="Crypto Settings"
-            >
-              <Settings className="w-4 h-4" />
-            </button>
-          </div>
+          )}
         </aside>
 
         {/* CHAT MAIN WORKSPACE */}
@@ -831,14 +1043,27 @@ function AKChat() {
             {/* Top Glass Header */}
             <div className="apple-glass rounded-xl sm:rounded-2xl p-2 sm:p-3 mb-1.5 sm:mb-2 flex flex-row items-center justify-between gap-2 sm:gap-3 shadow-xs shrink-0 min-w-0">
               <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                {/* Mobile Drawer Button */}
                 <button
                   type="button"
                   onClick={() => setNavOpen(true)}
-                  className="lg:hidden size-9 rounded-xl text-slate-700 apple-glass-interactive shrink-0 flex items-center justify-center"
+                  className="lg:hidden size-8.5 sm:size-9 rounded-xl text-slate-700 apple-glass-interactive shrink-0 flex items-center justify-center"
                   aria-label="Open menu"
                 >
                   <Menu className="w-4.5 h-4.5" />
                 </button>
+
+                {/* Mobile Quick Market Button */}
+                <button
+                  type="button"
+                  onClick={() => setNavOpen(true)}
+                  className="lg:hidden flex items-center gap-1 px-2.5 py-1.5 rounded-xl apple-glass-interactive text-blue-700 font-extrabold text-[11px] shrink-0 shadow-2xs"
+                  title="Open Crypto Intelligence Panel"
+                >
+                  <Activity className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Market Panel</span>
+                </button>
+
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                   <div className="w-8 h-8 sm:w-9.5 sm:h-9.5 ak-glass-badge shrink-0 p-1 sm:p-1.5 shadow-xs">
                     <svg className="w-5 h-5 sm:w-6 sm:h-6 ak-svg-icon" viewBox="0 0 100 100" fill="none">
@@ -867,26 +1092,33 @@ function AKChat() {
                 <button
                   type="button"
                   onClick={clearChat}
-                  className="hidden sm:flex apple-glass-interactive px-3.5 py-2 rounded-xl text-slate-800 hover:text-blue-600 transition-all items-center gap-1.5 font-bold text-xs shadow-xs shrink-0"
+                  className="apple-glass-interactive p-1.5 sm:px-3 sm:py-1.5 md:px-3.5 md:py-2 rounded-xl text-slate-800 hover:text-blue-600 transition-all flex items-center gap-1.5 font-bold text-[11px] sm:text-xs shadow-xs shrink-0"
                   title="Start a fresh conversation"
                 >
-                  <Plus className="w-4 h-4 text-blue-600" />
-                  <span>New Chat</span>
+                  <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600" />
+                  <span className="hidden sm:inline">New Chat</span>
                 </button>
 
-                <div className="h-4 w-px bg-slate-300/60 mx-0.5 hidden md:block" />
-
+                {/* Rotating Colorful Border Glowing Sign In Box */}
                 <button
                   type="button"
                   onClick={() => setAuthModalOpen(true)}
-                  className="hidden md:block btn-glass-signin text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-md transition-all active:scale-95 shrink-0"
+                  className="relative group p-[1.5px] rounded-xl shadow-xs transition-all active:scale-95 shrink-0 flex items-center justify-center cursor-pointer overflow-hidden"
+                  title="Sign in to terminal"
                 >
-                  Sign in
+                  <div className="rotating-conic-border-wrapper">
+                    <div className="rotating-conic-light opacity-90" />
+                  </div>
+                  <div className="relative z-10 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-[10px] bg-slate-900 hover:bg-slate-800 text-white font-bold text-[11px] sm:text-xs flex items-center gap-1 sm:gap-1.5 transition-colors">
+                    <User className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-400" />
+                    <span>Sign in</span>
+                  </div>
                 </button>
+
                 <button
                   type="button"
                   onClick={() => setGetStartedModalOpen(true)}
-                  className="hidden md:flex btn-glass-getstarted text-white font-bold text-xs px-4 py-2 rounded-xl shadow-md transition-all items-center gap-1 active:scale-95 shrink-0"
+                  className="hidden md:flex btn-glass-getstarted text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-xs transition-all items-center gap-1 active:scale-95 shrink-0"
                 >
                   <span>Pro</span>
                   <Sparkles className="w-3.5 h-3.5" />
@@ -927,19 +1159,6 @@ function AKChat() {
                     </span>
                   )}
                 </button>
-
-                <div className="h-4 w-px bg-slate-300/60 mx-0.5" />
-
-                <button
-                  type="button"
-                  onClick={() => setSettingsModalOpen(true)}
-                  className="apple-glass-interactive p-1.5 sm:px-2.5 sm:py-2 rounded-xl text-slate-700 hover:text-blue-600 transition-all flex items-center gap-1.5 font-bold text-[10.5px] sm:text-xs shrink-0 shadow-2xs group cursor-pointer"
-                  title="Crypto Preferences & System Settings"
-                  aria-label="Settings"
-                >
-                  <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-700 group-hover:rotate-45 transition-transform duration-300" />
-                  <span className="hidden sm:inline">Settings</span>
-                </button>
               </div>
             </div>
 
@@ -949,14 +1168,16 @@ function AKChat() {
               ref={chatContainerRef}
               className="flex-1 overflow-y-auto space-y-3 sm:space-y-4 pr-1.5 sm:pr-2 pl-0.5 mb-2"
             >
-              {/* 2. Google Antigravity Inspired Dual-Color Particle Hero Welcome */}
-              <div className="flex justify-center max-w-4xl mx-auto welcome-fade-in w-full">
-                <AntigravityHero
-                  onQuickPrompt={(prompt) => void sendQuickPrompt(prompt)}
-                  typedWelcome={typedWelcome}
-                  fullWelcomeText={fullWelcomeText}
-                />
-              </div>
+              {/* 2. Google Antigravity Particle Hero Welcome (Animates in on open, disappears when searching/chatting) */}
+              {messages.length === 0 && (
+                <div className="flex justify-center max-w-4xl mx-auto welcome-fade-in w-full my-auto py-2 sm:py-6">
+                  <AntigravityHero
+                    onQuickPrompt={(prompt) => void sendQuickPrompt(prompt)}
+                    typedWelcome={typedWelcome}
+                    fullWelcomeText={fullWelcomeText}
+                  />
+                </div>
+              )}
 
               {/* Message List */}
               {messages.map((msg) => (
@@ -1027,17 +1248,17 @@ function AKChat() {
               )}
             </div>
 
-            {/* BOTTOM CONTROLS & CHAT INPUT */}
+            {/* BOTTOM CONTROLS & CHAT INPUT (Elevated slightly upside for premium aesthetic) */}
             <div
-              className="mt-1.5 sm:mt-2 space-y-1.5 sm:space-y-2 shrink-0 w-full max-w-full"
-              style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+              className="mt-2 sm:mt-3 mb-2.5 sm:mb-4 space-y-2 sm:space-y-2.5 shrink-0 w-full max-w-full relative z-20 px-0.5"
+              style={{ paddingBottom: "max(0.35rem, env(safe-area-inset-bottom))" }}
             >
               {/* Combined Quick Suggestion & Market Filter Pills Below Chat */}
               <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none touch-pan-x -mx-1 px-1">
                 <button
                   type="button"
                   onClick={() => filterMarketCategory("Markets Overview")}
-                  className={`market-top-btn px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-extrabold flex items-center gap-1.5 shrink-0 ${
+                  className={`market-top-btn px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-extrabold flex items-center gap-1.5 shrink-0 transition-all active:scale-95 ${
                     activeCategory === "Markets Overview"
                       ? "bg-blue-600 text-white shadow-xs"
                       : "apple-glass-interactive text-slate-800"
@@ -1048,7 +1269,7 @@ function AKChat() {
                 <button
                   type="button"
                   onClick={() => filterMarketCategory("On-Chain Signals")}
-                  className={`market-top-btn px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold flex items-center gap-1.5 shrink-0 ${
+                  className={`market-top-btn px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold flex items-center gap-1.5 shrink-0 transition-all active:scale-95 ${
                     activeCategory === "On-Chain Signals"
                       ? "bg-blue-600 text-white shadow-xs"
                       : "apple-glass-interactive text-slate-800"
@@ -1059,7 +1280,7 @@ function AKChat() {
                 <button
                   type="button"
                   onClick={() => filterMarketCategory("Liquidity Heatmap")}
-                  className={`market-top-btn px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold flex items-center gap-1.5 shrink-0 ${
+                  className={`market-top-btn px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold flex items-center gap-1.5 shrink-0 transition-all active:scale-95 ${
                     activeCategory === "Liquidity Heatmap"
                       ? "bg-blue-600 text-white shadow-xs"
                       : "apple-glass-interactive text-slate-800"
@@ -1070,7 +1291,7 @@ function AKChat() {
                 <button
                   type="button"
                   onClick={() => filterMarketCategory("Risk Audit")}
-                  className={`market-top-btn px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold flex items-center gap-1.5 shrink-0 ${
+                  className={`market-top-btn px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold flex items-center gap-1.5 shrink-0 transition-all active:scale-95 ${
                     activeCategory === "Risk Audit"
                       ? "bg-blue-600 text-white shadow-xs"
                       : "apple-glass-interactive text-slate-800"
@@ -1081,7 +1302,7 @@ function AKChat() {
                 <button
                   type="button"
                   onClick={() => filterMarketCategory("AI Arbitrage")}
-                  className={`market-top-btn px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold flex items-center gap-1.5 shrink-0 ${
+                  className={`market-top-btn px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold flex items-center gap-1.5 shrink-0 transition-all active:scale-95 ${
                     activeCategory === "AI Arbitrage"
                       ? "bg-blue-600 text-white shadow-xs"
                       : "apple-glass-interactive text-slate-800"
@@ -1093,21 +1314,21 @@ function AKChat() {
                 <button
                   type="button"
                   onClick={() => void sendQuickPrompt("BTC Price Outlook")}
-                  className="apple-glass-interactive px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold text-slate-800 shrink-0"
+                  className="apple-glass-interactive px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold text-slate-800 shrink-0 transition-all active:scale-95"
                 >
                   BTC Outlook
                 </button>
                 <button
                   type="button"
                   onClick={() => void sendQuickPrompt("ETH Staking Yields")}
-                  className="apple-glass-interactive px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold text-slate-800 shrink-0"
+                  className="apple-glass-interactive px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold text-slate-800 shrink-0 transition-all active:scale-95"
                 >
                   ETH Staking
                 </button>
                 <button
                   type="button"
                   onClick={() => void sendQuickPrompt("DeFi Liquidity Trends")}
-                  className="apple-glass-interactive px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold text-slate-800 shrink-0"
+                  className="apple-glass-interactive px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold text-slate-800 shrink-0 transition-all active:scale-95"
                 >
                   DeFi Trends
                 </button>
@@ -1115,7 +1336,7 @@ function AKChat() {
 
               {/* Attachment Preview Tag */}
               {attachedFile && (
-                <div className="flex items-center gap-2 bg-white/90 border border-slate-200 px-3 py-1.5 rounded-xl text-xs w-fit shadow-sm animate-in fade-in">
+                <div className="flex items-center gap-2 bg-white/95 border border-slate-200 px-3 py-1.5 rounded-xl text-xs w-fit shadow-md animate-in fade-in">
                   <Paperclip className="w-3.5 h-3.5 text-blue-600" />
                   <span className="font-medium text-slate-700">{attachedFile.name}</span>
                   <button
@@ -1128,11 +1349,11 @@ function AKChat() {
                 </div>
               )}
 
-              {/* Chat Input Bar with Exclusive Ambient Glow Halo */}
+              {/* Chat Input Bar with Subtle, Minimal Gentle Blue Border Glow */}
               <div className="relative group w-full max-w-full">
-                <div className="absolute -inset-1.5 rounded-2xl bg-gradient-to-r from-blue-600 via-cyan-400 to-indigo-600 opacity-40 blur-lg group-hover:opacity-80 transition duration-500 pointer-events-none chat-box-halo" />
+                <div className="absolute -inset-1 rounded-3xl bg-blue-500/10 opacity-30 blur-md pointer-events-none group-hover:opacity-50 transition duration-500" />
 
-                <div className={`relative apple-glass rounded-2xl p-1.5 sm:p-2 flex flex-col gap-1.5 sm:gap-2 border border-white/90 shadow-xl bg-white/80 w-full max-w-full transition-all duration-300 ${isComposerGlowing ? "composer-glow-active border-blue-500 shadow-blue-500/30" : ""}`}>
+                <div className={`relative apple-glass input-border-subtle-glow rounded-2xl sm:rounded-3xl p-1.5 sm:p-2.5 flex flex-col gap-1.5 sm:gap-2 border bg-white/85 backdrop-blur-xl w-full max-w-full transition-all duration-300 ${isComposerGlowing ? "composer-glow-active border-blue-500 shadow-blue-500/30" : ""}`}>
                   {/* ChatGPT-Style Plus Menu Dropdown */}
                   {showPlusMenu && (
                     <div className="absolute bottom-14 left-0 z-50 w-60 sm:w-64 max-w-[calc(100vw-32px)] apple-glass rounded-2xl p-2 border border-white/90 shadow-2xl space-y-1 animate-in fade-in zoom-in-95 duration-150">
@@ -1447,88 +1668,97 @@ function AKChat() {
       {/* 1. FIRST-VISIT ANTIGRAVITY WELCOME POPUP */}
       {welcomePopupOpen && (
         <div className="fixed inset-0 z-50 welcome-popup-backdrop flex items-center justify-center p-4 transition-all">
-          <div className="welcome-popup-card w-full max-w-lg rounded-3xl p-6 sm:p-7 shadow-2xl relative space-y-5">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 ak-glass-badge p-2 shrink-0">
-                  <svg className="w-8 h-8 ak-svg-icon" viewBox="0 0 100 100" fill="none">
-                    <path
-                      d="M18 78 L42 22 L54 22 L36 60 L62 22 L78 22 L50 62 L80 78 L63 78 L42 66 L30 78 Z"
-                      fill="url(#akGoldGradient)"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-100/90 px-2 py-0.5 rounded-full">
-                      Next-Gen Crypto Intelligence
-                    </span>
+          <div className="welcome-popup-card w-full max-w-lg rounded-3xl p-6 sm:p-7 shadow-2xl relative overflow-hidden border border-white/90">
+            {/* Subtle rotating colorful animated border lighting */}
+            <div className="rotating-conic-border-wrapper">
+              <div className="rotating-conic-light opacity-80" />
+            </div>
+            {/* Inner high-clarity background shield */}
+            <div className="absolute inset-[1.5px] rounded-[22px] bg-white/95 backdrop-blur-2xl pointer-events-none" />
+
+            <div className="relative z-10 space-y-5">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 ak-glass-badge p-2 shrink-0">
+                    <svg className="w-8 h-8 ak-svg-icon" viewBox="0 0 100 100" fill="none">
+                      <path
+                        d="M18 78 L42 22 L54 22 L36 60 L62 22 L78 22 L50 62 L80 78 L63 78 L42 66 L30 78 Z"
+                        fill="url(#akGoldGradient)"
+                      />
+                    </svg>
                   </div>
-                  <h3 className="font-extrabold text-slate-900 text-lg sm:text-xl tracking-tight mt-0.5">
-                    Welcome to AK Luxe
-                  </h3>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-100/90 px-2 py-0.5 rounded-full">
+                        Next-Gen Crypto Intelligence
+                      </span>
+                    </div>
+                    <h3 className="font-extrabold text-slate-900 text-lg sm:text-xl tracking-tight mt-0.5">
+                      Welcome to AK Luxe
+                    </h3>
+                  </div>
                 </div>
-              </div>
-              <button
-                type="button"
-                onClick={dismissWelcomePopup}
-                className="apple-glass-interactive p-2 rounded-xl text-slate-500 hover:text-slate-900 transition-colors"
-                title="Dismiss"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
-              Institutional-grade digital asset research, real-time market signals, on-chain signal
-              analysis, and portfolio risk intelligence powered by CME Community AI Agents & Pinecone.
-            </p>
-
-            {/* Feature Highlights */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
-              <div className="p-3 rounded-2xl bg-white/70 border border-white/90 shadow-xs space-y-1">
-                <div className="flex items-center gap-1.5 text-blue-600 font-bold text-xs">
-                  <TrendingUp className="w-3.5 h-3.5" />
-                  <span>Market Depth</span>
-                </div>
-                <p className="text-[10px] text-slate-500 leading-tight">
-                  Liquidation clusters & order book depth
-                </p>
+                <button
+                  type="button"
+                  onClick={dismissWelcomePopup}
+                  className="apple-glass-interactive p-2 rounded-xl text-slate-500 hover:text-slate-900 transition-colors"
+                  title="Dismiss"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
 
-              <div className="p-3 rounded-2xl bg-white/70 border border-white/90 shadow-xs space-y-1">
-                <div className="flex items-center gap-1.5 text-indigo-600 font-bold text-xs">
-                  <Activity className="w-3.5 h-3.5" />
-                  <span>On-Chain</span>
+              <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
+                Institutional-grade digital asset research, real-time market signals, on-chain signal
+                analysis, and portfolio risk intelligence powered by CME Community AI Agents & Pinecone.
+              </p>
+
+              {/* Feature Highlights */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+                <div className="p-3 rounded-2xl bg-white/70 border border-white/90 shadow-xs space-y-1">
+                  <div className="flex items-center gap-1.5 text-blue-600 font-bold text-xs">
+                    <TrendingUp className="w-3.5 h-3.5" />
+                    <span>Market Depth</span>
+                  </div>
+                  <p className="text-[10px] text-slate-500 leading-tight">
+                    Liquidation clusters & order book depth
+                  </p>
                 </div>
-                <p className="text-[10px] text-slate-500 leading-tight">
-                  Whale flow tracking & staking yield audits
-                </p>
+
+                <div className="p-3 rounded-2xl bg-white/70 border border-white/90 shadow-xs space-y-1">
+                  <div className="flex items-center gap-1.5 text-indigo-600 font-bold text-xs">
+                    <Activity className="w-3.5 h-3.5" />
+                    <span>On-Chain</span>
+                  </div>
+                  <p className="text-[10px] text-slate-500 leading-tight">
+                    Whale flow tracking & staking yield audits
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-white/70 border border-white/90 shadow-xs space-y-1">
+                  <div className="flex items-center gap-1.5 text-amber-600 font-bold text-xs">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>Risk Radar</span>
+                  </div>
+                  <p className="text-[10px] text-slate-500 leading-tight">
+                    Protocol vulnerabilities & volatility context
+                  </p>
+                </div>
               </div>
 
-              <div className="p-3 rounded-2xl bg-white/70 border border-white/90 shadow-xs space-y-1">
-                <div className="flex items-center gap-1.5 text-amber-600 font-bold text-xs">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>Risk Radar</span>
-                </div>
-                <p className="text-[10px] text-slate-500 leading-tight">
-                  Protocol vulnerabilities & volatility context
-                </p>
+              <div className="pt-2 flex items-center justify-between gap-3">
+                <span className="text-[11px] text-slate-500 font-medium hidden sm:inline">
+                  Session memory initialized
+                </span>
+                <button
+                  type="button"
+                  onClick={dismissWelcomePopup}
+                  className="w-full sm:w-auto btn-glass-getstarted px-6 py-3 rounded-2xl font-extrabold text-xs text-white shadow-lg flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
+                >
+                  <span>Launch Crypto Terminal</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
-            </div>
-
-            <div className="pt-2 flex items-center justify-between gap-3">
-              <span className="text-[11px] text-slate-500 font-medium hidden sm:inline">
-                Session memory initialized
-              </span>
-              <button
-                type="button"
-                onClick={dismissWelcomePopup}
-                className="w-full sm:w-auto btn-glass-getstarted px-6 py-3 rounded-2xl font-extrabold text-xs text-white shadow-lg flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
-              >
-                <span>Launch Crypto Terminal</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
             </div>
           </div>
         </div>

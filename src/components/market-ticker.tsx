@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Settings } from "lucide-react";
 import { TickerFlyoutChart, tickerAssetMetadata } from "./ticker-flyout-chart";
 import type { AssetSymbol } from "./live-crypto-chart";
 
@@ -33,14 +32,12 @@ const tickerData: TickerItem[] = [
 export interface MarketTickerProps {
   onOpenProChart?: (symbol: AssetSymbol) => void;
   onQuickSwap?: (symbol: AssetSymbol) => void;
-  onOpenSettings?: () => void;
   scrollDuration?: number;
 }
 
 export function MarketTicker({
   onOpenProChart,
   onQuickSwap,
-  onOpenSettings,
   scrollDuration = 70,
 }: MarketTickerProps) {
   const [selectedAsset, setSelectedAsset] = useState<AssetSymbol | null>(null);
@@ -138,20 +135,6 @@ export function MarketTicker({
           {tickerData.map((item, index) => renderTickerItem(item, "t2", index))}
         </div>
       </div>
-
-      {/* Quick Settings Action on Ticker Header (Top & Visible) */}
-      {onOpenSettings && (
-        <button
-          type="button"
-          onClick={onOpenSettings}
-          className="ml-2 sm:ml-3 p-1 sm:px-2.5 sm:py-1 rounded-xl text-slate-700 hover:text-blue-600 bg-white/60 hover:bg-white/95 border border-white/90 shadow-2xs shrink-0 flex items-center gap-1.5 text-[11px] font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer"
-          title="Open Crypto Settings & Preferences"
-          aria-label="Settings"
-        >
-          <Settings className="w-3.5 h-3.5 text-slate-700 hover:rotate-45 transition-transform" />
-          <span className="hidden md:inline">Settings</span>
-        </button>
-      )}
 
       {/* Real-Time Mini-Chart Recharts Flyout Detail Modal / Popover */}
       {selectedAsset && (

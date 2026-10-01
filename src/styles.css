@@ -1849,12 +1849,20 @@ button.rail-layer {
 }
 
 @keyframes chatgptFadeUp {
-  0% { opacity: 0; transform: translateY(14px) scale(0.98); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+    filter: blur(5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0px);
+  }
 }
 
 .welcome-fade-in {
-  animation: chatgptFadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: chatgptFadeUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* Apple Glass Card & Glow */
@@ -2091,6 +2099,223 @@ button.rail-layer {
     transform: scale(1.01);
   }
 }
+
+/* ========================================================
+   COOL TEXT ANIMATIONS
+   ======================================================== */
+@keyframes text-gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-text-gradient {
+  background-size: 250% auto;
+  animation: text-gradient-flow 4.5s ease infinite;
+}
+
+@keyframes text-shine-sweep {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-text-shimmer {
+  background: linear-gradient(
+    90deg,
+    #0f172a 0%,
+    #0f172a 35%,
+    #3b82f6 50%,
+    #0f172a 65%,
+    #0f172a 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: text-shine-sweep 4s ease-in-out infinite;
+}
+
+@keyframes stagger-slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.anim-stagger-1 {
+  animation: stagger-slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.05s;
+}
+.anim-stagger-2 {
+  animation: stagger-slide-up 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.15s;
+}
+.anim-stagger-3 {
+  animation: stagger-slide-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.25s;
+}
+.anim-stagger-4 {
+  animation: stagger-slide-up 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.35s;
+}
+
+/* ========================================================
+   MINIMAL MOVEABLE BORDER LIGHT BEAM (Raycast / Apple style)
+   ======================================================== */
+@keyframes border-beam-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.border-beam-wrapper {
+  position: absolute;
+  inset: -1.5px;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.border-beam-light {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg,
+    transparent 280deg,
+    rgba(59, 130, 246, 0.4) 310deg,
+    rgba(99, 102, 241, 0.75) 335deg,
+    rgba(245, 158, 11, 0.9) 350deg,
+    transparent 360deg
+  );
+  animation: border-beam-spin 5.5s linear infinite;
+}
+
+.border-beam-inner-mask {
+  position: absolute;
+  inset: 1.5px;
+  border-radius: inherit;
+  background: inherit;
+  z-index: 2;
+}
+
+
+/* ========================================================
+   ENHANCED LUMINOUS BORDER GLOW FOR TOP HERO BOX
+   ======================================================== */
+@keyframes hero-border-soft-radiance {
+  0%, 100% {
+    border-color: rgba(96, 165, 250, 0.85);
+    box-shadow: 
+      0 0 30px 2px rgba(59, 130, 246, 0.32),
+      0 0 14px 1px rgba(99, 102, 241, 0.26),
+      0 0 4px 1px rgba(147, 197, 253, 0.75),
+      inset 0 0 22px rgba(59, 130, 246, 0.1),
+      inset 0 1.5px 3px rgba(255, 255, 255, 0.95);
+  }
+  50% {
+    border-color: rgba(129, 140, 248, 0.95);
+    box-shadow: 
+      0 0 42px 4px rgba(59, 130, 246, 0.42),
+      0 0 20px 2px rgba(99, 102, 241, 0.35),
+      0 0 6px 1px rgba(165, 180, 252, 0.9),
+      inset 0 0 28px rgba(99, 102, 241, 0.14),
+      inset 0 1.5px 3px rgba(255, 255, 255, 1);
+  }
+}
+
+.hero-box-soft-glow {
+  animation: hero-border-soft-radiance 4s ease-in-out infinite;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* ========================================================
+   SUBTLE SOFT BLUE GLOWING INPUT BORDER EFFECT
+   ======================================================== */
+@keyframes input-gentle-glow {
+  0%, 100% {
+    border-color: rgba(96, 165, 250, 0.5);
+    box-shadow: 0 0 16px -2px rgba(59, 130, 246, 0.18), 0 0 6px 0px rgba(96, 165, 250, 0.14), inset 0 1px 2px rgba(255, 255, 255, 0.9);
+  }
+  50% {
+    border-color: rgba(59, 130, 246, 0.75);
+    box-shadow: 0 0 24px 1px rgba(59, 130, 246, 0.28), 0 0 9px 1px rgba(96, 165, 250, 0.22), inset 0 1px 2px rgba(255, 255, 255, 0.95);
+  }
+}
+
+.input-border-subtle-glow {
+  animation: input-gentle-glow 4s ease-in-out infinite;
+  transition: all 0.25s ease;
+}
+
+.input-border-subtle-glow:focus-within {
+  border-color: rgba(59, 130, 246, 0.92) !important;
+  box-shadow: 0 0 28px 2px rgba(59, 130, 246, 0.36), 0 0 10px 2px rgba(96, 165, 250, 0.3), inset 0 1px 2px rgba(255, 255, 255, 1) !important;
+}
+
+/* ========================================================
+   SUBTLE ROTATING COLORFUL BORDER LIGHTING
+   ======================================================== */
+@keyframes rotating-conic-glow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.rotating-conic-border-wrapper {
+  position: absolute;
+  inset: -1.5px;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.rotating-conic-light {
+  position: absolute;
+  top: -60%;
+  left: -60%;
+  width: 220%;
+  height: 220%;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    rgba(59, 130, 246, 0.95) 0deg,
+    rgba(139, 92, 246, 0.9) 75deg,
+    rgba(245, 158, 11, 0.95) 150deg,
+    rgba(16, 185, 129, 0.85) 225deg,
+    rgba(6, 182, 212, 0.9) 300deg,
+    rgba(59, 130, 246, 0.95) 360deg
+  );
+  animation: rotating-conic-glow 5s linear infinite;
+  filter: blur(1px);
+}
+
+
 .chat-box-halo {
   animation: chat-box-breathe 4s ease-in-out infinite;
 }
