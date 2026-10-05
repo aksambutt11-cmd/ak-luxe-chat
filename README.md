@@ -3,7 +3,7 @@
 Create a completely new premium AI chatbot UI based on the website/reference URL I provide below.
 
 REFERENCE URL:
-when user send a message send webhook request of user messsage as raw body at this url[https://cme-community.app.n8n.cloud/webhook/AK]
+when user send a message send webhook request of user messsage as raw body at this url[https://unsmooth-tricycle-overtake.ngrok-free.dev/webhook/AKK]
 
 IMPORTANT:
 
