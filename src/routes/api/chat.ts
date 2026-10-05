@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
-const WEBHOOK_URL = "http://localhost:5678/webhook-test/AK";
+const WEBHOOK_URL = "http://localhost:5678/webhook/AKK";
 const messageSchema = z.string().trim().min(1).max(20_000);
 
 function extractReply(payload: unknown): string {
