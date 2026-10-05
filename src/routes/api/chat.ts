@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
-const WEBHOOK_URL = "https://cme-community.app.n8n.cloud/webhook/AK";
+const WEBHOOK_URL = "http://localhost:5678/webhook-test/AK";
 const messageSchema = z.string().trim().min(1).max(20_000);
 
 function extractReply(payload: unknown): string {
